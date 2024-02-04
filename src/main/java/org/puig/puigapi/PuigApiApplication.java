@@ -1,5 +1,6 @@
 package org.puig.puigapi;
 
+import org.puig.puigapi.persistence.entity.admin.Proveedor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
