@@ -3,8 +3,9 @@ package org.puig.puigapi.persistence.entity.admin;
 import lombok.*;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.puig.puigapi.persistence.entity.DatoBanco;
 import org.puig.puigapi.persistence.entity.Direccion;
-import org.puig.puigapi.persistence.entity.IPersona;
+import org.puig.puigapi.persistence.entity.Social;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,26 +15,45 @@ import java.util.Set;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false, exclude = {
+        "nombre",
+        "telefono_movil",
+        "ubicacion",
+        "correo",
+        "tipo"})
 @Document(collection = "admin")
-public class Proveedor extends IPersona {
+public class Proveedor extends Social {
+    @Id private String _id;
+    private @NotNull String nombre;
+    private String telefono_movil;
     private Direccion ubicacion;
     private String correo;
+    private @NotNull Tipo tipo = Tipo.MORAL;
 
-    public Proveedor(String _id,
-                     @NotNull String nombre,
-                     String telefono,
+    public enum Tipo {
+        FISICO,
+        MORAL
+    }
+
+    public Proveedor(String telefono,
                      @NotNull String rfc,
+                     DatoBanco datos_bancarios,
+                     @NotNull String nombre,
+                     String telefono_movil,
                      Direccion ubicacion,
-                     String correo) {
-        super(_id, nombre, telefono, rfc);
+                     String correo,
+                     @NotNull Tipo tipo) {
+        super(telefono, rfc, datos_bancarios);
+        this.nombre = nombre;
+        this.telefono_movil = telefono_movil;
         this.ubicacion = ubicacion;
         this.correo = correo;
+        this.tipo = tipo;
     }
 
     @Data
     @NoArgsConstructor
-    @EqualsAndHashCode(exclude = {"descripcion", "recepcion", "precio", "iva", "monto_total"})
+    @EqualsAndHashCode(exclude = {"descripcion", "recepcion", "monto", "iva", "monto_total"})
     @Document(collection = "admin")
     public static class Factura {
         @Id private @NotNull String _folio;
@@ -62,7 +82,7 @@ public class Proveedor extends IPersona {
 
         @Data
         @NoArgsConstructor
-        @EqualsAndHashCode(exclude = {"cantidad", "precio"})
+        @EqualsAndHashCode(exclude = {"cantidad", "monto"})
         public static class Descripcion {
             @DBRef private @NotNull Producto producto;
             private int cantidad;

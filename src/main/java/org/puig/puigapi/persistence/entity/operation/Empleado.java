@@ -2,7 +2,6 @@ package org.puig.puigapi.persistence.entity.operation;
 
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.persistence.entity.IPersona;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
@@ -11,7 +10,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "operation")
-public class Empleado extends IPersona {
+public class Empleado extends Persona {
     private @NotNull String apellido_paterno;
     private String apellido_materno;
     private @NotNull LocalDate fecha_nacimiento;

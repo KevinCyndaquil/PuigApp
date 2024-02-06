@@ -1,18 +1,17 @@
 package org.puig.puigapi.persistence.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.data.annotation.Id;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
-@Getter
-@Setter
 @EqualsAndHashCode(exclude = {"telefono"})
-public class IPersona {
-    @Id private String _id;
-    private @NotNull String nombre;
+public abstract class Social {
     private String telefono;
     private @NotNull String rfc;
+    private DatoBanco datos_bancarios;
 }
