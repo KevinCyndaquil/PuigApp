@@ -1,4 +1,4 @@
-package org.puig.puigapi.persistence.entity;
+package org.puig.puigapi.persistence.entity.finances;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -9,7 +9,7 @@ import org.springframework.data.annotation.Id;
 @Getter
 @Setter
 @EqualsAndHashCode(exclude = {"precio"})
-public class IMenu {
+public abstract class Articulo {
     @Id private String _codigo;
     private String nombre;
     private float precio;

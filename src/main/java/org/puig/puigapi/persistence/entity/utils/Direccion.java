@@ -1,4 +1,4 @@
-package org.puig.puigapi.persistence.entity;
+package org.puig.puigapi.persistence.entity.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

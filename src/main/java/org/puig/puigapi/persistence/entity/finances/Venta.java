@@ -5,8 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.persistence.entity.Direccion;
-import org.puig.puigapi.persistence.entity.IMenu;
+import org.puig.puigapi.persistence.entity.utils.Direccion;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
 import org.springframework.data.annotation.Id;
@@ -20,33 +19,18 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = {"detalle", "monto_total", "forma_entrega", "fecha_venta", "asignada_a", "realizada_en", "pagos"})
 @Document(collection = "finances")
 public class Venta {
     @Id private String _id;
-    private @NotNull Set<Detalle> productos;
+    private @NotNull Set<Detalle> detalle;
     private float monto_total;
     private @NotNull FormasEntrega forma_entrega;
     private @NotNull LocalDate fecha_venta;
-    @DBRef private @NotNull Empleado tomo_orden;
-    @DBRef private @NotNull Sucursal tomada_en;
+    @DBRef private @NotNull Sucursal realizada_en;
+    @DBRef private @NotNull Empleado asignada_a;
     private @NotNull List<Pago> pagos;
-
-    public Venta(String _id,
-                 @NotNull Set<Detalle> productos,
-                 @NotNull FormasEntrega forma_entrega,
-                 @NotNull Empleado tomo_orden,
-                 @NotNull Sucursal tomada_en,
-                 @NotNull List<Pago> pagos) {
-        this._id = _id;
-        this.productos = productos;
-        this.forma_entrega = forma_entrega;
-        this.tomo_orden = tomo_orden;
-        this.tomada_en = tomada_en;
-        this.pagos = pagos;
-        this.monto_total = pagos.stream()
-                .map(Pago::getPago)
-                .reduce(0f, Float::sum);
-    }
+    private boolean internet = false;
 
     public enum FormasEntrega {
         PARA_LLEVAR,
@@ -54,18 +38,33 @@ public class Venta {
         REPARTO,
     }
 
+    public Venta(@NotNull Set<Detalle> detalle,
+                 @NotNull FormasEntrega forma_entrega,
+                 @NotNull Empleado asignada_a,
+                 @NotNull Sucursal realizada_en,
+                 @NotNull List<Pago> pagos) {
+        this.detalle = detalle;
+        this.forma_entrega = forma_entrega;
+        this.asignada_a = asignada_a;
+        this.realizada_en = realizada_en;
+        this.pagos = pagos;
+        this.monto_total = pagos.stream()
+                .map(Pago::getPago)
+                .reduce(0f, Float::sum);
+    }
+
     @Data
     @NoArgsConstructor
     @EqualsAndHashCode(exclude = {"cantidad", "subtotal"})
     public static class Detalle {
-        @DBRef private @NotNull IMenu producto;
+        @DBRef private @NotNull Articulo articulo;
         private int cantidad;
         private float subtotal;
 
-        public Detalle(@NotNull IMenu producto, int cantidad) {
-            this.producto = producto;
+        public Detalle(@NotNull Articulo articulo, int cantidad) {
+            this.articulo = articulo;
             this.cantidad = cantidad;
-            this.subtotal = producto.getPrecio() * cantidad;
+            this.subtotal = articulo.getPrecio() * cantidad;
         }
     }
 
@@ -75,22 +74,24 @@ public class Venta {
     @Document(collection = "finances")
     public static class Reparto extends Venta {
         private @NotNull Direccion direccion;
-        private String informacion;
         private float costo;
+        private String nombre_cliente;
+        private String telefono_cliente;
 
-        public Reparto(String _id,
-                       @NotNull Set<Detalle> productos,
-                       @NotNull FormasEntrega formaEntrega,
-                       @NotNull Empleado tomo_orden,
-                       @NotNull Sucursal tomada_en,
+        public Reparto(@NotNull Set<Detalle> detalle,
+                       @NotNull FormasEntrega forma_entrega,
+                       @NotNull Empleado asignada_a,
+                       @NotNull Sucursal realizada_en,
                        @NotNull List<Pago> pagos,
                        @NotNull Direccion direccion,
-                       String informacion,
-                       float costo) {
-            super(_id, productos, formaEntrega, tomo_orden, tomada_en, pagos);
+                       float costo,
+                       String nombre_cliente,
+                       String telefono_cliente) {
+            super(detalle, forma_entrega, asignada_a, realizada_en, pagos);
             this.direccion = direccion;
-            this.informacion = informacion;
             this.costo = costo;
+            this.nombre_cliente = nombre_cliente;
+            this.telefono_cliente = telefono_cliente;
         }
     }
 
