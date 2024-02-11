@@ -20,6 +20,11 @@ public abstract class PersistenceService <T, ID> {
         return repository.save(t);
     }
 
+    public List<T> save(@NotNull List<T> ts) {
+        return ts.stream().map(this::save).toList();
+    }
+
+
     public Optional<T> readByID(@NotNull ID id) {
         return  repository.findById(id);
     }
