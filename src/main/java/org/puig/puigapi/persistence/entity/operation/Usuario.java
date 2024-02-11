@@ -18,6 +18,7 @@ public class Usuario extends Persona {
     private Set<Direccion> direcciones;
     private Set<Tarjeta> tarjetas;
     private String correo;
+    private String password;
     private String salt;
 
     public Usuario(@NotNull String nombre,
@@ -28,11 +29,13 @@ public class Usuario extends Persona {
                    Set<Direccion> direcciones,
                    Set<Tarjeta> tarjetas,
                    String correo,
+                   String password,
                    String salt) {
         super(null, nombre, apellido_paterno, apellido_materno, rfc, telefono);
         this.direcciones = direcciones;
         this.tarjetas = tarjetas;
         this.correo = correo;
+        this.password = password;
         this.salt = salt;
     }
 }
