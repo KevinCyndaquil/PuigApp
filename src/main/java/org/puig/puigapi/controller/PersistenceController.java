@@ -14,15 +14,15 @@ import java.util.Optional;
 
 public abstract class PersistenceController<T, ID> {
     protected final PersistenceService <T, ID> service;
-    protected final Logger logger;
+    protected final org.slf4j.Logger logger;
 
     protected PersistenceController(PersistenceService<T, ID> service) {
         this.service = service;
-        this.logger = (Logger) LoggerFactory.getLogger("com.mongodb.internal.diagnostics.logging.Logger");
+        this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
-    @PostMapping(produces = "application/json")
+   // @CrossOrigin(origins = "http://localhost:4200")
+    @PostMapping(produces = "application/json", consumes = "application/json")
     public ResponseEntity<T> save(@RequestBody T t) {
         logger.info("Petición Post a las %s".formatted(LocalDateTime.now()));
 
@@ -55,7 +55,7 @@ public abstract class PersistenceController<T, ID> {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+   //@CrossOrigin(origins = "http://localhost:4200")
     @GetMapping(produces = "application/json")
     public ResponseEntity<List<T>> readAll() {
         logger.info("Get petition at: %s".formatted(LocalDateTime.now()));
@@ -63,7 +63,7 @@ public abstract class PersistenceController<T, ID> {
         return new ResponseEntity<>(service.readAll(), HttpStatus.OK);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+   // @CrossOrigin(origins = "http://localhost:4200")
     @PutMapping(produces = "application/json")
     public Boolean update(@RequestBody T t) {
         logger.info("Put petition at: %s".formatted(LocalDateTime.now()));
@@ -71,7 +71,7 @@ public abstract class PersistenceController<T, ID> {
         return service.update(t);
     }
 
-    @CrossOrigin(origins = "http://localhost:4200")
+    //@CrossOrigin(origins = "http://localhost:4200")
     @DeleteMapping(value = "/{id}", produces = "application/json")
     public ResponseEntity<String> delete(@PathVariable("id") ID id) {
         logger.info("Delete petition at: %s".formatted(LocalDateTime.now()));

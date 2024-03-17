@@ -54,5 +54,7 @@ public abstract class PersistenceService <T, ID> {
     }
 
     public Optional<T> findBy(T t){return repository.findOne(Example.of(t));}
+
+
 }
 

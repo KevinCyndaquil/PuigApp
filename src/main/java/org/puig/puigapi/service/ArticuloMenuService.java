@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ArticuloMenuService extends PersistenceService<ArticuloMenu, Articulo>{
+public class ArticuloMenuService extends PersistenceService<ArticuloMenu, String>{
     @Autowired
     public ArticuloMenuService(ArticuloMenuRepository repository){super(repository);}
 }

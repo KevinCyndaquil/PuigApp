@@ -13,4 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsuarioController extends PersistenceController<Usuario, String> {
     @Autowired
     public UsuarioController(UsuarioService service){super(service );}
+
+
+
+
 }
