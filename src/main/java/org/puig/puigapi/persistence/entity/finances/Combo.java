@@ -18,7 +18,8 @@ public class Combo extends Articulo {
     private @NotNull LocalDate vigencia;
 
     public Combo(String _codigo,
-                 String nombre, float monto,
+                 String nombre,
+                 float monto,
                  Set<ArticuloMenu> contenido,
                  @NotNull LocalDate inicia,
                  @NotNull LocalDate vigencia) {

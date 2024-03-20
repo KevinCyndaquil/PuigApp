@@ -33,7 +33,7 @@ public abstract class PersistenceController<T, ID> {
         return new ResponseEntity<>(entitySaved, HttpStatus.OK);
     }
 
-    @PostMapping(value = "/all", produces = "application/json")
+    @PostMapping(value = "/all", produces = "application/json", consumes = "application/json")
     public ResponseEntity<List<T>> save(@RequestBody List<T> ts) {
         logger.info("Post petition at: %s".formatted(LocalDateTime.now()));
 
