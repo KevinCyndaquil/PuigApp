@@ -1,6 +1,5 @@
 package org.puig.puigapi.controller;
 
-import com.mongodb.internal.diagnostics.logging.Logger;
 import org.puig.puigapi.service.PersistenceService;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -12,9 +11,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+@CrossOrigin(
+        origins = "*",
+        methods= {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
 public abstract class PersistenceController<T, ID> {
     protected final PersistenceService <T, ID> service;
     protected final org.slf4j.Logger logger;
+
+    protected static final String PuigAppHeader = "PuigAPI_reponse";
 
     protected PersistenceController(PersistenceService<T, ID> service) {
         this.service = service;
@@ -26,22 +30,32 @@ public abstract class PersistenceController<T, ID> {
     public ResponseEntity<T> save(@RequestBody T t) {
         logger.info("Petición Post a las %s".formatted(LocalDateTime.now()));
 
-        T entitySaved = service.save(t);
+        T tSaved = service.save(t);
 
-        if (Objects.isNull(entitySaved))
-            return new ResponseEntity<>(t, HttpStatus.NOT_MODIFIED);
-        return new ResponseEntity<>(entitySaved, HttpStatus.OK);
+        if (Objects.isNull(tSaved))
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED)
+                    .header(PuigAppHeader,
+                            "%s was not created".formatted(t.getClass().getSimpleName()))
+                    .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(PuigAppHeader,
+                        "%s was successfuly created".formatted(t.getClass().getSimpleName()))
+                .body(tSaved);
     }
 
-    @PostMapping(value = "/all", produces = "application/json")
+    @PostMapping(value = "/all", produces = "application/json", consumes = "application/json")
     public ResponseEntity<List<T>> save(@RequestBody List<T> ts) {
         logger.info("Post petition at: %s".formatted(LocalDateTime.now()));
 
-        List<T> entitiesSaved = service.save(ts);
+        List<T> tSaved = service.save(ts);
 
-        if (Objects.isNull(entitiesSaved))
-            return new ResponseEntity<>(ts, HttpStatus.NOT_MODIFIED);
-        return new ResponseEntity<>(entitiesSaved, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(PuigAppHeader, tSaved.stream()
+                        .map(t -> t == null ? "was not saved\n" : "%s was saved\n"
+                                .formatted(t.getClass().getSimpleName()))
+                        .reduce("", String::concat))
+                .body(tSaved);
     }
 
     @GetMapping(value = "/{id}", produces = "application/json")
@@ -51,8 +65,12 @@ public abstract class PersistenceController<T, ID> {
         Optional<T> entityRead = service.readByID(id);
 
         return entityRead
-                .map(e -> new ResponseEntity<>(e, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .map(e -> ResponseEntity.status(HttpStatus.OK)
+                        .header(PuigAppHeader, "%s read successfully".formatted(e.getClass().getSimpleName()))
+                        .body(e))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.OK)
+                        .header(PuigAppHeader, "Entity could not be read")
+                        .build());
     }
 
    //@CrossOrigin(origins = "http://localhost:4200")

@@ -38,21 +38,6 @@ public class Venta {
         REPARTO,
     }
 
-    public Venta(@NotNull Set<Detalle> detalle,
-                 @NotNull FormasEntrega forma_entrega,
-                 @NotNull Empleado asignada_a,
-                 @NotNull Sucursal realizada_en,
-                 @NotNull List<Pago> pagos) {
-        this.detalle = detalle;
-        this.forma_entrega = forma_entrega;
-        this.asignada_a = asignada_a;
-        this.realizada_en = realizada_en;
-        this.pagos = pagos;
-        this.monto_total = pagos.stream()
-                .map(Pago::getPago)
-                .reduce(0f, Float::sum);
-    }
-
     @Data
     @NoArgsConstructor
     @EqualsAndHashCode(exclude = {"cantidad", "subtotal"})
@@ -60,12 +45,6 @@ public class Venta {
         @DBRef private @NotNull Articulo articulo;
         private int cantidad;
         private float subtotal;
-
-        public Detalle(@NotNull Articulo articulo, int cantidad) {
-            this.articulo = articulo;
-            this.cantidad = cantidad;
-            this.subtotal = articulo.getPrecio() * cantidad;
-        }
     }
 
     @Data
@@ -77,22 +56,6 @@ public class Venta {
         private float costo;
         private String nombre_cliente;
         private String telefono_cliente;
-
-        public Reparto(@NotNull Set<Detalle> detalle,
-                       @NotNull FormasEntrega forma_entrega,
-                       @NotNull Empleado asignada_a,
-                       @NotNull Sucursal realizada_en,
-                       @NotNull List<Pago> pagos,
-                       @NotNull Direccion direccion,
-                       float costo,
-                       String nombre_cliente,
-                       String telefono_cliente) {
-            super(detalle, forma_entrega, asignada_a, realizada_en, pagos);
-            this.direccion = direccion;
-            this.costo = costo;
-            this.nombre_cliente = nombre_cliente;
-            this.telefono_cliente = telefono_cliente;
-        }
     }
 
     @Data

@@ -87,7 +87,7 @@ public class Proveedor{
     @Document(collection = "admin")
     public static class Producto {
         @Id private String _codigo;
-        @DBRef private Proveedor proveedor;
+        @DBRef(lazy = true) private Proveedor proveedor;
         private @NotNull String nombre;
         private float precio;
         private @NotNull Presentacion presentacion;

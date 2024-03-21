@@ -6,36 +6,17 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.utils.Direccion;
 import org.puig.puigapi.persistence.entity.utils.Tarjeta;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
 
 @Data
 @NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false, exclude = {"direcciones", "tarjetas"})
 @Document(collection = "operation")
 public class Usuario extends Persona {
+    @Id private String _correo;
     private Set<Direccion> direcciones;
     private Set<Tarjeta> tarjetas;
-    private String correo;
-    private String password;
-    private String salt;
-
-    public Usuario(@NotNull String nombre,
-                   @NotNull String apellido_paterno,
-                   String apellido_materno,
-                   @NotNull String rfc,
-                   String telefono,
-                   Set<Direccion> direcciones,
-                   Set<Tarjeta> tarjetas,
-                   String correo,
-                   String password,
-                   String salt) {
-        super(null, nombre, apellido_paterno, apellido_materno, rfc, telefono);
-        this.direcciones = direcciones;
-        this.tarjetas = tarjetas;
-        this.correo = correo;
-        this.password = password;
-        this.salt = salt;
-    }
 }

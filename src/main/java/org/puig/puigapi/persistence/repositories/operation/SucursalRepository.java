@@ -1,4 +1,4 @@
-package org.puig.puigapi.repository;
+package org.puig.puigapi.persistence.repositories.operation;
 
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
 import org.springframework.data.annotation.Id;
