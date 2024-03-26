@@ -1,9 +1,7 @@
 package org.puig.puigapi.persistence.entity.finances;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.utils.Direccion;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
@@ -17,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = {"detalle", "monto_total", "forma_entrega", "fecha_venta", "asignada_a", "realizada_en", "pagos"})
@@ -44,11 +43,19 @@ public class Venta {
     public static class Detalle {
         @DBRef private @NotNull Articulo articulo;
         private int cantidad;
-        private float subtotal;
+        private double subtotal;
+
+        @Builder public Detalle(@NotNull Articulo articulo, int cantidad) {
+            this.articulo = articulo;
+            this.cantidad = cantidad;
+            this.subtotal = articulo.getPrecio() * cantidad;
+        }
     }
 
     @Data
+    @SuperBuilder
     @NoArgsConstructor
+    @AllArgsConstructor
     @EqualsAndHashCode(callSuper = true)
     @Document(collection = "finances")
     public static class Reparto extends Venta {
@@ -59,6 +66,7 @@ public class Venta {
     }
 
     @Data
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode(exclude = {"pago", "modo"})

@@ -1,4 +1,5 @@
 package org.puig.puigapi.service;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.data.domain.Example;
@@ -26,6 +27,10 @@ public abstract class PersistenceService <T, ID> {
         return  repository.findById(id);
     }
 
+    public List<T> read(@NotNull T t) {
+        return repository.findAll(Example.of(t));
+    }
+
     public List<T> readAll(){
         return repository.findAll();
     }
@@ -44,7 +49,5 @@ public abstract class PersistenceService <T, ID> {
     public boolean exists(@NotNull T t) {
         return repository.exists(Example.of(t));
     }
-
-    public Optional<T> findBy(T t) {return repository.findOne(Example.of(t));}
 }
 

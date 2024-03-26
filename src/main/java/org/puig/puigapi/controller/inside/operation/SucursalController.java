@@ -1,4 +1,4 @@
-package org.puig.puigapi.controller.operation;
+package org.puig.puigapi.controller.inside.operation;
 
 import org.puig.puigapi.controller.PersistenceController;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/establishment")
+@RequestMapping("/sucursales")
 public class SucursalController extends PersistenceController<Sucursal, String> {
     @Autowired
-    public SucursalController(SucursalService service){super(service);}
+    public SucursalController(SucursalService service) {
+        super(service);
+    }
 }

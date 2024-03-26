@@ -3,6 +3,7 @@ package org.puig.puigapi.persistence.entity.finances;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 
 @JsonTypeInfo(
@@ -15,10 +16,10 @@ import org.springframework.data.annotation.Id;
         @JsonSubTypes.Type(value = Combo.class, name = "COMBO")
 })
 
-@NoArgsConstructor
-@ToString
-@Getter
-@Setter
+@Data
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(exclude = {"precio", "tipo"})
 public abstract class Articulo {
     @Id private String _codigo;

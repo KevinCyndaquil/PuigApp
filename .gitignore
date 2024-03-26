@@ -31,7 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
-/src/main/java/org/puig/puigapi/controller/finances/ArticuloMenuController.java
+/src/main/java/org/puig/puigapi/controller/inside/finances/ArticuloMenuController.java
 /src/main/java/org/puig/puigapi/persistence/repositories/finances/ComboRepository.java
 /src/main/java/org/puig/puigapi/service/finances/ComboService.java
 /src/main/resources/data.txt
