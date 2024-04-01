@@ -6,11 +6,18 @@ import org.puig.puigapi.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-public class UsuarioService extends AuthService<Usuario, String> {
+public class UsuarioService extends AuthService<Usuario> {
     @Autowired
     public UsuarioService(UsuarioRepository repository) {
-        super(repository);
+        super(repository, Usuario.class);
+    }
+
+    @Override
+    public List<Usuario> readAll() {
+        return repository.findAllByClass(Usuario.class.getCanonicalName());
     }
 }
 

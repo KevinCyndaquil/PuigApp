@@ -25,12 +25,12 @@ import java.util.List;
         "cuenta_nomina"})
 @Document(collection = "operation")
 public class Empleado extends Persona {
-    @Id private @NotNull String _nickname;
-    private @NotNull LocalDate fecha_nacimiento;
-    private @NotNull LocalDate fecha_alta = LocalDate.now();
-    private @NotNull String curp;
-    private @NotNull Puestos puesto;
-    private @NotNull Tarjeta cuenta_nomina;
+    @NotNull @Id private String nickname;
+    @NotNull private LocalDate fecha_nacimiento;
+    @NotNull private LocalDate fecha_alta = LocalDate.now();
+    @NotNull private String curp;
+    @NotNull private Puestos puesto;
+    @NotNull private Tarjeta cuenta_nomina;
 
     @Override
     public Tipo getTipo() {
@@ -46,7 +46,7 @@ public class Empleado extends Persona {
 
     @Override
     public String getUsername() {
-        return _nickname;
+        return nickname;
     }
 
     @Override
@@ -67,6 +67,11 @@ public class Empleado extends Persona {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getId() {
+        return nickname;
     }
 
     public enum Puestos {

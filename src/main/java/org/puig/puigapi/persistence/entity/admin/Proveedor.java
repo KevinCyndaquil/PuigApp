@@ -1,15 +1,17 @@
 package org.puig.puigapi.persistence.entity.admin;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.persistence.entity.utils.Direccion;
-import org.puig.puigapi.persistence.entity.utils.Presentacion;
-import org.puig.puigapi.persistence.entity.utils.Tarjeta;
+import org.puig.puigapi.errors.PrecioInvalidoException;
+import org.puig.puigapi.persistence.entity.utils.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -21,18 +23,21 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"nombre", "telefono_fijo", "telefono_movil", "rfc", "ubicacion", "correo", "razon", "cuentas"})
 @Document(collection = "admin")
-public class Proveedor{
-    @Id private String _id;
-    private @NotNull String nombre;
+public class Proveedor implements Irrepetibe<String> {
+    @Id private String id;
+    @NotNull private String nombre;
     private String telefono_fijo;
     private String telefono_movil;
-    private @NotNull String rfc;
+    @NotNull private String rfc;
     private String correo;
     private Direccion ubicacion;
-    private @NotNull Proveedor.RazonesSociales razon = RazonesSociales.MORAL;
-    private @NotNull Set<Tarjeta> cuentas;
+    @NotNull private RazonesSociales razon = RazonesSociales.MORAL;
+    @NotNull private Set<Tarjeta> cuentas = new HashSet<>();
+
+    @DBRef
+    @JsonIgnore
+    private Set<Producto> productos;
 
     public enum RazonesSociales {
         FISICO,
@@ -47,61 +52,65 @@ public class Proveedor{
     @NoArgsConstructor
     @EqualsAndHashCode(exclude = {"detalle", "recepcion", "monto", "iva", "monto_total"})
     @Document(collection = "admin")
-    public static class Factura {
-        @Id private @NotNull String _folio;
-        private @NotNull Proveedor proveedor;
-        @DBRef private @NotNull Set<Detalle> detalle;
-        private @NotNull LocalDate recepcion;
-        private float monto;
-        private float iva;
-        private float monto_total;
+    public static class Factura implements Irrepetibe<String> {
+        @NotNull @Id private String folio;
+        @NotNull private Proveedor proveedor;
+        @NotNull private Set<Detalle<Producto>> detalle = new HashSet<>();
+        @NotNull private LocalDate recepcion;
+        private double monto;
+        private double iva;
+        private double monto_total;
 
-        @Builder public Factura(@NotNull String _folio,
+        @Builder
+        @JsonCreator
+        public Factura(@NotNull String folio,
                        @NotNull Proveedor proveedor,
-                       @NotNull Set<Detalle> detalle,
+                       @NotNull Set<Detalle<Producto>> detalle,
                        @NotNull LocalDate recepcion,
-                       float iva) {
-            this._folio = _folio;
+                       double iva) {
+            this.folio = folio;
             this.proveedor = proveedor;
             this.recepcion = recepcion;
+            this.detalle = detalle;
             this.monto = detalle.stream()
                     .map(Detalle::getMonto)
-                    .reduce(0f, Float::sum);
+                    .reduce(0d, Double::sum);
             this.iva = iva;
             this.monto_total = monto + iva;
         }
 
-
-        @Data
-        @NoArgsConstructor
-        @EqualsAndHashCode(exclude = {"cantidad", "monto"})
-        public static class Detalle {
-            @DBRef private @NotNull Producto producto;
-            private int cantidad;
-            private float monto;
-
-            @Builder public Detalle(@NotNull Producto producto, int cantidad) {
-                this.producto = producto;
-                this.cantidad = cantidad;
-                this.monto = producto.getPrecio() * cantidad;
-            }
+        @Override
+        public String getId() {
+            return folio;
         }
     }
 
-    /**
-     * Es un producto que un proveedor proporciona.
-     */
     @Data
-    @Builder
     @NoArgsConstructor
-    @AllArgsConstructor
     @EqualsAndHashCode(exclude = {"proveedor", "nombre", "precio", "presentacion"})
     @Document(collection = "admin")
-    public static class Producto {
-        @Id private String _codigo;
-        @DBRef(lazy = true) private Proveedor proveedor;
+    public static class Producto
+            implements Irrepetibe<String>, ObjetoConPrecio {
+
+        @Id private String id;
+        @DBRef private Proveedor proveedor;
         private @NotNull String nombre;
-        private float precio;
+        private double precio;
         private @NotNull Presentacion presentacion;
+
+        @Builder
+        @JsonCreator
+        public Producto(String id,
+                        Proveedor proveedor,
+                        @NotNull String nombre,
+                        double precio,
+                        @NotNull Presentacion presentacion) {
+            this.id = id;
+            this.proveedor = proveedor;
+            this.nombre = nombre;
+            if (precio <= 0d) throw new PrecioInvalidoException(getClass());
+            this.precio = precio;
+            this.presentacion = presentacion;
+        }
     }
 }

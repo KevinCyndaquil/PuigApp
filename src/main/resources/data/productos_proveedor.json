@@ -1,0 +1,41 @@
+[
+  {
+    "proveedor": {
+      "id": "6609f9c961a4fd15c5264cd6",
+      "nombre": "",
+      "rfc": ""
+    },
+    "nombre":"Coca Cola",
+    "precio":21.0,
+    "presentacion":{
+      "peso":600.0,
+      "envase":"PIEZA"
+    }
+  },
+  {
+    "proveedor": {
+      "id":"6609f9c961a4fd15c5264cd6",
+      "nombre":"",
+      "rfc":""
+    },
+    "nombre": "Dildo multiusos",
+    "precio": 0,
+    "presentacion": {
+      "peso": 1000.0,
+      "envase": "PIEZA"
+    }
+  },
+  {
+    "proveedor": {
+      "id":"6609f9c961a4fd15c5264cd6",
+      "nombre":"",
+      "rfc":""
+    },
+    "nombre": "Dilatador multiproposito",
+    "precio": 539.50,
+    "presentacion": {
+      "peso": 1000.0,
+      "envase": "PIEZA"
+    }
+  }
+]

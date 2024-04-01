@@ -16,7 +16,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "finances")
 public class Combo extends Articulo {
-    @DBRef private Set<ArticuloMenu> contenido;
-    private @NotNull LocalDate inicia;
-    private @NotNull LocalDate vigencia;
+    @NotNull @DBRef private Set<ArticuloMenu> contenido;
+    @NotNull private LocalDate inicia;
+    @NotNull private LocalDate vigencia;
 }

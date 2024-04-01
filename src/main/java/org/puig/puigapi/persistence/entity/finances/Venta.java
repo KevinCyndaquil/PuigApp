@@ -1,16 +1,23 @@
 package org.puig.puigapi.persistence.entity.finances;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.fasterxml.jackson.annotation.JsonSetter;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
+import org.puig.puigapi.persistence.entity.utils.Detalle;
 import org.puig.puigapi.persistence.entity.utils.Direccion;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
+import org.puig.puigapi.persistence.entity.utils.Irrepetibe;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,17 +25,25 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(exclude = {"detalle", "monto_total", "forma_entrega", "fecha_venta", "asignada_a", "realizada_en", "pagos"})
+@EqualsAndHashCode(exclude = {
+        "detalle",
+        "monto_total",
+        "forma_entrega",
+        "fecha_venta",
+        "asignada_a",
+        "realizada_en",
+        "pagos",
+        "internet"})
 @Document(collection = "finances")
-public class Venta {
-    @Id private String _id;
-    private @NotNull Set<Detalle> detalle;
-    private float monto_total;
-    private @NotNull FormasEntrega forma_entrega;
-    private @NotNull LocalDate fecha_venta;
-    @DBRef private @NotNull Sucursal realizada_en;
-    @DBRef private @NotNull Empleado asignada_a;
-    private @NotNull List<Pago> pagos;
+public class Venta implements Irrepetibe<String> {
+    @Id @JsonProperty(access = Access.READ_ONLY) private String id;
+    @NotNull private Set<Detalle<Articulo>> detalle = new HashSet<>();
+    @JsonProperty(access = Access.READ_ONLY) private double monto_total;
+    @NotNull private FormasEntrega forma_entrega;
+    @NotNull private LocalDate fecha_venta;
+    @NotNull @DBRef private Sucursal realizada_en;
+    @NotNull @DBRef private Empleado asignada_a;
+    @NotNull private List<Pago> pagos = new ArrayList<>();
     private boolean internet = false;
 
     public enum FormasEntrega {
@@ -37,19 +52,11 @@ public class Venta {
         REPARTO,
     }
 
-    @Data
-    @NoArgsConstructor
-    @EqualsAndHashCode(exclude = {"cantidad", "subtotal"})
-    public static class Detalle {
-        @DBRef private @NotNull Articulo articulo;
-        private int cantidad;
-        private double subtotal;
-
-        @Builder public Detalle(@NotNull Articulo articulo, int cantidad) {
-            this.articulo = articulo;
-            this.cantidad = cantidad;
-            this.subtotal = articulo.getPrecio() * cantidad;
-        }
+    @JsonSetter
+    private void setMonto_total() {
+        this.monto_total = detalle.stream()
+                .map(Detalle::getMonto)
+                .reduce(0d, Double::sum);
     }
 
     @Data
@@ -59,10 +66,10 @@ public class Venta {
     @EqualsAndHashCode(callSuper = true)
     @Document(collection = "finances")
     public static class Reparto extends Venta {
-        private @NotNull Direccion direccion;
-        private float costo;
-        private String nombre_cliente;
-        private String telefono_cliente;
+        @NotNull private Direccion direccion;
+        private double costo_reparto;
+        @NotNull private String nombre_cliente;
+        @NotNull private String telefono_cliente;
     }
 
     @Data
@@ -72,7 +79,7 @@ public class Venta {
     @EqualsAndHashCode(exclude = {"pago", "modo"})
     public static class Pago {
         private float pago;
-        private @NotNull Modo modo;
+        @NotNull private Modo modo;
 
         public enum Modo {
             EFECTIVO,

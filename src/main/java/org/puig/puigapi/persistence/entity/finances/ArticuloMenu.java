@@ -19,8 +19,8 @@ import java.util.Hashtable;
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "finances")
 public class ArticuloMenu extends Articulo {
-    private @NotNull ArticuloMenu.Categorias categoria;
-    private Hashtable<ProductoTienda, Float> receta = new Hashtable<>();
+    @NotNull private Categorias categoria;
+    @NotNull private Hashtable<ProductoTienda, Double> receta = new Hashtable<>();
 
     /**
      * Es el tipo o categoria en la que se puede clasificar un artículo del menú.

@@ -26,17 +26,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class Persona implements UserDetails {
-    private @JsonIgnore String username;
+public abstract class Persona implements Irrepetibe<String>, UserDetails {
+    @JsonIgnore private String username;
 
-    private @NotNull String nombre;
-    private @NotNull String apellido_paterno;
+    @NotNull private String nombre;
+    @NotNull private String apellido_paterno;
     private String apellido_materno;
-    private @NotNull String rfc;
+    @NotNull private String rfc;
     private String telefono;
-    private @JsonProperty(access = Access.WRITE_ONLY) @NotNull String password;
-    private @JsonProperty(access = Access.WRITE_ONLY) String salt;
-    private @JsonProperty(access = Access.WRITE_ONLY) @NotNull Tipo tipo;
+    @NotNull @JsonProperty(access = Access.WRITE_ONLY) private String password;
+    @JsonProperty(access = Access.WRITE_ONLY) private String salt;
+    @NotNull @JsonProperty(access = Access.WRITE_ONLY) private Tipo tipo;
 
     public abstract Tipo getTipo();
 

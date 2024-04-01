@@ -1,12 +1,13 @@
 package org.puig.puigapi.persistence.repositories.operation;
 
 import org.puig.puigapi.persistence.entity.operation.Usuario;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.puig.puigapi.persistence.repositories.PuigRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UsuarioRepository extends MongoRepository<Usuario, String> {
-    Optional<Usuario> findBy_correo(String _correo);
+public interface UsuarioRepository
+        extends PuigRepository<Usuario, String> {
+    Optional<Usuario> findByCorreo(String _correo);
 }

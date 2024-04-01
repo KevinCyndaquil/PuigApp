@@ -2,6 +2,7 @@ package org.puig.puigapi.persistence.entity.operation;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.utils.Direccion;
 import org.puig.puigapi.persistence.entity.utils.Persona;
 import org.puig.puigapi.persistence.entity.utils.Tarjeta;
@@ -21,10 +22,10 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = false, exclude = {"direcciones", "tarjetas", "rol"})
 @Document(collection = "operation")
 public class Usuario extends Persona {
-    @Id private String _correo;
+    @NotNull @Id private String correo;
     private Set<Direccion> direcciones;
     private Set<Tarjeta> tarjetas;
-    private Rol rol = Rol.CLIENTE;
+    @NotNull private Rol rol = Rol.CLIENTE;
 
     @Override
     public Tipo getTipo() {
@@ -40,7 +41,7 @@ public class Usuario extends Persona {
 
     @Override
     public String getUsername() {
-        return _correo;
+        return correo;
     }
 
     @Override
@@ -61,6 +62,11 @@ public class Usuario extends Persona {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String getId() {
+        return correo;
     }
 
     public enum Rol {

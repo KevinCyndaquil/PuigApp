@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import org.puig.puigapi.configuration.jwt.JwtService;
 import org.puig.puigapi.persistence.entity.utils.Credentials;
 import org.puig.puigapi.persistence.entity.utils.Persona;
+import org.puig.puigapi.persistence.repositories.PuigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -19,14 +19,13 @@ import java.util.Optional;
  * Servicío genérico para implementar a un servicio que requiera encriptación de claves,
  * registro y loggeo de usuarios.
  * @param <U> el Usuario que debe extender UserDetails.
- * @param <ID> su id.
  */
-public abstract class AuthService <U extends Persona, ID>
-        extends PersistenceService<U, ID>{
+public abstract class AuthService <U extends Persona>
+        extends PersistenceService<U, String>{
     protected JwtService jwtService;
 
-    public AuthService(MongoRepository<U, ID> repository) {
-        super(repository);
+    public AuthService(PuigRepository<U, String> repository, Class<U> clazz) {
+        super(repository, clazz);
     }
 
     @Autowired public void setJwtService(JwtService jwtService) {
@@ -116,7 +115,7 @@ public abstract class AuthService <U extends Persona, ID>
         return jwtService.generateToken(saved);
     }
 
-    public Optional<String> login(@NotNull Credentials<ID> credential) {
+    public Optional<String> login(@NotNull Credentials<String> credential) {
         Optional<U> usuario = repository.findById(credential.identifier());
 
         return usuario.map(u -> {

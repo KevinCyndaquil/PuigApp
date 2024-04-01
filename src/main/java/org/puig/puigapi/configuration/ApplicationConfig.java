@@ -1,7 +1,8 @@
-package org.puig.puigapi.configuration.security;
+package org.puig.puigapi.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.puig.puigapi.persistence.entity.utils.Persona;
 import org.puig.puigapi.persistence.repositories.operation.EmpleadoRepository;
 import org.puig.puigapi.persistence.repositories.operation.UsuarioRepository;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +36,12 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return id -> {
+        return id -> usuarioRepository.findByCorreo(id)
+                .map(Persona.class::cast)
+                .orElse(empleadoRepository.findByNickname(id)
+                        .map(Persona.class::cast)
+                        .orElseThrow(() -> new UsernameNotFoundException("User or employee didn't find")));
+        /*return id -> {
             var usr = usuarioRepository.findBy_correo(id);
             if(usr.isPresent()) return usr.get();
 
@@ -43,6 +49,6 @@ public class ApplicationConfig {
             if(emp.isPresent()) return emp.get();
 
             throw new UsernameNotFoundException("User/Employee not found");
-        };
+        };*/
     }
 }

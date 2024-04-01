@@ -1,4 +1,4 @@
-package org.puig.puigapi.configuration.security;
+package org.puig.puigapi.configuration;
 
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;

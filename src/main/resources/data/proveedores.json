@@ -1,0 +1,48 @@
+[
+  {
+    "nombre": "El de la coca",
+    "telefono_fijo": "1234567890",
+    "telefono_movil": "9876543210",
+    "rfc": "RFC123456789",
+    "correo": "coca_cola@femsa.com.mx",
+    "ubicacion": {
+      "calle_principal": "Calle 1",
+      "numero_interior": "A1",
+      "descripcion_vivienda": "Casa"
+    },
+    "razon": "MORAL",
+    "cuentas": [
+      {
+        "banco": "BBVA",
+        "numero": "1234567890"
+      },
+      {
+        "banco": "Santander",
+        "numero": "9876543210"
+      }
+    ]
+  },
+  {
+    "nombre": "SexShop Don Wuicho",
+    "telefono_fijo": "0987654321",
+    "telefono_movil": "1234567890",
+    "rfc": "RFC987654321",
+    "correo": "wuichoSex1902b@gmail.com",
+    "ubicacion": {
+      "calle_principal": "Calle 2",
+      "numero_interior": "B1",
+      "descripcion_vivienda": "Departamento"
+    },
+    "razon": "FISICO",
+    "cuentas": [
+      {
+        "banco": "BBVA",
+        "numero": "1357924680"
+      },
+      {
+        "banco": "NU Mexico",
+        "numero": "2468013579"
+      }
+    ]
+  }
+]
