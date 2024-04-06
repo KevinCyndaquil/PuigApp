@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.utils.Irrepetibe;
+import org.puig.puigapi.persistence.entity.utils.PostEntity;
 import org.puig.puigapi.persistence.entity.utils.Presentacion;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -15,7 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @NoArgsConstructor
 @Document(collection = "admin")
-public class ProductoTienda implements Irrepetibe<String> {
+public class ProductoTienda implements Irrepetibe<String>, PostEntity<ProductoTienda> {
     @Id private String codigo;
     @NotNull private String nombre;
     @NotNull private Presentacion presentacion;
@@ -50,5 +51,10 @@ public class ProductoTienda implements Irrepetibe<String> {
     @Override
     public String getId() {
         return codigo;
+    }
+
+    @Override
+    public ProductoTienda instance() {
+        return this;
     }
 }

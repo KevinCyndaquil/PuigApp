@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/productos")
-public class ProductoController extends PersistenceController<ProductoTienda, String> {
-    public ProductoController(ProductoTiendaService service) {
+@RequestMapping("/productos_tienda")
+public class ProductoTiendaController extends PersistenceController<ProductoTienda, String, ProductoTienda> {
+    public ProductoTiendaController(ProductoTiendaService service) {
         super(service);
     }
 }

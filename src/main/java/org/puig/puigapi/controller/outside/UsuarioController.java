@@ -16,8 +16,8 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(value = "usuario")
-public class UsuarioController extends PersistenceController<Usuario, String>
-        implements AuthController<Usuario, String> {
+public class UsuarioController extends PersistenceController<Usuario, String, Usuario.Post>
+        implements AuthController<Usuario.Post, String> {
     private final UsuarioService service;
 
     @Autowired
@@ -27,10 +27,10 @@ public class UsuarioController extends PersistenceController<Usuario, String>
     }
 
     @Override
-    public @NotNull ResponseEntity<String> register(@RequestBody Usuario usuario) {
+    public @NotNull ResponseEntity<String> register(@RequestBody @NotNull Usuario.Post usuarioPost) {
         logger.info("Petición register a las %s".formatted(LocalDateTime.now()));
 
-        String token = service.register(usuario);
+        String token = service.register(usuarioPost.instance());
 
         if (token == null) return ResponseEntity.status(403)
                 .header(PuigAppHeader, "User was not register")
@@ -41,7 +41,7 @@ public class UsuarioController extends PersistenceController<Usuario, String>
                 .body(token);
     }
 
-    public @NotNull ResponseEntity<String> login(@RequestBody Credentials<String> credential) {
+    public @NotNull ResponseEntity<String> login(@RequestBody @NotNull Credentials<String> credential) {
         logger.info("Petición login a las %s".formatted(LocalDateTime.now()));
 
         Optional<String> token = service.login(credential);
@@ -52,6 +52,5 @@ public class UsuarioController extends PersistenceController<Usuario, String>
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .header(PuigAppHeader, "User was not found")
                         .build());
-
     }
 }

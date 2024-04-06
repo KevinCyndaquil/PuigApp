@@ -7,6 +7,7 @@ import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.utils.Irrepetibe;
 import org.puig.puigapi.persistence.entity.utils.ObjetoConPrecio;
+import org.puig.puigapi.persistence.entity.utils.PostEntity;
 import org.springframework.data.annotation.Id;
 
 @JsonTypeInfo(

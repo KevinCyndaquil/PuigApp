@@ -40,15 +40,7 @@ public class ApplicationConfig {
                 .map(Persona.class::cast)
                 .orElse(empleadoRepository.findByNickname(id)
                         .map(Persona.class::cast)
-                        .orElseThrow(() -> new UsernameNotFoundException("User or employee didn't find")));
-        /*return id -> {
-            var usr = usuarioRepository.findBy_correo(id);
-            if(usr.isPresent()) return usr.get();
-
-            var emp = empleadoRepository.findBy_nickname(id);
-            if(emp.isPresent()) return emp.get();
-
-            throw new UsernameNotFoundException("User/Employee not found");
-        };*/
+                        .orElseThrow(() ->
+                                new UsernameNotFoundException("User or employee didn't find")));
     }
 }

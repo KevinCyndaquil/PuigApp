@@ -1,7 +1,16 @@
 [
   {
-    "_id":"00002",
     "nombre":"Pollo Puig San Cristobal",
+    "ubicacion": {
+      "calle_principal":"4ta Poniente sur",
+      "numero_interior":"357",
+      "descripcion_vivienda":"Local anaranjado"
+    },
+    "hora_abre":"09:00:00",
+    "hora_cierra":"16:00:00"
+  },
+  {
+    "nombre":"Pollo Puig San Cristobal 2",
     "ubicacion": {
       "calle_principal":"4ta Poniente sur",
       "numero_interior":"357",

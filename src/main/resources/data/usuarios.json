@@ -1,3 +1,10 @@
 {
-
+  "nombre": "Kevin Alejandro",
+  "apellido_paterno": "Francisco",
+  "apellido_materno": "Gonzalez",
+  "rfc": "FAGK030518TU1",
+  "telefono": "962-185-96-98",
+  "password": "qw6xdg7sB!",
+  "correo": "aleplantsvsz@gmail.com",
+  "rol": "ADMINISTRADOR_WEB"
 }

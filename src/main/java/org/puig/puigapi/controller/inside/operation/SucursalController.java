@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/sucursales")
-public class SucursalController extends PersistenceController<Sucursal, String> {
+public class SucursalController extends PersistenceController<Sucursal, String, Sucursal.Post> {
     @Autowired
     public SucursalController(SucursalService service) {
         super(service);

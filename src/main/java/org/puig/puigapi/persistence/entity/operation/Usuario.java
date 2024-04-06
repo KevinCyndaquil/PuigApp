@@ -5,6 +5,7 @@ import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.utils.Direccion;
 import org.puig.puigapi.persistence.entity.utils.Persona;
+import org.puig.puigapi.persistence.entity.utils.PostEntity;
 import org.puig.puigapi.persistence.entity.utils.Tarjeta;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,18 +19,41 @@ import java.util.Set;
 @Data
 @SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 @EqualsAndHashCode(callSuper = false, exclude = {"direcciones", "tarjetas", "rol"})
 @Document(collection = "operation")
 public class Usuario extends Persona {
     @NotNull @Id private String correo;
     private Set<Direccion> direcciones;
     private Set<Tarjeta> tarjetas;
-    @NotNull private Rol rol = Rol.CLIENTE;
+    @NotNull private Rol rol;
 
     @Override
     public Tipo getTipo() {
         return Tipo.USUARIO;
+    }
+
+    public record Post(@NotNull String nombre,
+                       @NotNull String apellido_paterno,
+                       String apellido_materno,
+                       @NotNull String rfc,
+                       @NotNull String telefono,
+                       @NotNull String password,
+                       @NotNull String correo,
+                       @NotNull Rol rol) implements PostEntity<Usuario> {
+
+        @Override
+        public Usuario instance() {
+            return Usuario.builder()
+                    .nombre(nombre)
+                    .apellido_paterno(apellido_paterno)
+                    .apellido_materno(apellido_materno)
+                    .rfc(rfc)
+                    .telefono(telefono)
+                    .password(password)
+                    .correo(correo)
+                    .rol(rol)
+                    .build();
+        }
     }
 
     @Override

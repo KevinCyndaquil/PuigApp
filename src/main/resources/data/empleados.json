@@ -1,0 +1,18 @@
+[
+  {
+    "nombre": "Joseno",
+    "apellido_paterno": "Velazquez",
+    "apellido_materno": "Marquez",
+    "rfc": "VEMJ040403HU2",
+    "telefono": "962-125-96-98",
+    "password": "01",
+    "nickname": "01",
+    "fecha_nacimiento": "2003-04-04",
+    "curp": "VEMJ040404HCSLMS91",
+    "puesto": "CAJERO",
+    "cuenta_nomina": {
+      "banco": "bbva",
+      "numero": "0000-0000-0000-0000"
+    }
+  }
+]

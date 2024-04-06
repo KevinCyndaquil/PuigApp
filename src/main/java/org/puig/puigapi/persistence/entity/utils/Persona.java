@@ -12,20 +12,10 @@ import org.puig.puigapi.persistence.entity.operation.Empleado;
 import org.puig.puigapi.persistence.entity.operation.Usuario;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@JsonTypeInfo(
-        use = JsonTypeInfo.Id.NAME,
-        property = "tipo"
-)
-
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = Usuario.class, name = "USUARIO"),
-        @JsonSubTypes.Type(value = Empleado.class, name = "EMPLEADO")
-})
-
 @Data
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public abstract class Persona implements Irrepetibe<String>, UserDetails {
     @JsonIgnore private String username;
 
@@ -36,7 +26,6 @@ public abstract class Persona implements Irrepetibe<String>, UserDetails {
     private String telefono;
     @NotNull @JsonProperty(access = Access.WRITE_ONLY) private String password;
     @JsonProperty(access = Access.WRITE_ONLY) private String salt;
-    @NotNull @JsonProperty(access = Access.WRITE_ONLY) private Tipo tipo;
 
     public abstract Tipo getTipo();
 

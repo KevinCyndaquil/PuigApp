@@ -1,4 +1,4 @@
-package org.puig.puigapi.errors;
+package org.puig.puigapi.controller.responses;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

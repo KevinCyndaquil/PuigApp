@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/proveedores")
-public class ProvedorController extends PersistenceController<Proveedor, String> {
+public class ProvedorController extends PersistenceController<Proveedor, String, Proveedor.Post> {
     @Autowired
     public ProvedorController(ProveedorService service) {
         super(service);

@@ -6,5 +6,5 @@ package org.puig.puigapi.persistence.entity.utils;
  * @param password su contraseña.
  */
 public record Credentials <ID> (ID identifier,
-                          String password) {
+                                String password) {
 }
