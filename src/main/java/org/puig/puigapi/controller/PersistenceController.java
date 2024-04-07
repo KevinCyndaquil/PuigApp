@@ -1,5 +1,6 @@
 package org.puig.puigapi.controller;
 
+import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.responses.ObjectResponse;
 import org.puig.puigapi.controller.responses.Response;
@@ -11,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -25,7 +28,12 @@ import java.util.List;
 
 @CrossOrigin(
         origins = "*",
-        methods= {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
+        methods= {
+                RequestMethod.GET,
+                RequestMethod.POST,
+                RequestMethod.DELETE,
+                RequestMethod.PUT})
+@Validated
 public abstract class PersistenceController
         <T extends Irrepetibe<ID>, ID, P extends PostEntity<T>> {
     protected final PersistenceService <T, ID> service;
@@ -39,7 +47,7 @@ public abstract class PersistenceController
     }
 
     @PostMapping(produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Response> save(@NotNull @RequestBody P p) {
+    public ResponseEntity<Response> save(@NotNull @Valid @RequestBody P p) {
         logger.info("Petición Post a las %s".formatted(LocalDateTime.now()));
 
         T t = p.instance();
@@ -61,8 +69,8 @@ public abstract class PersistenceController
                 .transform();
     }
 
-    @PostMapping(value = "/all", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Response> save(@NotNull @RequestBody List<P> ps) {
+    @PostMapping(value = "all", produces = "application/json", consumes = "application/json")
+    public ResponseEntity<Response> save(@NotNull @Valid @RequestBody List<P> ps) {
         logger.info("Post petition at: %s".formatted(LocalDateTime.now()));
 
         List<T> ts = ps.stream()
@@ -79,7 +87,8 @@ public abstract class PersistenceController
     }
 
     @PostMapping(value = "only_id", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Response> readByID(@NotNull @RequestBody SimpleInstance<ID> simpleInstance) {
+    public ResponseEntity<Response> readByID(
+            @NotNull @Valid @RequestBody SimpleInstance<ID> simpleInstance) {
         logger.info("Get petition at:  %s".formatted(LocalDateTime.now()));
 
         T read = service.readByID(simpleInstance.id());
@@ -93,7 +102,7 @@ public abstract class PersistenceController
     }
 
     @PostMapping(value = "read", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Response> read(@RequestBody T t) {
+    public ResponseEntity<Response> read(@NotNull @Valid @RequestBody T t) {
         logger.info("Get petition at:  %s".formatted(LocalDateTime.now()));
 
         List<T> entities = service.read(t);
@@ -113,6 +122,7 @@ public abstract class PersistenceController
                 .transform();
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR_WEB')")
     @GetMapping(produces = "application/json")
     public ResponseEntity<Response> readAll() {
         logger.info("Get petition at: %s".formatted(LocalDateTime.now()));
@@ -128,7 +138,7 @@ public abstract class PersistenceController
     }
 
     @PutMapping(produces = "application/json")
-    public ResponseEntity<Response> update(@RequestBody T t) {
+    public ResponseEntity<Response> update(@NotNull @Valid @RequestBody T t) {
         logger.info("Put petition at: %s".formatted(LocalDateTime.now()));
 
         boolean result = service.update(t);
@@ -150,7 +160,7 @@ public abstract class PersistenceController
     }
 
     @DeleteMapping(consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Response> delete(@NotNull @RequestBody SimpleInstance<ID> simpleInstance) {
+    public ResponseEntity<Response> delete(@NotNull @Valid @RequestBody SimpleInstance<ID> simpleInstance) {
         logger.info("Delete petition at: %s".formatted(LocalDateTime.now()));
 
         boolean result = service.delete(simpleInstance.id());

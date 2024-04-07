@@ -7,6 +7,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -34,6 +35,22 @@ public class PuigExceptionController {
                 .error("argumento_invalido_error")
                 .message(e.getMessage())
                 .hint("Intenta leer la documentación de la api")
+                .build()
+                .transform();
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Response> handleBind(@NotNull MethodArgumentNotValidException e) {
+        String message = e.getFieldError() == null ?
+                "not defined" :
+                e.getFieldError().getDefaultMessage();
+
+        return ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .error("error_de_atributo")
+                .message(message)
+                .hint("Utiliza el formato correcto para el campo (%s)"
+                        .formatted(e.getFieldError().getCode()))
                 .build()
                 .transform();
     }

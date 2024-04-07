@@ -14,8 +14,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Data
 @SuperBuilder
@@ -40,6 +40,8 @@ public class Empleado extends Persona {
         return Tipo.EMPLEADO;
     }
 
+
+
     public record Post(
             @NotNull String nombre,
             @NotNull String apellido_paterno,
@@ -55,6 +57,7 @@ public class Empleado extends Persona {
             @NotNull Tarjeta cuenta_nomina
     )
             implements PostEntity<Empleado> {
+
         @Override
         public Empleado instance() {
             return Empleado.builder()
@@ -76,7 +79,7 @@ public class Empleado extends Persona {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(
+        return Set.of(
                 new SimpleGrantedAuthority(getTipo().name()),
                 new SimpleGrantedAuthority(puesto.name()));
     }

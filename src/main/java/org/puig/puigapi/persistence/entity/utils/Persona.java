@@ -3,13 +3,9 @@ package org.puig.puigapi.persistence.entity.utils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.persistence.entity.operation.Empleado;
-import org.puig.puigapi.persistence.entity.operation.Usuario;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Data

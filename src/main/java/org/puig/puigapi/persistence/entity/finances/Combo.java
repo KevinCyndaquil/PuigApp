@@ -25,4 +25,9 @@ public class Combo extends Articulo implements PostEntity<Combo> {
     public Combo instance() {
         return this;
     }
+
+    @Override
+    public Tipo getTipo() {
+        return Tipo.COMBO;
+    }
 }

@@ -1,10 +1,12 @@
 package org.puig.puigapi.persistence.entity.admin;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.errors.EmptyCollectionException;
-import org.puig.puigapi.errors.PrecioInvalidoException;
 import org.puig.puigapi.persistence.entity.utils.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -12,6 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -26,28 +29,53 @@ import java.util.Set;
 @Document(collection = "admin")
 public class Proveedor implements Irrepetibe<String> {
     @Id private String id;
-    @NotNull private String nombre;
+    private String nombre;
     private String telefono_fijo;
     private String telefono_movil;
-    @NotNull private String rfc;
+    private String rfc;
     private String correo;
     private Direccion ubicacion;
-    @NotNull private RazonesSociales razon = RazonesSociales.MORAL;
-    @NotNull private Set<Tarjeta> cuentas = new HashSet<>();
+    private RazonesSociales razon = RazonesSociales.MORAL;
+    private Set<Tarjeta> cuentas = new HashSet<>();
 
     public enum RazonesSociales {
         FISICO,
         MORAL
     }
 
-    public record Post(@NotNull String nombre,
-                       String telefono_fijo,
-                       String telefono_movil,
-                       @NotNull String rfc,
-                       String correo,
-                       Direccion ubicacion,
-                       RazonesSociales razon)
-            implements PostEntity<Proveedor> {
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Proveedor proveedor)) return false;
+        if (id == null)
+            return nombre.equals(proveedor.nombre);
+        return id.equals(proveedor.id) || nombre.equals(proveedor.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return id == null ? nombre.hashCode() : id.hashCode();
+    }
+
+    public record Post(
+            @NotBlank(message = "El nombre de proveedor no puede estar vacío")
+            String nombre,
+            @Pattern(regexp = "^\\+\\([0-9]{2}\\) [0-9]{3} [0-9]{3} [0-9]{4}$",
+                    message = "Teléfono fijo de proveedor no es válido")
+            String telefono_fijo,
+            @Pattern(regexp = "^\\+\\([0-9]{2}\\) [0-9]{3} [0-9]{3} [0-9]{4}$",
+                    message = "Teléfono móvil de proveedor no es válido")
+            String telefono_movil,
+            @Pattern(regexp = "^[a-zA-Z]{4}[0-9]{6}[a-zA-Z0-9]{3}$",
+                    message = "RFC de proveedor no es válido")
+            @NotBlank(message = "rfc de proveedor no puede estar vacío")
+            String rfc,
+            @Pattern(regexp = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$",
+                    message = "Correo electrónico de proveedor no es válida")
+            String correo,
+            Direccion ubicacion,
+            @NotNull RazonesSociales razon,
+            @NotEmpty(message = "No debe estar vacío") Set<Tarjeta> cuentas
+    ) implements PostEntity<Proveedor> {
 
         @Override
         public Proveedor instance() {
@@ -69,27 +97,51 @@ public class Proveedor implements Irrepetibe<String> {
      */
     @Data
     @NoArgsConstructor
-    @EqualsAndHashCode(exclude = {"detalle", "recepcion", "monto", "iva", "monto_total"})
+    @EqualsAndHashCode(exclude = {
+            "proveedor",
+            "detalle",
+            "recepcion",
+            "monto",
+            "iva",
+            "monto_total"})
     @Document(collection = "admin")
-    public static class Factura implements Irrepetibe<String>, PostEntity<Factura> {
-        @NotNull @Id private String folio;
-        @NotNull private Proveedor proveedor;
-        @NotNull private Set<Detalle<Producto>> detalle = new HashSet<>();
-        @NotNull private LocalDate recepcion;
+    public static class Factura implements Irrepetibe<String> {
+        @Id private String folio;
+        @DBRef private Proveedor proveedor;
+        private Set<Detalle<Producto>> detalle = new HashSet<>();
+        private LocalDate recepcion;
         private double monto;
         private double iva;
         private double monto_total;
 
+        public record Post(
+                @NotBlank(message = "Folio de factura no puede estar vacío")
+                String folio,
+                @NotNull Proveedor proveedor,
+                @NotNull @NotEmpty(message = "Se deben ingresar productos a una factura para su creación")
+                Set<Detalle<Producto>> detalle,
+                @NotNull @JsonFormat(pattern = "yyyy-MM-dd")
+                LocalDate recepcion,
+                double iva
+        ) implements PostEntity<Factura> {
+            @Override
+            public Factura instance() {
+                return Factura.builder()
+                        .folio(folio)
+                        .proveedor(proveedor)
+                        .detalle(detalle)
+                        .recepcion(recepcion)
+                        .iva(iva)
+                        .build();
+            }
+        }
+
         @Builder
-        @JsonCreator
         public Factura(@NotNull String folio,
                        @NotNull Proveedor proveedor,
                        @NotNull Set<Detalle<Producto>> detalle,
                        @NotNull LocalDate recepcion,
                        double iva) {
-            if (detalle.isEmpty())
-                throw new EmptyCollectionException(Proveedor.Factura.class, "detalle");
-
             this.folio = folio;
             this.proveedor = proveedor;
             this.recepcion = recepcion;
@@ -105,59 +157,58 @@ public class Proveedor implements Irrepetibe<String> {
         public String getId() {
             return folio;
         }
-
-        @Override
-        public Factura instance() {
-            return this;
-        }
     }
 
     @Data
+    @Builder
     @NoArgsConstructor
-    @EqualsAndHashCode(exclude = {"proveedor", "nombre", "precio", "presentacion"})
+    @AllArgsConstructor
     @Document(collection = "admin")
     public static class Producto
             implements Irrepetibe<String>, ObjetoConPrecio {
 
         @Id private String id;
         @DBRef private Proveedor proveedor;
-        @NotNull private String nombre;
+        private String nombre;
         private double precio;
-        @NotNull private Presentacion presentacion;
+        private Presentacion presentacion;
 
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Producto producto)) return false;
+            if (id == null)
+                return nombre.equals(producto.nombre) &&
+                        presentacion.equals(producto.presentacion);
+            return id.equals(producto.id) ||
+                    (nombre.equals(producto.nombre) &&
+                            presentacion.equals(producto.presentacion));
+        }
 
-        public record Post(SimpleInstance<String> proveedor_id,
-                           @NotNull String nombre,
-                           double precio,
-                           @NotNull Presentacion presentacion)
-                implements PostEntity<Producto> {
+        @Override
+        public int hashCode() {
+            return id == null ?
+                    Objects.hash(nombre, presentacion) :
+                    id.hashCode() + Objects.hash(nombre, presentacion);
+        }
+
+        public record Post(
+                @NotNull Proveedor proveedor,
+                @NotBlank(message = "Nombre de producto proveedor no es válido")
+                String nombre,
+                @Positive(message = "El precio debe ser mayor a cero")
+                double precio,
+                @NotNull Presentacion presentacion
+        ) implements PostEntity<Producto> {
 
             @Override
             public Producto instance() {
                 return Producto.builder()
-                        .proveedor(Proveedor.builder()
-                                .id(proveedor_id.id())
-                                .build())
+                        .proveedor(proveedor)
                         .nombre(nombre)
                         .precio(precio)
                         .presentacion(presentacion)
                         .build();
             }
-        }
-
-        @Builder
-        @JsonCreator
-        public Producto(String id,
-                        Proveedor proveedor,
-                        @NotNull String nombre,
-                        double precio,
-                        @NotNull Presentacion presentacion) {
-            this.id = id;
-            this.proveedor = proveedor;
-            this.nombre = nombre;
-            if (precio <= 0d) throw new PrecioInvalidoException(getClass());
-            this.precio = precio;
-            this.presentacion = presentacion;
         }
     }
 }

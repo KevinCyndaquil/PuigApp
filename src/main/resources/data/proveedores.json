@@ -44,5 +44,28 @@
         "numero": "2468013579"
       }
     ]
+  },
+  {
+    "nombre": "Pepsi",
+    "telefono_fijo": "+(52) 962 300 1232",
+    "telefono_movil": "+(52) 962 300 1232",
+    "rfc": "RFCA87654321A",
+    "correo": "wuichoSex1902b@gmail.com",
+    "ubicacion": {
+      "calle_principal": "Calle 2",
+      "numero_interior": "B1",
+      "descripcion_vivienda": "Departamento"
+    },
+    "razon": "FISICO",
+    "cuentas": [
+      {
+        "banco": "BBVA",
+        "numero": "1357924680"
+      },
+      {
+        "banco": "NU Mexico",
+        "numero": "2468013579"
+      }
+    ]
   }
 ]

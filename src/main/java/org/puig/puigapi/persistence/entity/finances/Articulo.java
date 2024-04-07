@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.utils.Irrepetibe;
 import org.puig.puigapi.persistence.entity.utils.ObjetoConPrecio;
-import org.puig.puigapi.persistence.entity.utils.PostEntity;
 import org.springframework.data.annotation.Id;
+
+import java.util.Objects;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -24,14 +24,13 @@ import org.springframework.data.annotation.Id;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@EqualsAndHashCode(exclude = {"precio", "tipo"})
 public abstract class Articulo
         implements Irrepetibe<String>, ObjetoConPrecio {
 
     @Id private String codigo;
-    @NotNull private String nombre;
+    private String nombre;
     private double precio;
-    @NotNull private Tipo tipo = Tipo.ARTICULO_MENU;
+    private Tipo tipo;
 
     public enum Tipo {
         ARTICULO_MENU,
@@ -42,4 +41,17 @@ public abstract class Articulo
     public String getId() {
         return codigo;
     }
+
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Articulo articulo)) return false;
+        return codigo.equals(articulo.codigo) ||
+                nombre.equals(articulo.nombre);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(codigo, nombre);
+    }
+
+    public abstract Tipo getTipo();
 }

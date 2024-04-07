@@ -20,15 +20,16 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
     private final AuthenticationProvider authProvider;
 
-    @Bean public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity security)
+    @Bean public SecurityFilterChain securityFilterChain(@NotNull HttpSecurity httpSecurity)
             throws Exception {
 
-        return security
+        return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/*/auth/**").permitAll()
-                        .anyRequest().authenticated())
+                        //.requestMatchers("/*/public/**").permitAll()
+                        //.requestMatchers("/*/auth/register").permitAll()
+                        //.requestMatchers("/*/auth/login").permitAll()
+                        .anyRequest().permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
