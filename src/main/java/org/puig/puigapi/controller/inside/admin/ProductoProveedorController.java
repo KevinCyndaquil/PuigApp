@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/proveedores/producto")
+@RequestMapping("/proveedores/productos")
 public class ProductoProveedorController
-        extends PersistenceController<Proveedor.Producto, String, Proveedor.Producto.Post> {
+        extends PersistenceController<Proveedor.Producto, String, Proveedor.Producto.Request> {
 
     @Autowired
     protected ProductoProveedorController(ProductoProveedorService service) {

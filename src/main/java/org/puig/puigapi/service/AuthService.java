@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.puig.puigapi.configuration.jwt.JwtService;
-import org.puig.puigapi.persistence.entity.utils.Credentials;
+import org.puig.puigapi.persistence.entity.utils.persistence.Credentials;
 import org.puig.puigapi.persistence.entity.utils.Persona;
 import org.puig.puigapi.persistence.repositories.PuigRepository;
 import org.springframework.beans.factory.annotation.Autowired;

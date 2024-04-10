@@ -1,7 +1,9 @@
 [
   {
-    "nombre":"Pollo Puig San Cristobal",
+    "nombre":"POLLO PUIG CENTRO",
     "ubicacion": {
+      "municipio": "SAN CRISTOBAL",
+      "colonia": "Centro",
       "calle_principal":"4ta Poniente sur",
       "numero_interior":"357",
       "descripcion_vivienda":"Local anaranjado"

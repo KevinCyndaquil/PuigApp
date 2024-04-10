@@ -14,5 +14,21 @@
       "banco": "bbva",
       "numero": "0000-0000-0000-0000"
     }
+  },
+  {
+    "nombre": "JOSE ALEJANDRO",
+    "apellido_paterno": "PEREZ",
+    "apellido_materno": "CHAVEZ",
+    "rfc": "PECJ030303TU1",
+    "telefono": "+(52) 962 128 1223",
+    "password": "1809",
+    "nickname": "jackinjaxx",
+    "fecha_nacimiento": "2003-04-04",
+    "curp": "PECJ030303HCSRHS90",
+    "puesto": "GERENTE",
+    "cuenta_nomina": {
+      "banco": "nu",
+      "numero": "0000-0000-0000-0000"
+    }
   }
 ]

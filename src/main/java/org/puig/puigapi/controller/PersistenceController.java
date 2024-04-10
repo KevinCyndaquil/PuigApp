@@ -4,9 +4,9 @@ import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.responses.ObjectResponse;
 import org.puig.puigapi.controller.responses.Response;
-import org.puig.puigapi.persistence.entity.utils.Irrepetibe;
-import org.puig.puigapi.persistence.entity.utils.PostEntity;
-import org.puig.puigapi.persistence.entity.utils.SimpleInstance;
+import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
+import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
+import org.puig.puigapi.persistence.entity.utils.persistence.SimpleInstance;
 import org.puig.puigapi.service.PersistenceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import java.util.List;
  * Controlador génerico CRUD para la API de PollosPuig.
  * @param <T> La clase relacionada la creación de este servicio.
  * @param <ID> El tipo del ID de la clase.
- * @param <P> La clase PostEntity que se usará como intermediario durante las solicitudes Post.
+ * @param <P> La clase PostEntity que se usará como intermediario durante las solicitudes Request.
  */
 
 @CrossOrigin(
@@ -48,9 +48,10 @@ public abstract class PersistenceController
 
     @PostMapping(produces = "application/json", consumes = "application/json")
     public ResponseEntity<Response> save(@NotNull @Valid @RequestBody P p) {
-        logger.info("Petición Post a las %s".formatted(LocalDateTime.now()));
+        logger.info("Petición Request a las %s".formatted(LocalDateTime.now()));
 
         T t = p.instance();
+        System.out.println("Entity to save: " + t);
         T saved = service.save(t);
 
         if (saved == null)
@@ -71,7 +72,7 @@ public abstract class PersistenceController
 
     @PostMapping(value = "all", produces = "application/json", consumes = "application/json")
     public ResponseEntity<Response> save(@NotNull @Valid @RequestBody List<P> ps) {
-        logger.info("Post petition at: %s".formatted(LocalDateTime.now()));
+        logger.info("Request petition at: %s".formatted(LocalDateTime.now()));
 
         List<T> ts = ps.stream()
                 .map(PostEntity::instance)
@@ -159,28 +160,7 @@ public abstract class PersistenceController
                 .transform();
     }
 
-    @DeleteMapping(consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Response> delete(@NotNull @Valid @RequestBody SimpleInstance<ID> simpleInstance) {
-        logger.info("Delete petition at: %s".formatted(LocalDateTime.now()));
-
-        boolean result = service.delete(simpleInstance.id());
-
-        if (result)
-            return Response.builder()
-                    .status(HttpStatus.OK)
-                    .message("Objeto %s borrado correctamente"
-                            .formatted(simpleInstance))
-                    .build()
-                    .transform();
-        return Response.builder()
-                .status(HttpStatus.NOT_MODIFIED)
-                .message("No hay objeto que coincida con %s"
-                        .formatted(simpleInstance))
-                .build()
-                .transform();
-    }
-
-    /*@DeleteMapping(produces = "application/json")
+    @DeleteMapping(produces = "application/json")
     public ResponseEntity<Response> delete(@RequestParam("id") ID id) {
         logger.info("Delete petition at: %s".formatted(LocalDateTime.now()));
 
@@ -199,5 +179,5 @@ public abstract class PersistenceController
                         .formatted(id))
                 .build()
                 .transform();
-    }*/
+    }
 }

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.puig.puigapi.persistence.entity.utils.jackson.PuigMapper;
 import org.springframework.http.ResponseEntity;
 
 @SuperBuilder
@@ -20,8 +21,7 @@ public class ObjectResponse extends Response {
     @Override
     public ResponseEntity<Response> transform() {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
+            ObjectMapper mapper = new PuigMapper();
             body = mapper.writeValueAsString(body);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

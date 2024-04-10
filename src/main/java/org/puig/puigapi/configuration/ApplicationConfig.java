@@ -1,8 +1,10 @@
 package org.puig.puigapi.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.utils.Persona;
+import org.puig.puigapi.persistence.entity.utils.jackson.PuigMapper;
 import org.puig.puigapi.persistence.repositories.operation.EmpleadoRepository;
 import org.puig.puigapi.persistence.repositories.operation.UsuarioRepository;
 import org.springframework.context.annotation.Bean;
@@ -42,5 +44,10 @@ public class ApplicationConfig {
                         .map(Persona.class::cast)
                         .orElseThrow(() ->
                                 new UsernameNotFoundException("User or employee didn't find")));
+    }
+
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new PuigMapper();
     }
 }

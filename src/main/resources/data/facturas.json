@@ -1,0 +1,27 @@
+[
+  {
+    "folio": "12ax12xk13as11121",
+    "proveedor": {
+      "id": "6611d0c895ffea10abfc5f24"
+    },
+    "sucursal": {
+      "id": "6616b3175f491001ce24cd16"
+    },
+    "detalle": [
+      {
+        "objeto": {
+          "id": "660a29c721b76028841ce592"
+        },
+        "cantidad": 2,
+        "iva": 50.2
+      },
+      {
+        "objeto": {
+          "id": "660a26596cd7c14f9570afee"
+        },
+        "cantidad": 3,
+        "iva": 75.9
+      }
+    ]
+  }
+]

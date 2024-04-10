@@ -31,10 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-/src/main/java/org/puig/puigapi/controller/inside/finances/ArticuloMenuController.java
-/src/main/java/org/puig/puigapi/persistence/repositories/finances/ComboRepository.java
-/src/main/java/org/puig/puigapi/service/finances/ComboService.java
-/src/main/resources/data.txt
-/src/main/java/org/puig/puigapi/persistence/repositories/admin/ProveedorFacturaRepository.java
-/src/main/java/org/puig/puigapi/persistence/repositories/admin/ProveedorProductoRepository.java
-/src/main/java/org/puig/puigapi/persistence/repositories/finances/VentaRepartoRepository.java

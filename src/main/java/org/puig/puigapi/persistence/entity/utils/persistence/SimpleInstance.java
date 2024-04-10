@@ -1,4 +1,4 @@
-package org.puig.puigapi.persistence.entity.utils;
+package org.puig.puigapi.persistence.entity.utils.persistence;
 
 import org.jetbrains.annotations.NotNull;
 

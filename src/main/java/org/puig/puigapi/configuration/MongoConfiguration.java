@@ -9,10 +9,11 @@ import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 
 @Configuration
 @RequiredArgsConstructor
-public class MongoConfig {
+public class MongoConfiguration {
     private final MongoProperties properties;
 
-    @Bean public MongoTemplate mongoTemplate() {
+    @Bean
+    public MongoTemplate mongoTemplate() {
         return new MongoTemplate(new SimpleMongoClientDatabaseFactory(properties.getUri()));
     }
 }

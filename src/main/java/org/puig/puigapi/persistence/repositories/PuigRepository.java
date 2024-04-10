@@ -1,6 +1,6 @@
 package org.puig.puigapi.persistence.repositories;
 
-import org.puig.puigapi.persistence.entity.utils.Irrepetibe;
+import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;

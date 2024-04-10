@@ -1,8 +1,9 @@
 package org.puig.puigapi.controller;
 
+import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.persistence.entity.utils.Credentials;
-import org.puig.puigapi.persistence.entity.utils.PostEntity;
+import org.puig.puigapi.persistence.entity.utils.persistence.Credentials;
+import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,9 +18,9 @@ public interface AuthController <P extends PostEntity<?>, ID> {
 
     @PostMapping("auth/register")
     @NotNull
-    ResponseEntity<String> register(@NotNull @RequestBody P p);
+    ResponseEntity<String> register(@NotNull @Valid @RequestBody P p);
 
     @PostMapping("auth/login")
     @NotNull
-    ResponseEntity<String> login(@NotNull @RequestBody Credentials<ID> credential);
+    ResponseEntity<String> login(@NotNull @Valid @RequestBody Credentials<ID> credential);
 }

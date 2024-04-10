@@ -1,0 +1,25 @@
+{
+  "detalle": [
+    {
+      "object": {
+        "codigo": "pp2",
+        "tipo": "ARTICULO_MENU"
+      },
+      "cantidad": 2
+    }
+  ],
+  "forma_entrega": "RESTAURANTE",
+  "realizada_en": {
+    "id": "66106616f08470703b86c50a"
+  },
+  "asignada_a": {
+    "nickname": "01"
+  },
+  "pagos": [
+    {
+      "pago": 500.0,
+      "modo": "EFECTIVO"
+    }
+  ],
+  "internet": false
+}

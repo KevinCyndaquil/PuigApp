@@ -1,0 +1,100 @@
+$jsonBody = @{
+          "_codigo" = "A001"
+          "nombre" = "Plato de Pollo"
+          "precio" = 10.5
+          "tipo" = "ARTICULO_MENU"
+          "categoria" = "PLATILLO"
+          "receta" = @{
+          }
+        } | ConvertTo-Json
+
+
+$url = "http://localhost:10238/articulos_menu"
+
+$jsonBody = @{
+  "nombre" = "Proveedor Ejemplo"
+  "telefono_fijo" = "1234567890"
+  "telefono_movil" = "0987654321"
+  "rfc" = "RFC123456789"
+  "correo" = "proveedor@example.com"
+  "ubicacion" = @{
+    "calle_principal" = "Calle Principal"
+    "calle_1" = "Calle 1"
+    "calle_2" = "Calle 2"
+    "manzana" = "M1"
+    "lote" = "L1"
+    "numero_exterior" = "123"
+    "numero_interior" = "A1"
+    "descripcion_vivienda" = "Casa"
+  }
+  "razon" = "MORAL"
+  "cuentas" = @(
+    @{
+      "banco" = "Banco Ejemplo 1"
+      "numero" = "1234567890123456"
+    }
+    @{
+      "banco" = "Banco Ejemplo 2"
+      "numero" = "9876543210987654"
+    }
+  )
+} | ConvertTo-Json
+
+
+PETICIÓN POST PARA REGISTRAR UN USUARIO
+
+$url = "http://localhost:10238/auth/usuario"
+
+$jsonBody = @{
+    "tipo" = "USUARIO"
+    "nombre" = "Wuichito"
+    "apellido_paterno" = "Hurtado"
+    "apellido_materno" = "Gomez"
+    "rfc" = "LUSDJAKS12"
+    "telefono" = "9621891232"
+    "password" = "wuichito"
+    "_correo" = "luis12@unach.mx"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri $url -Method Post -Body $jsonBody -ContentType "application/json"
+
+
+PETICIÓN POST PARA LOGEAR
+
+$url = "http://localhost:10238/usuario/auth/login"
+
+$jsonBody = @{
+    "identifier" = "luis12@unach.mx"
+    "password" = "wuichito"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri $url -Method Post -Body $jsonBody -ContentType "application/json"
+
+
+PETICIÓN GET A RECUROS PROTEGIDO USANDO JWT
+
+$url = "http://localhost:10238/usuario"
+
+$token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsdWlzMTJAdW5hY2gubXgiLCJ0eXBlIjoiVVNVQVJJTyIsImlhdCI6MTcxMTQzNjM2MiwiZXhwIjoxNzEyMzAwMzYyfQ.KJu70d5nCeWZcblcAJTD2J8BCj__h_xAuCsV5x7Tbs0"
+
+$headers = @{
+    "Authorization" = "Bearer $token"
+}
+
+Invoke-RestMethod -Uri $url -Method Get -Headers $headers
+
+token kevin:
+eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhbGVwbGFudHN2c3pAZ21haWwuY29tIiwidHlwZSI6IlVTVUFSSU8iLCJpYXQiOjE3MTE2ODg1MzEsImV4cCI6MTcxMjU1MjUzMX0.C-j0HNv3lnhEPZqxwlHWFWm-UodouBk78BgtRIC7dck
+
+Viviendas:
+{
+    "_id":"00002",
+    "nombre":"Pollo Puig San Cristobal",
+    "ubicacion": {
+        "calle_principal":"4ta Poniente sur",
+        "numero_interior":"357",
+        "descripcion_vivienda":"Local anaranjado"
+    },
+    "hora_abre":"09:00:00",
+    "hora_cierra":"16:00:00"
+}

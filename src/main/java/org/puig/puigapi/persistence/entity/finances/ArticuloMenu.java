@@ -1,14 +1,13 @@
 package org.puig.puigapi.persistence.entity.finances;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.persistence.entity.admin.ProductoTienda;
-import org.puig.puigapi.persistence.entity.utils.PostEntity;
+import org.puig.puigapi.persistence.entity.operation.Sucursal;
+import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -42,16 +41,17 @@ public class ArticuloMenu extends Articulo {
         return Tipo.ARTICULO_MENU;
     }
 
-    public record Post(
-            @NotBlank(message = "Código del artículo de menú no válido")
-            String codigo,
-            @NotBlank(message = "Nombre del artículo de menú no válido")
-            String nombre,
-            @Positive(message = "El precio del articulo debe ser mayor a cero")
-            double precio,
-            @NotNull Categorias categoria,
-            @NotEmpty Set<Receta> receta
-    ) implements PostEntity<ArticuloMenu> {
+    @Data
+    public static class Request implements PostEntity<ArticuloMenu> {
+        @NotBlank(message = "Código del artículo de menú no válido")
+        private String codigo;
+        @NotBlank(message = "Nombre del artículo de menú no válido")
+        private String nombre;
+        @Positive(message = "El precio del articulo debe ser mayor a cero")
+        private double precio;
+        private boolean visible = true;
+        @NotNull private Categorias categoria;
+        private Set<Receta> receta;
 
         @Override
         public ArticuloMenu instance() {
@@ -59,20 +59,17 @@ public class ArticuloMenu extends Articulo {
                     .codigo(codigo)
                     .nombre(nombre)
                     .precio(precio)
+                    .visible(visible)
                     .categoria(categoria)
                     .receta(receta)
-                    .tipo(Tipo.ARTICULO_MENU)
                     .build();
         }
     }
 
     @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode(exclude = "precio")
+    @EqualsAndHashCode(exclude = "cantidad")
     public static class Receta {
-        @DBRef private ProductoTienda producto;
+        @DBRef private Sucursal.Producto producto;
         @PositiveOrZero(message = "Cantidad de receta de un artículo de menu debe ser mayor o igual a cero")
         private double cantidad;
     }

@@ -2,7 +2,7 @@ package org.puig.puigapi.controller.outside;
 
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.AuthController;
-import org.puig.puigapi.persistence.entity.utils.Credentials;
+import org.puig.puigapi.persistence.entity.utils.persistence.Credentials;
 import org.puig.puigapi.controller.PersistenceController;
 import org.puig.puigapi.persistence.entity.operation.Usuario;
 import org.puig.puigapi.service.operation.UsuarioService;
@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "usuario")
-public class UsuarioController extends PersistenceController<Usuario, String, Usuario.Post>
-        implements AuthController<Usuario.Post, String> {
+@RequestMapping(value = "usuarios")
+public class UsuarioController extends PersistenceController<Usuario, String, Usuario.Request>
+        implements AuthController<Usuario.Request, String> {
     private final UsuarioService service;
 
     @Autowired
@@ -27,7 +27,7 @@ public class UsuarioController extends PersistenceController<Usuario, String, Us
     }
 
     @Override
-    public @NotNull ResponseEntity<String> register(@RequestBody @NotNull Usuario.Post usuarioPost) {
+    public @NotNull ResponseEntity<String> register(@RequestBody @NotNull Usuario.Request usuarioPost) {
         logger.info("Petición register a las %s".formatted(LocalDateTime.now()));
 
         String token = service.register(usuarioPost.instance());

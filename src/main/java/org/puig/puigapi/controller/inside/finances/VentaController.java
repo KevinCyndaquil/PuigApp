@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/ventas")
-public class VentaController extends PersistenceController<Venta, String, Venta.Post> {
+public class VentaController extends PersistenceController<Venta, String, Venta.Request> {
     public VentaController(VentaService service) {
         super(service);
     }

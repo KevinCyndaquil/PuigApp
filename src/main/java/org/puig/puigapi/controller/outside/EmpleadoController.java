@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.AuthController;
 import org.puig.puigapi.controller.PersistenceController;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
-import org.puig.puigapi.persistence.entity.utils.Credentials;
+import org.puig.puigapi.persistence.entity.utils.persistence.Credentials;
 import org.puig.puigapi.service.operation.EmpleadoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/empleado")
+@RequestMapping("/empleados")
 public class EmpleadoController
-        extends PersistenceController<Empleado, String, Empleado.Post>
-        implements AuthController<Empleado.Post, String> {
+        extends PersistenceController<Empleado, String, Empleado.Request>
+        implements AuthController<Empleado.Request, String> {
 
     protected final EmpleadoService service;
 
@@ -30,7 +30,7 @@ public class EmpleadoController
     }
 
     @Override
-    public @NotNull ResponseEntity<String> register(@NotNull Empleado.Post empleadoPost) {
+    public @NotNull ResponseEntity<String> register(@NotNull Empleado.Request empleadoPost) {
         logger.info("Petición register a las %s".formatted(LocalDateTime.now()));
 
         String token = service.register(empleadoPost.instance());

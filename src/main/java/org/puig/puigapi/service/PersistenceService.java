@@ -1,9 +1,9 @@
 package org.puig.puigapi.service;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.puig.puigapi.errors.EntityException;
-import org.puig.puigapi.persistence.entity.utils.Irrepetibe;
+import org.puig.puigapi.errors.BusquedaSinResultadoException;
+import org.puig.puigapi.errors.LlaveDuplicadaException;
+import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
 import org.puig.puigapi.persistence.repositories.PuigRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -22,19 +22,21 @@ public abstract class PersistenceService <T extends Irrepetibe<ID>, ID> {
         this.className = clazz.getName();
     }
 
-    public @Nullable T save(@NotNull T t) throws EntityException.NotSaved {
+    public T save(@NotNull T t) throws LlaveDuplicadaException {
         if (t.getId() != null)
-            if (repository.existsById(t.getId())) throw new EntityException.NotSaved(t);
-        return repository.save(t);
+            if (repository.existsById(t.getId()))
+                throw new LlaveDuplicadaException(t.getClass(), t.getId());
+
+        return repository.insert(t);
     }
 
-    public List<T> save(@NotNull List<T> ts) throws EntityException.NotSaved{
+    public List<T> save(@NotNull List<T> ts) throws LlaveDuplicadaException {
         return ts.stream().map(this::save).toList();
     }
 
-    public T readByID(@NotNull ID id) throws EntityException.NotFind {
+    public T readByID(@NotNull ID id) throws BusquedaSinResultadoException {
         return repository.findById(id)
-                .orElseThrow(() -> new EntityException.NotFind(id));
+                .orElseThrow(() -> new BusquedaSinResultadoException("id", id));
     }
 
     public List<T> readAll() {
@@ -48,7 +50,7 @@ public abstract class PersistenceService <T extends Irrepetibe<ID>, ID> {
      */
     public List<T> read(@NotNull T t) {
         ExampleMatcher matcher = ExampleMatcher.matchingAny()
-                .withIgnorePaths("id")
+                .withIgnorePaths("_id")
                 .withIgnoreCase()
                 .withIgnoreNullValues()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
@@ -58,7 +60,7 @@ public abstract class PersistenceService <T extends Irrepetibe<ID>, ID> {
     }
 
     public boolean update(@NotNull T t) {
-        if(!exists(t)) return false;
+        if(!repository.existsById(t.getId())) return false;
         repository.save(t);
         return true;
     }
@@ -66,10 +68,6 @@ public abstract class PersistenceService <T extends Irrepetibe<ID>, ID> {
     public boolean delete(@NotNull ID id) {
         repository.deleteById(id);
         return repository.findById(id).isEmpty();
-    }
-
-    public boolean exists(@NotNull T t) {
-        return repository.exists(Example.of(t));
     }
 }
 

@@ -1,4 +1,4 @@
-package org.puig.puigapi.persistence.entity.utils;
+package org.puig.puigapi.persistence.entity.utils.persistence;
 
 /**
  * Representa una clase en donde cada instancia de ella debe ser unica.
