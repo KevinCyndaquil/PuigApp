@@ -1,26 +1,29 @@
 package org.puig.puigapi.service;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.errors.BusquedaSinResultadoException;
-import org.puig.puigapi.errors.LlaveDuplicadaException;
+import org.puig.puigapi.exceptions.BusquedaSinResultadoException;
+import org.puig.puigapi.exceptions.LlaveDuplicadaException;
 import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
 import org.puig.puigapi.persistence.repositories.PuigRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 
 import java.util.List;
+import java.util.Objects;
 
-public abstract class PersistenceService <T extends Irrepetibe<ID>, ID> {
-    protected final PuigRepository<T, ID> repository;
-    protected final Class<T> clazz;
-    protected final String className;
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+public abstract class PersistenceService <
+        T extends Irrepetibe<ID>,
+        ID,
+        R extends PuigRepository<T, ID>> {
 
-    public PersistenceService(PuigRepository<T, ID> repository,
-                              @NotNull Class<T> clazz) {
-        this.repository = repository;
-        this.clazz = clazz;
-        this.className = clazz.getName();
-    }
+    protected final R repository;
+
+    @Setter @Getter protected Class<?> type;
 
     public T save(@NotNull T t) throws LlaveDuplicadaException {
         if (t.getId() != null)
@@ -39,8 +42,14 @@ public abstract class PersistenceService <T extends Irrepetibe<ID>, ID> {
                 .orElseThrow(() -> new BusquedaSinResultadoException("id", id));
     }
 
+    public T readByID(@NotNull T t) throws BusquedaSinResultadoException {
+        if (Objects.isNull(t.getId()))
+            throw new IllegalArgumentException("Objeto proporcionado durante la busqueda contiene un id nulo");
+        return readByID(t.getId());
+    }
+
     public List<T> readAll() {
-        return repository.findAllByClass(className);
+        return repository.findAllByClass(type.getName());
     }
 
     /**

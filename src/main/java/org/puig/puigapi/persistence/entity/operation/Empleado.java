@@ -2,12 +2,16 @@ package org.puig.puigapi.persistence.entity.operation;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.utils.Persona;
+import org.puig.puigapi.persistence.entity.utils.data.Curp;
+import org.puig.puigapi.persistence.entity.utils.data.RFC;
+import org.puig.puigapi.persistence.entity.utils.data.Telefono;
 import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
 import org.puig.puigapi.persistence.entity.utils.Tarjeta;
 import org.springframework.data.annotation.Id;
@@ -41,9 +45,16 @@ public class Empleado extends Persona {
     @Id private String nickname;
     @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_nacimiento;
     @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_alta;
-    private String curp;
+    private Curp curp;
     private Puestos puesto;
     private Tarjeta cuenta_nomina;
+
+    public enum Puestos {
+        GERENTE,
+        CAJERO,
+        REPARTIDOR,
+        COCINERO
+    }
 
     @Override
     public Tipo getTipo() {
@@ -51,12 +62,35 @@ public class Empleado extends Persona {
     }
 
     @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @EqualsAndHashCode(exclude = {"fecha_alta", "fecha_baja", "estado"})
     public static class Detalle {
-        @NotNull @DBRef private Empleado empleado;
-        @NotNull @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_alta;
-        @NotNull @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_baja;
-        @NotNull private Estados estado = Estados.ESPERA;
+        @DBRef private Empleado empleado;
+        @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_alta;
+        @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_baja;
+        private Estados estado = Estados.ESPERA;
+
+        @Data
+        @NoArgsConstructor
+        public static class Request implements PostEntity<Detalle> {
+            @NotNull(message = "Se requiere el empleado para generar un detalle")
+            private Empleado empleado;
+            @NotNull(message = "Se requiere la fecha de alta para generar un detalle")
+            private LocalDate fecha_alta = LocalDate.now();
+            @NotNull(message = "Se requiere un estado del empleado para generar un detalle")
+            private Estados estado = Estados.ESPERA;
+
+            @Override
+            public Detalle instance() {
+                return Detalle.builder()
+                        .empleado(empleado)
+                        .fecha_alta(fecha_alta)
+                        .estado(estado)
+                        .build();
+            }
+        }
     }
 
     public enum Estados {
@@ -69,37 +103,37 @@ public class Empleado extends Persona {
     @Data
     @NoArgsConstructor
     public static class Request implements PostEntity<Empleado> {
-        @NotBlank(message = "Nombre de empleado no puede estar vacío")
-        @Pattern(regexp = "^[A-Z]+(?: [A-Z]+)*$",
+        @NotBlank(message = "Se requiere un nombre para el empleado")
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+( [\\p{Lu}\\p{M}]+)*$",
                 message = "Nombre de empleado invalido. Recuerda que debe ir en mayúsculas")
         private String nombre;
-        @NotBlank(message = "Apellido paterno de empleado no puedo estar vacío")
-        @Pattern(regexp = "^[A-Z]+$",
+        @NotBlank(message = "Se requiere el apellido paterno del empleado")
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+$",
                 message = "Apellido paterno de empleado invalido. Recuerda que debe ir en mayúsculas")
         private String apellido_paterno;
-        @Pattern(regexp = "^[A-Z]+$",
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+$",
                 message = "Apellido materno de empelado invalido. Recuerda que debe ir en mayúsculas")
         private String apellido_materno;
-        @NotBlank(message = "RFC de empleado no puede estar vacío")
-        @Pattern(regexp = "^[a-zA-Z]{4}[0-9]{6}[a-zA-Z0-9]{3}$",
-                message = "RFC de empleado no es válido")
-        private String rfc;
-        @NotBlank(message = "Telefono de empelado no puede estar vacío")
-        @Pattern(regexp = "^\\+\\([0-9]{2}\\) [0-9]{3} [0-9]{3} [0-9]{4}$",
-                message = "Teléfono de empleado no es válido")
-        private String telefono;
-        @NotBlank(message = "Contraseña no válida. Debe llevar caracteres")
+        @NotNull(message = "Se requiere el rfc del empleado")
+        @Valid
+        private RFC rfc;
+        @Valid private Telefono telefono;
+        @NotBlank(message = "Se requiere una contraseña de al menos dos caracteres para el empleado")
+        @Pattern(regexp = "^.{2,}$", message = "Se requiere una contraseña de al menos dos caracteres")
         private String password;
-        @NotBlank(message = "Nickname de empleado no debe estar vacío")
-        String nickname;
-        @NotNull @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_nacimiento;
-        @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_alta = LocalDate.now();
-        @NotBlank(message = "Curp de empleado invalido. No debe estar vacío")
-        @Pattern(regexp = "^[A-Z]{4}[0-9]{6}[HM][A-Z]{2}[A-Z]{3}[0-9A-Z][0-9]$",
-                message = "Formato de curp de empleado no es válida")
-        private String curp;
-        @NotNull private Puestos puesto;
-        @NotNull private Tarjeta.Request cuenta_nomina;
+        @NotBlank(message = "Se requiere un nickname para el empleado")
+        private String nickname;
+        @NotNull(message = "Se requiere la fecha de nacimiento del empleado")
+        private LocalDate fecha_nacimiento;
+        private LocalDate fecha_alta = LocalDate.now();
+        @NotNull(message = "Se requiere la curp del empleado")
+        @Valid
+        private Curp curp;
+        @NotNull(message = "Se requiere el puesto del empleado")
+        private Puestos puesto;
+        @NotNull(message = "Se requiere la cuenta de nomina del empleado")
+        @Valid
+        private Tarjeta.Request cuenta_nomina;
 
         @Override
         public Empleado instance() {
@@ -155,12 +189,5 @@ public class Empleado extends Persona {
     @Override
     public String getId() {
         return nickname;
-    }
-
-    public enum Puestos {
-        GERENTE,
-        CAJERO,
-        REPARTIDOR,
-        COCINERO
     }
 }

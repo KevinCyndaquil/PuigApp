@@ -5,14 +5,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
-import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
 import org.puig.puigapi.persistence.entity.utils.*;
+import org.puig.puigapi.persistence.entity.utils.data.Correo;
+import org.puig.puigapi.persistence.entity.utils.data.RFC;
+import org.puig.puigapi.persistence.entity.utils.data.Telefono;
 import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
 import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -28,7 +30,7 @@ import java.util.stream.Collectors;
  * del menú.
  */
 
-@JsonIgnoreProperties(value = { "target" })
+@JsonIgnoreProperties(value = { "target", "source" })
 
 @Data
 @Builder
@@ -38,18 +40,13 @@ import java.util.stream.Collectors;
 public class Proveedor implements Irrepetibe<String> {
     @Id private String id;
     private String nombre;
-    private String telefono_fijo;
-    private String telefono_movil;
-    private String rfc;
-    private String correo;
+    private Telefono telefono_fijo;
+    private Telefono telefono_movil;
+    private RFC rfc;
+    private Correo correo;
     private Direccion ubicacion;
-    private RazonesSociales razon = RazonesSociales.MORAL;
+    private RazonesSociales razon;
     private Set<Tarjeta> cuentas = new HashSet<>();
-
-    public enum RazonesSociales {
-        FISICO,
-        MORAL
-    }
 
     @Override
     public boolean equals(Object obj) {
@@ -67,26 +64,22 @@ public class Proveedor implements Irrepetibe<String> {
     @Data
     @NoArgsConstructor
     public static class Request implements PostEntity<Proveedor> {
-        @NotBlank(message = "El nombre de proveedor no puede estar vacío")
-        @Pattern(regexp = "^[A-Z0-9]+(?: [A-Z0-9]+)*$",
-                message = "Nombre de usuario invalido. Recuerda que debe ir en mayúsculas y solo puede llevar letras o números")
+        @NotBlank(message = "Se requiere un nombre para el proveedor")
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
+                message = "Formato para nombres invalido")
         private String nombre;
-        @NotBlank(message = "Teléfono de proveedor no puede estar vacío")
-        @Pattern(regexp = "^\\+\\([0-9]{2}\\) [0-9]{3} [0-9]{3} [0-9]{4}$",
-                message = "Teléfono fijo de proveedor no es válido")
-        private String telefono_fijo;
-        @Pattern(regexp = "^\\+\\([0-9]{2}\\) [0-9]{3} [0-9]{3} [0-9]{4}$",
-                message = "Teléfono móvil de proveedor no es válido")
-        private String telefono_movil;
-        @NotBlank(message = "rfc de proveedor no puede estar vacío")
-        @Pattern(regexp = "^[a-zA-Z]{4}[0-9]{6}[a-zA-Z0-9]{3}$",
-                message = "RFC de proveedor no es válido")
-        private String rfc;
-        @Pattern(regexp = "^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$",
-                message = "Correo electrónico de proveedor no es válido")
-        private String correo;
-        private Direccion.Request ubicacion;
-        @NotNull private RazonesSociales razon = RazonesSociales.MORAL;
+        @NotNull(message = "Se requiere un número de telefono fijo")
+        @Valid
+        private Telefono telefono_fijo;
+        @Valid private Telefono telefono_movil;
+        @NotNull(message = "Se requiere un rfc para el proveedor")
+        @Valid
+        private RFC rfc;
+        @Valid private Correo correo;
+        @Valid private Direccion.RequestFacturacion ubicacion;
+        @NotNull(message = "Se requiere una razon social para el proveedor")
+        private RazonesSociales razon = RazonesSociales.MORAL;
+        @Valid
         @NotEmpty(message = "Se debe adjuntar al menos una cuenta de banco para el proveedor")
         private Set<Tarjeta.Request> cuentas;
 
@@ -112,7 +105,7 @@ public class Proveedor implements Irrepetibe<String> {
      * quién la proporciono y su costo.
      */
 
-    @JsonIgnoreProperties(value = { "target" })
+    @JsonIgnoreProperties(value = { "target", "source" })
 
     @Data
     @NoArgsConstructor
@@ -126,7 +119,7 @@ public class Proveedor implements Irrepetibe<String> {
     @Document(collection = "admin")
     public static class Factura implements Irrepetibe<String> {
         @Id private String folio;
-        @DBRef @Lazy private Proveedor proveedor;
+        @DBRef private Proveedor proveedor;
         private Set<Detalle> detalle = new HashSet<>();
         private LocalDateTime recepcion = LocalDateTime.now();
         @DBRef private Sucursal sucursal;
@@ -200,10 +193,12 @@ public class Proveedor implements Irrepetibe<String> {
         public static class Request implements PostEntity<Factura> {
             @NotBlank(message = "Folio de factura no puede estar vacío")
             private String folio;
-            @NotNull private Proveedor proveedor;
-            @NotNull @NotEmpty(message = "Se deben ingresar productos a una factura para su creación")
+            @NotNull(message = "Se requiere el id del proveedor de la factura")
+            private Proveedor proveedor;
+            @NotEmpty(message = "Se deben ingresar productos a una factura para su creación")
             private Set<Detalle> detalle;
-            @NotNull private Sucursal sucursal;
+            @NotNull(message = "Se requiere la sucursal en la que se recibió la factura")
+            private Sucursal sucursal;
 
             @Override
             public Factura instance() {
@@ -221,7 +216,7 @@ public class Proveedor implements Irrepetibe<String> {
      * Productos sumistrados y detallados por un proveedor.
      */
 
-    @JsonIgnoreProperties(value = { "target" })
+    @JsonIgnoreProperties(value = {"target", "source"})
 
     @Data
     @Builder
@@ -257,12 +252,15 @@ public class Proveedor implements Irrepetibe<String> {
         @Data
         @NoArgsConstructor
         public static class Request implements PostEntity<Producto> {
-            @NotNull private Proveedor proveedor;
-            @NotBlank(message = "Nombre de producto proveedor no es válido")
+            @NotNull(message = "Se requiere el id del proveedor del producto")
+            private Proveedor proveedor;
+            @NotBlank(message = "Se require un nombre para el producto de proveedor")
             private String nombre;
             @Positive(message = "El precio debe ser mayor a cero")
             private double precio;
-            @NotNull private Presentacion.Request presentacion;
+            @NotNull(message = "Se requiere la presentación del producto de proveedor")
+            @Valid
+            private Presentacion.Request presentacion;
 
             @Override
             public Producto instance() {

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.puig.puigapi.controller.responses.ErrorResponse;
+import org.puig.puigapi.exceptions.Errors;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -47,21 +48,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
             write(response, ErrorResponse.builder()
-                    .error("Invalid_token")
+                    .error(Errors.sin_autorizacion_error)
                     .status(HttpStatus.UNAUTHORIZED)
                     .message("Token provided is invalid")
                     .hint("Try to get another one or call to admin")
                     .build());
         } catch (ExpiredJwtException e) {
             write(response, ErrorResponse.builder()
-                    .error("session_expired")
+                    .error(Errors.sesion_expirada_error)
                     .status(HttpStatus.BAD_REQUEST)
                     .message("Sesion is expired")
                     .hint("Login again")
                     .build());
         } catch (UsernameNotFoundException e) {
             write(response, ErrorResponse.builder()
-                    .error("Username_not_found")
+                    .error(Errors.nombreusuario_no_existente_error)
                     .status(HttpStatus.BAD_REQUEST)
                     .message("User provided is not registered or invalid")
                     .hint("Get registered now")

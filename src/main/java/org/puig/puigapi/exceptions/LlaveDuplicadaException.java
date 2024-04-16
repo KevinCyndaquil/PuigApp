@@ -1,4 +1,4 @@
-package org.puig.puigapi.errors;
+package org.puig.puigapi.exceptions;
 
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;

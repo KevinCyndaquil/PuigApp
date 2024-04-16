@@ -1,21 +1,26 @@
-package org.puig.puigapi.persistence.entity.finances;
+package org.puig.puigapi.persistence.entity.utils;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.puig.puigapi.persistence.entity.finances.ArticuloMenu;
+import org.puig.puigapi.persistence.entity.finances.Combo;
 import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
-import org.puig.puigapi.persistence.entity.utils.ObjetoConPrecio;
 import org.springframework.data.annotation.Id;
 
 import java.util.Objects;
 
-@JsonIgnoreProperties(value = { "target" })
+/**
+ * Es un árticulo de venta al público génerico, por ejemplo, es un producto que se exhibe en un menú
+ * o en su defecto, el que se oferta al usuario.
+ * Por estas características, debe contener una descripción
+ * con su contenido.
+ */
+
+@JsonIgnoreProperties(value = { "target", "source", "tipo" })
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        property = "tipo"
+        property = "especializado"
 )
 
 @JsonSubTypes({
@@ -33,10 +38,10 @@ public abstract class Articulo
     @Id private String codigo;
     private String nombre;
     private double precio;
-    private Tipo tipo;
-    private boolean visible;
+    private Especializaciones especializado;
+    private boolean visible = true;
 
-    public enum Tipo {
+    public enum Especializaciones {
         ARTICULO_MENU,
         COMBO
     }
@@ -57,6 +62,6 @@ public abstract class Articulo
         return Objects.hash(codigo, nombre);
     }
 
-    @JsonGetter("tipo")
-    public abstract Tipo getTipo();
+    @JsonGetter("especializado")
+    public abstract Especializaciones getEspecializado();
 }

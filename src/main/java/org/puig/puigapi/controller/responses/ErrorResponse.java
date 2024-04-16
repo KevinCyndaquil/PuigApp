@@ -4,13 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.puig.puigapi.controller.responses.Response;
+import org.puig.puigapi.exceptions.Errors;
 
-@SuperBuilder
 @Getter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorResponse extends Response {
-    protected String error;
+    protected Errors error;
     protected String hint;
 }

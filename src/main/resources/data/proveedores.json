@@ -1,70 +1,95 @@
 [
   {
-    "nombre": "El de la coca",
-    "telefono_fijo": "1234567890",
-    "telefono_movil": "9876543210",
-    "rfc": "RFC123456789",
-    "correo": "coca_cola@femsa.com.mx",
+    "nombre": "FEMSA",
+    "telefono_fijo": {
+      "numero": "800 704 4400"
+    },
+    "rfc": {
+      "rfc": "PRO840423SG8"
+    },
+    "correo": {
+      "direccion": "consumidor@coca-cola.com"
+    },
     "ubicacion": {
-      "calle_principal": "Calle 1",
-      "numero_interior": "A1",
-      "descripcion_vivienda": "Casa"
+      "colonia": "VILLA PARAÍSO",
+      "codigo_postal": "90212",
+      "calle_principal": "AND GIRASOLES",
+      "lote": "A1"
     },
     "razon": "MORAL",
     "cuentas": [
       {
         "banco": "BBVA",
-        "numero": "1234567890"
+        "numero": "1234 5678 9000 1222"
       },
       {
-        "banco": "Santander",
-        "numero": "9876543210"
+        "banco": "SANTANDER",
+        "numero": "9876 5432 1012 0123"
       }
     ]
   },
   {
-    "nombre": "SexShop Don Wuicho",
-    "telefono_fijo": "0987654321",
-    "telefono_movil": "1234567890",
-    "rfc": "RFC987654321",
-    "correo": "wuichoSex1902b@gmail.com",
+    "nombre": "SUMINISTROS POLLO PUIG",
+    "telefono_fijo": {
+      "numero": "+(52) 962 185 0212"
+    },
+    "telefono_movil": {
+      "numero": "+(52) 962 185 0212"
+    },
+    "rfc": {
+      "rfc": "RFC987654321"
+    },
+    "correo": {
+      "direccion": "suministros@puig.com"
+    },
     "ubicacion": {
-      "calle_principal": "Calle 2",
-      "numero_interior": "B1",
-      "descripcion_vivienda": "Departamento"
+      "colonia": "ENCINADA",
+      "codigo_postal": "90121",
+      "calle_principal": "CALLE GARDENÍAS",
+      "lote": "B1",
+      "descripcion_vivienda": "Departamento color caqui"
     },
     "razon": "FISICO",
     "cuentas": [
       {
         "banco": "BBVA",
-        "numero": "1357924680"
+        "numero": "1357 9246 8012 8231"
       },
       {
-        "banco": "NU Mexico",
-        "numero": "2468013579"
+        "banco": "NU MÉXICO",
+        "numero": "2468 0135 7921 9231"
       }
     ]
   },
   {
-    "nombre": "Pepsi",
-    "telefono_fijo": "+(52) 962 300 1232",
-    "telefono_movil": "+(52) 962 300 1232",
-    "rfc": "RFCA87654321A",
-    "correo": "wuichoSex1902b@gmail.com",
-    "ubicacion": {
-      "calle_principal": "Calle 2",
-      "numero_interior": "B1",
-      "descripcion_vivienda": "Departamento"
+    "nombre": "PEPSICO",
+    "telefono_fijo": {
+      "numero": "+(52) 962 300 1232"
     },
-    "razon": "FISICO",
+    "telefono_movil": {
+      "numero": "+(52) 962 300 1232"
+    },
+    "rfc": {
+      "rfc": "CPM110719SG3"
+    },
+    "correo": {
+      "direccion": "consumidores.1800@pepsico.com"
+    },
+    "ubicacion": {
+      "colonia": "CIUDAD GRANJA",
+      "codigo_postal": "50700",
+      "calle_principal": "CIRCUNVALACION PONIENTE 1606",
+      "lote": "B1"
+    },
+    "razon": "MORAL",
     "cuentas": [
       {
         "banco": "BBVA",
-        "numero": "1357924680"
+        "numero": "1357 9246 8000 8312"
       },
       {
-        "banco": "NU Mexico",
-        "numero": "2468013579"
+        "banco": "NU MÉXICO",
+        "numero": "2468 0135 7921 1241"
       }
     ]
   }

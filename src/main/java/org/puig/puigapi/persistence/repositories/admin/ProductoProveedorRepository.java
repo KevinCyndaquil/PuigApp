@@ -5,6 +5,6 @@ import org.puig.puigapi.persistence.repositories.PuigRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProveedorProductoRepository
+public interface ProductoProveedorRepository
         extends PuigRepository<Proveedor.Producto, String> {
 }

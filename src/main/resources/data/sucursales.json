@@ -3,20 +3,22 @@
     "nombre":"POLLO PUIG CENTRO",
     "ubicacion": {
       "municipio": "SAN CRISTOBAL",
-      "colonia": "Centro",
-      "calle_principal":"4ta Poniente sur",
+      "colonia": "CENTRO",
+      "calle_principal":"4TA PONIENTE SUR",
       "numero_interior":"357",
-      "descripcion_vivienda":"Local anaranjado"
+      "descripcion_vivienda":"LOCAL ANARANJADO"
     },
     "hora_abre":"09:00:00",
     "hora_cierra":"16:00:00"
   },
   {
-    "nombre":"Pollo Puig San Cristobal 2",
+    "nombre":"POLLO PUIG ORIENTE",
     "ubicacion": {
-      "calle_principal":"4ta Poniente sur",
-      "numero_interior":"357",
-      "descripcion_vivienda":"Local anaranjado"
+      "municipio": "SAN CRISTOBAL",
+      "colonia": "VILLA BOLILLOS",
+      "calle_principal":"8VA ORIENTE NORTE",
+      "numero_interior":"104B",
+      "descripcion_vivienda":"LOCAL GRIS"
     },
     "hora_abre":"09:00:00",
     "hora_cierra":"16:00:00"

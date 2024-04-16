@@ -17,12 +17,12 @@ public class Tarjeta {
     @Data
     @NoArgsConstructor
     public static class Request implements PostEntity<Tarjeta> {
-        @NotBlank(message = "Banco de la tarjeta no puede estar vacío")
-        @Pattern(regexp = "^[A-Z]+$",
+        @NotBlank(message = "Se requiere el bando de la tarjeta")
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
                 message = "Nombre de banco invalido")
         private String banco;
-        @NotBlank(message = "Número de la tarjeta no puede estar vacío")
-        @Pattern(regexp = "^[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}$",
+        @NotBlank(message = "Se requiere el número de cuenta de la tarjeta")
+        @Pattern(regexp = "^[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}|[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4} [0-9]{2}$",
                 message = "Formato de cuenta es incorrecto")
         private String numero;
 

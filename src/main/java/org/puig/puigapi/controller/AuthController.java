@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 /**
  * Métodos génericos para la creación de un servicio de Autenticación.
  * @param <P> La clase o derivada de persona a ser guardada en la base de datos.
- * @param <ID> El tipo del ID de la persona.
+ * @param <ID> El especializado del ID de la persona.
  */
 public interface AuthController <P extends PostEntity<?>, ID> {
 

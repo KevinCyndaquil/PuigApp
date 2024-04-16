@@ -1,25 +1,25 @@
 [
   {
-    "folio": "12ax12xk13as11121",
+    "folio": "DAB000072461",
     "proveedor": {
-      "id": "6611d0c895ffea10abfc5f24"
+      "id": "661de065076e8718e0b040ae"
     },
     "sucursal": {
-      "id": "6616b3175f491001ce24cd16"
+      "id": "661de089076e8718e0b040b0"
     },
     "detalle": [
       {
         "objeto": {
-          "id": "660a29c721b76028841ce592"
+          "id": "661de065076e8718e0b040ae"
         },
-        "cantidad": 2,
+        "cantidad": 6,
         "iva": 50.2
       },
       {
         "objeto": {
-          "id": "660a26596cd7c14f9570afee"
+          "id": "661de065076e8718e0b040af"
         },
-        "cantidad": 3,
+        "cantidad": 10,
         "iva": 75.9
       }
     ]

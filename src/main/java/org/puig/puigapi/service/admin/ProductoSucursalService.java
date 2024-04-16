@@ -1,53 +1,48 @@
 package org.puig.puigapi.service.admin;
 
+import lombok.NonNull;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.errors.BusquedaSinResultadoException;
+import org.puig.puigapi.exceptions.BusquedaSinResultadoException;
 import org.puig.puigapi.persistence.entity.admin.Proveedor;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
 import org.puig.puigapi.persistence.repositories.admin.ProductoSucursalRepository;
 import org.puig.puigapi.service.PersistenceService;
+import org.puig.puigapi.service.annotations.PuigService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Service;
 
-@Service
+@Setter(onMethod = @__({@Autowired}))
+@PuigService(Sucursal.Producto.class)
 public class ProductoSucursalService
-        extends PersistenceService<Sucursal.Producto, String> {
+        extends PersistenceService<Sucursal.Producto, String, ProductoSucursalRepository> {
 
-    protected ProductoSucursalRepository repository;
-    protected MongoTemplate template;
+    @NonNull protected ProductoProveedorService productoProveedorService;
 
-    @Autowired
-    public void setTemplate(MongoTemplate template) {
-        this.template = template;
-    }
-
-    @Autowired
     public ProductoSucursalService(ProductoSucursalRepository repository) {
-        super(repository, Sucursal.Producto.class);
-        this.repository = repository;
+        super(repository);
     }
 
     /**
      * Guarda un Producto de Sucursal Basandose en un Producto de Proveedor.
-     * @param productoProveedor al que se basará para su instancia.
+     * @param id del producto de proveedor.
      * @return el objeto encontrado o en su defecto, insertado.
      */
-    public Sucursal.Producto saveOrGet(@NotNull Proveedor.Producto productoProveedor) {
+
+    public Sucursal.Producto saveOrReadById(@NotNull String id) {
         try {
-            return findByProductoProveedorId(productoProveedor.getId());
+            return findByProductoProveedor_id(id);
         } catch (BusquedaSinResultadoException e) {
+            Proveedor.Producto productoProveedor = productoProveedorService.readByID(id);
             return save(new Sucursal.Producto(productoProveedor, true));
         }
     }
-
 
     /**
      * Devuelve un Producto de Sucursal según su Producto de Proveedor asignado.
      * @param id es la llave del producto proveedor a buscar.
      * @return el Producto de Sucursal Encontrado
      */
-    public Sucursal.Producto findByProductoProveedorId(String id) {
+    public Sucursal.Producto findByProductoProveedor_id(String id) {
         return repository.findByProducto_proveedor(id)
                 .orElseThrow(() -> new BusquedaSinResultadoException(
                         Sucursal.Producto.class,

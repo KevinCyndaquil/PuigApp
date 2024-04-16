@@ -3,10 +3,11 @@ package org.puig.puigapi.persistence.entity.finances;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.jetbrains.annotations.NotNull;
+import org.puig.puigapi.persistence.entity.utils.Articulo;
 import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -31,8 +32,8 @@ public class Combo extends Articulo {
     private LocalDate vigencia;
 
     @Override
-    public Tipo getTipo() {
-        return Tipo.COMBO;
+    public Especializaciones getEspecializado() {
+        return Especializaciones.COMBO;
     }
 
     @Data
@@ -46,10 +47,9 @@ public class Combo extends Articulo {
         private boolean visible;
         @NotEmpty(message = "Contenido del combo o promoción no válido")
         private Set<ArticuloMenu> contenido;
-        @NotNull
+        @NotNull(message = "Se requiere la fecha de inicio del combo")
         @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate inicia;
-        @NotNull
         @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate vigencia;
 

@@ -1,5 +1,7 @@
 package org.puig.puigapi.service;
 
+import lombok.NonNull;
+import lombok.Setter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,17 +21,16 @@ import java.util.Optional;
  * Servicío genérico para implementar a un servicio que requiera encriptación de claves,
  * registro y loggeo de usuarios.
  * @param <U> el Usuario que debe extender UserDetails.
+ * @param <R> el Repositorio del usuario.
  */
-public abstract class AuthService <U extends Persona>
-        extends PersistenceService<U, String>{
-    protected JwtService jwtService;
+@Setter(onMethod_ = @Autowired)
+public abstract class AuthService <U extends Persona, R extends PuigRepository<U, String>> extends
+        PersistenceService<U, String, R>{
 
-    public AuthService(PuigRepository<U, String> repository, Class<U> clazz) {
-        super(repository, clazz);
-    }
+    @NonNull protected JwtService jwtService;
 
-    @Autowired public void setJwtService(JwtService jwtService) {
-        this.jwtService = jwtService;
+    protected AuthService(R repository) {
+        super(repository);
     }
 
     /**

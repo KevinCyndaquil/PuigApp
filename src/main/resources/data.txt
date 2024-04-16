@@ -98,3 +98,16 @@ Viviendas:
     "hora_abre":"09:00:00",
     "hora_cierra":"16:00:00"
 }
+
+ReactiveTransactionManager tm
+  = new ReactiveMongoTransactionManager(databaseFactory);
+ReactiveMongoTemplate template = …
+template.setSessionSynchronization(ALWAYS);
+
+TransactionalOperator rxtx = TransactionalOperator.create(tm);
+
+Mono<Void> atomic = template.update(Step.class)
+  .apply(Update.set("state", …))
+  .then(template.insert(EventLog.class).one(new EventLog(…))
+  .as(rxtx::transactional)
+  .then();

@@ -1,37 +1,15 @@
 package org.puig.puigapi.service.admin;
 
 import org.puig.puigapi.persistence.entity.admin.Proveedor;
-import org.puig.puigapi.persistence.repositories.admin.FacturaProveedorRepository;
 import org.puig.puigapi.persistence.repositories.admin.ProveedorRepository;
 import org.puig.puigapi.service.PersistenceService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.puig.puigapi.service.annotations.PuigService;
 
-import java.util.List;
+@PuigService(Proveedor.class)
+public class ProveedorService extends
+        PersistenceService<Proveedor, String, ProveedorRepository> {
 
-@Service
-public class ProveedorService extends PersistenceService<Proveedor, String> {
-    @Autowired
     public ProveedorService(ProveedorRepository repository) {
-        super(repository, Proveedor.class);
-    }
-
-    @Override
-    public List<Proveedor> readAll() {
-        return repository.findAllByClass(Proveedor.class.getCanonicalName());
-    }
-
-    @Service
-    public static class Factura extends PersistenceService<Proveedor.Factura, String> {
-
-        @Autowired
-        public Factura(FacturaProveedorRepository repository) {
-            super(repository, Proveedor.Factura.class);
-        }
-
-        @Override
-        public List<Proveedor.Factura> readAll() {
-            return repository.findAllByClass(Proveedor.Factura.class.getCanonicalName());
-        }
+        super(repository);
     }
 }

@@ -1,11 +1,12 @@
 package org.puig.puigapi.persistence.entity.operation;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
-import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.admin.Proveedor;
+import org.puig.puigapi.persistence.entity.finances.ArticuloMenu;
 import org.puig.puigapi.persistence.entity.utils.Direccion;
 import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
 import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
@@ -43,31 +44,49 @@ public class Sucursal implements Irrepetibe<String> {
      * @param producto el producto ingresado.
      * @param cantidad la cantidad ingresada.
      */
-    public void agregarExistencia(@NotNull Sucursal.Producto producto, int cantidad) {
+    public void agregarExistencia(@org.jetbrains.annotations.NotNull Sucursal.Producto producto,
+                                  double cantidad) {
         if (bodega.add(new Bodega(producto, cantidad))) return;
         bodega.forEach(d -> {
             if (d.getProducto().equals(producto)) d.setCantidad(d.getCantidad() + cantidad);
         });
     }
 
-    public boolean quitarExistencias(@NotNull Sucursal.Producto producto, int cantidad) {
-        if (!bodega.contains(new Bodega(producto, cantidad))) return true;
+    /**
+     * Realiza lo mismo que void agregarExitencias(producto, cantidad) pero este se basa en un objeto
+     * receta.
+     * @param receta la receta que contiene el producto y la cantidad a agregar.
+     */
+    public void agregarExistencias(@org.jetbrains.annotations.NotNull ArticuloMenu.Receta receta) {
+        agregarExistencia(receta.getProducto(), receta.getCantidad());
+    }
+
+    public void quitarExistencias(@org.jetbrains.annotations.NotNull Sucursal.Producto producto,
+                                     double cantidad) {
+        if (!bodega.contains(new Bodega(producto, cantidad))) return;
         bodega.forEach(d -> {
             if (d.getProducto().equals(producto)) d.setCantidad(d.getCantidad() - cantidad);
         });
-        return true;
+    }
+
+    public void quitarExistencias(@org.jetbrains.annotations.NotNull ArticuloMenu.Receta receta) {
+        quitarExistencias(receta.getProducto(), receta.getCantidad());
     }
 
     @Data
     @NoArgsConstructor
     public static class Request implements PostEntity<Sucursal> {
-        @NotBlank(message = "Nombre de sucursal no es válido")
-        @Pattern(regexp = "^[0-9A-Z ]+$",
+        @NotBlank(message = "Se requiere un nombre para la sucursal")
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
                 message = "Nombre de sucursal no es válido")
         private String nombre;
-        @NotNull private Direccion.Request ubicacion;
-        @NotNull @JsonFormat(pattern = "HH:mm:ss") private LocalTime hora_abre;
-        @NotNull @JsonFormat(pattern = "HH:mm:ss") private LocalTime hora_cierra;
+        @NotNull(message = "Se requiere la ubicación de la sucursal")
+        @Valid
+        private Direccion.RequestUsuario ubicacion;
+        @NotNull(message = "Se requiere la hora de apertura de la sucursal")
+        private LocalTime hora_abre;
+        @NotNull(message = "Se requiere la hora de cierre de la sucursal")
+        private LocalTime hora_cierra;
 
         @Override
         public Sucursal instance() {
@@ -93,7 +112,8 @@ public class Sucursal implements Irrepetibe<String> {
         private boolean inventariado;
 
         @Builder
-        public Producto(@NotNull Proveedor.Producto producto_proveedor, boolean inventariado) {
+        public Producto(@org.jetbrains.annotations.NotNull Proveedor.Producto producto_proveedor,
+                        boolean inventariado) {
             this.producto_proveedor = producto_proveedor;
             this.inventariado = inventariado;
         }
@@ -120,7 +140,7 @@ public class Sucursal implements Irrepetibe<String> {
 
         @Data
         public static class Request implements PostEntity<Sucursal.Producto> {
-            @NotNull
+            @NotNull(message = "Se requiere el id del producto de proveedor")
             private Proveedor.Producto producto_proveedor;
             private boolean inventariado = true;
 
@@ -144,6 +164,6 @@ public class Sucursal implements Irrepetibe<String> {
     @EqualsAndHashCode(exclude = "cantidad")
     public static class Bodega {
         @DBRef(lazy = true) private Producto producto;
-        private int cantidad;
+        private double cantidad;
     }
 }

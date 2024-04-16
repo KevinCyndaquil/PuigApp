@@ -1,12 +1,13 @@
 package org.puig.puigapi.persistence.entity.finances;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
+import org.puig.puigapi.persistence.entity.utils.Articulo;
 import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -28,7 +29,7 @@ public class ArticuloMenu extends Articulo {
     private Set<Receta> receta;
 
     /**
-     * Es el tipo o categoria en la que se puede clasificar un artículo del menú.
+     * Es el especializado o categoria en la que se puede clasificar un artículo del menú.
      */
     public enum Categorias {
         ADICIONAL,
@@ -37,8 +38,8 @@ public class ArticuloMenu extends Articulo {
     }
 
     @Override
-    public Tipo getTipo() {
-        return Tipo.ARTICULO_MENU;
+    public Especializaciones getEspecializado() {
+        return Especializaciones.ARTICULO_MENU;
     }
 
     @Data
@@ -50,7 +51,8 @@ public class ArticuloMenu extends Articulo {
         @Positive(message = "El precio del articulo debe ser mayor a cero")
         private double precio;
         private boolean visible = true;
-        @NotNull private Categorias categoria;
+        @NotNull(message = "Se requiere la categoria del artículo de menu")
+        private Categorias categoria;
         private Set<Receta> receta;
 
         @Override
@@ -69,7 +71,7 @@ public class ArticuloMenu extends Articulo {
     @Data
     @EqualsAndHashCode(exclude = "cantidad")
     public static class Receta {
-        @DBRef private Sucursal.Producto producto;
+        @DBRef(lazy = true) private Sucursal.Producto producto;
         @PositiveOrZero(message = "Cantidad de receta de un artículo de menu debe ser mayor o igual a cero")
         private double cantidad;
     }

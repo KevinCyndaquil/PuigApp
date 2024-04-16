@@ -8,7 +8,7 @@ package org.puig.puigapi.persistence.entity.utils.persistence;
 public interface PostEntity <E>{
 
     /**
-     * @return este objeto Request Entity a su objeto de real interes, aquel que se va a guardar
+     * @return este objeto RequestUsuario Entity a su objeto de real interes, aquel que se va a guardar
      * en la base de datos.
      */
     E instance();

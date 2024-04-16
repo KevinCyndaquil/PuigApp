@@ -4,13 +4,16 @@ import com.mongodb.MongoWriteException;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.responses.Response;
 import org.puig.puigapi.controller.responses.ErrorResponse;
-import org.puig.puigapi.errors.BusquedaSinResultadoException;
-import org.puig.puigapi.errors.CreacionVentaException;
-import org.puig.puigapi.errors.LlaveDuplicadaException;
+import org.puig.puigapi.exceptions.BusquedaSinResultadoException;
+import org.puig.puigapi.exceptions.CreacionVentaException;
+import org.puig.puigapi.exceptions.Errors;
+import org.puig.puigapi.exceptions.LlaveDuplicadaException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -24,7 +27,7 @@ public class ExceptionController {
     @ExceptionHandler(SignatureException.class)
     public ResponseEntity<Response> handleTokenException$Invalid(@NotNull SignatureException e) {
         return ErrorResponse.builder()
-                .error("signature_error")
+                .error(Errors.sin_autorizacion_error)
                 .status(HttpStatus.UNAUTHORIZED)
                 .message(e.getMessage())
                 .hint("Intenta obtener primero un token valido")
@@ -36,9 +39,9 @@ public class ExceptionController {
     public ResponseEntity<Response> handleIllegalArgument(@NotNull IllegalArgumentException e) {
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .error("argumento_invalido_error")
+                .error(Errors.argumento_invalido_error)
                 .message(e.getMessage())
-                .hint("Intenta leer la documentación de la api")
+                .hint("Intenta ponerte en contacto con un administrador para obtener más información del error")
                 .build()
                 .transform();
     }
@@ -51,10 +54,10 @@ public class ExceptionController {
 
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .error("error_de_atributo")
+                .error(Errors.atributo_invalido_error)
                 .message(message)
-                .hint("Utiliza el formato correcto para el campo (%s)"
-                        .formatted(e.getFieldError().getCode()))
+                .hint("Ponte en contacto con el administrador y utiliza el formato correcto para el campo %s"
+                        .formatted(e.getFieldError().getField()))
                 .build()
                 .transform();
     }
@@ -63,7 +66,7 @@ public class ExceptionController {
     public ResponseEntity<Response> handleCreacionVenta(@NotNull CreacionVentaException e) {
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .error("error_realizacion_venta")
+                .error(Errors.finalizacion_venta_error)
                 .message(e.getMessage())
                 .hint(e.getHint())
                 .build()
@@ -74,7 +77,7 @@ public class ExceptionController {
     public ResponseEntity<Response> handleMongoWrite() {
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .error("mongo_write_error")
+                .error(Errors.servicio_error)
                 .message("Ocurrio un error interno del servidor")
                 .hint("Llama a Dios")
                 .build()
@@ -85,7 +88,7 @@ public class ExceptionController {
     public ResponseEntity<Response> handleLlaveDuplicada(@NotNull LlaveDuplicadaException e) {
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .error("llave_duplicada")
+                .error(Errors.llave_duplicada_error)
                 .message(e.getMessage())
                 .hint("Escoge otro identificador en lugar de %s para guardar tu objeto"
                         .formatted(e.getId()))
@@ -97,10 +100,32 @@ public class ExceptionController {
     public ResponseEntity<Response> handleBusquedaSinResultado(@NotNull BusquedaSinResultadoException e) {
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
-                .error("busqueda_sin_resultado")
+                .error(Errors.busqueda_sin_resultado_error)
                 .message(e.getMessage())
-                .hint("Escoge otro valor (%s) o atributo (%s) para realizar la busqueda"
-                        .formatted(e.getValue(), e.getParam()))
+                .hint("Realiza una busqueda con diferentes parametros a %s=%s o ponte en contacto con el administrador"
+                        .formatted(e.getParam(), e.getValue()))
+                .build()
+                .transform();
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Response> handleHttpMessageNotReadable() {
+        return ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .error(Errors.mensaje_no_reconocible_error)
+                .message("Cuerpo de la solicitud no pudo ser entendida por el servidor")
+                .hint("Intenta verficar la sintaxis del mensaje o llama a un administrador para obtener más información")
+                .build()
+                .transform();
+    }
+
+    @ExceptionHandler(MongoTransactionException.class)
+    public ResponseEntity<Response> handleMongoTransaction(@NotNull MongoTransactionException e) {
+        return ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .error(Errors.rollback_transaction_error)
+                .message(e.getMessage())
+                .hint("Ponte en contacto con el administrador para poder entender a mejor detalle el error")
                 .build()
                 .transform();
     }

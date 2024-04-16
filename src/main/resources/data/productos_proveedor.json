@@ -1,41 +1,27 @@
 [
   {
     "proveedor": {
-      "id": "6609f9c961a4fd15c5264cd6",
-      "nombre": "",
-      "rfc": ""
+      "id": "661ddfd9076e8718e0b040ab"
     },
-    "nombre":"Coca Cola",
-    "precio":21.0,
-    "presentacion":{
-      "peso":600.0,
-      "envase":"PIEZA"
+    "nombre": "COCA COLA DE 600ML",
+    "precio": 388.74,
+    "presentacion": {
+      "peso_pieza": 600,
+      "cantidad": 24,
+      "empaque": "PAQUETE",
+      "calculable": false
     }
   },
   {
     "proveedor": {
-      "id":"6609f9c961a4fd15c5264cd6",
-      "nombre":"",
-      "rfc":""
+      "id": "661ddfd9076e8718e0b040ab"
     },
-    "nombre": "Dildo multiusos",
-    "precio": 0,
+    "nombre": "COCA COLA DE 3L",
+    "precio": 263.92,
     "presentacion": {
-      "peso": 1000.0,
-      "envase": "PIEZA"
-    }
-  },
-  {
-    "proveedor": {
-      "id":"6609f9c961a4fd15c5264cd6",
-      "nombre":"",
-      "rfc":""
-    },
-    "nombre": "Dilatador multiproposito",
-    "precio": 539.50,
-    "presentacion": {
-      "peso": 1000.0,
-      "envase": "PIEZA"
+      "peso_pieza": 3000,
+      "cantidad": 6,
+      "empaque": "PAQUETE"
     }
   }
 ]

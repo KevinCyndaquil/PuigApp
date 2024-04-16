@@ -7,6 +7,7 @@ import org.puig.puigapi.controller.responses.Response;
 import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
 import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
 import org.puig.puigapi.persistence.entity.utils.persistence.SimpleInstance;
+import org.puig.puigapi.persistence.repositories.PuigRepository;
 import org.puig.puigapi.service.PersistenceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +23,8 @@ import java.util.List;
 /**
  * Controlador génerico CRUD para la API de PollosPuig.
  * @param <T> La clase relacionada la creación de este servicio.
- * @param <ID> El tipo del ID de la clase.
- * @param <P> La clase PostEntity que se usará como intermediario durante las solicitudes Request.
+ * @param <ID> El especializado del ID de la clase.
+ * @param <P> La clase PostEntity que se usará como intermediario durante las solicitudes RequestUsuario.
  */
 
 @CrossOrigin(
@@ -36,19 +37,19 @@ import java.util.List;
 @Validated
 public abstract class PersistenceController
         <T extends Irrepetibe<ID>, ID, P extends PostEntity<T>> {
-    protected final PersistenceService <T, ID> service;
+    protected final PersistenceService <T, ID, ? extends PuigRepository<T, ID>> service;
     protected final Logger logger;
 
     protected static final String PuigAppHeader = "PuigAPI_reponse";
 
-    protected PersistenceController(PersistenceService<T, ID> service) {
+    protected PersistenceController(PersistenceService<T, ID, ? extends PuigRepository<T, ID>> service) {
         this.service = service;
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
     @PostMapping(produces = "application/json", consumes = "application/json")
     public ResponseEntity<Response> save(@NotNull @Valid @RequestBody P p) {
-        logger.info("Petición Request a las %s".formatted(LocalDateTime.now()));
+        logger.info("Petición RequestUsuario a las %s".formatted(LocalDateTime.now()));
 
         T t = p.instance();
         System.out.println("Entity to save: " + t);
@@ -72,7 +73,7 @@ public abstract class PersistenceController
 
     @PostMapping(value = "all", produces = "application/json", consumes = "application/json")
     public ResponseEntity<Response> save(@NotNull @Valid @RequestBody List<P> ps) {
-        logger.info("Request petition at: %s".formatted(LocalDateTime.now()));
+        logger.info("RequestUsuario petition at: %s".formatted(LocalDateTime.now()));
 
         List<T> ts = ps.stream()
                 .map(PostEntity::instance)
