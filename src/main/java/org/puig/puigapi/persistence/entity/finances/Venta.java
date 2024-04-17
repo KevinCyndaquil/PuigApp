@@ -9,7 +9,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.puig.puigapi.exceptions.CreacionVentaException;
+import org.puig.puigapi.exceptions.VentaInvalidaException;
 import org.puig.puigapi.persistence.entity.utils.Articulo;
 import org.puig.puigapi.persistence.entity.utils.DetalleDe;
 import org.puig.puigapi.persistence.entity.utils.Direccion;
@@ -87,6 +87,11 @@ public class Venta implements Irrepetibe<String> {
         return getMonto_total() < getPago_total();
     }
 
+    public void update() {
+        this.monto_total = getMonto_total();
+        this.pago_total = getPago_total();
+    }
+
     @Data
     @NoArgsConstructor
     public static class Request implements PostEntity<Venta> {
@@ -135,7 +140,7 @@ public class Venta implements Irrepetibe<String> {
         public void setRepartidor(Empleado repartidor) {
             if (repartidor != null)
                 if (repartidor.getPuesto() != Empleado.Puestos.REPARTIDOR)
-                    throw CreacionVentaException.empleadoNoEsRepartidor(repartidor);
+                    throw VentaInvalidaException.empleadoNoEsRepartidor(repartidor);
             this.repartidor = repartidor;
         }
 

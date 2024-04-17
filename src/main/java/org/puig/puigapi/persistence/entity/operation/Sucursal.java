@@ -16,6 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -71,6 +72,19 @@ public class Sucursal implements Irrepetibe<String> {
 
     public void quitarExistencias(@org.jetbrains.annotations.NotNull ArticuloMenu.Receta receta) {
         quitarExistencias(receta.getProducto(), receta.getCantidad());
+    }
+
+    public void generar(@org.jetbrains.annotations.NotNull Empleado empleado, Empleado.Estados estado) {
+        if(empleados.add(empleado.generarDetalle(estado))) return;
+        Empleado.Detalle detalle = empleados.stream()
+                .reduce(null, (a, d) -> d.getEmpleado().equals(empleado) ? d : a);
+        if (Objects.isNull(detalle))
+            throw new RuntimeException("Ocurrio un nullpointer inesperado");
+        detalle.setEstado(estado);
+    }
+
+    public void alta(@org.jetbrains.annotations.NotNull Empleado empleado) {
+        generar(empleado, Empleado.Estados.ALTA);
     }
 
     @Data

@@ -1,10 +1,8 @@
 package org.puig.puigapi.service.finances;
 
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.exceptions.CreacionVentaException;
+import org.puig.puigapi.exceptions.VentaInvalidaException;
 import org.puig.puigapi.persistence.entity.finances.ArticuloMenu;
 import org.puig.puigapi.persistence.entity.finances.Combo;
 import org.puig.puigapi.persistence.entity.finances.Venta;
@@ -16,15 +14,10 @@ import org.puig.puigapi.service.annotations.PuigService;
 import org.puig.puigapi.service.operation.EmpleadoService;
 import org.puig.puigapi.service.operation.SucursalService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Service;
+import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.reactive.TransactionalOperator;
-import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
@@ -42,59 +35,55 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
         super(repository);
     }
 
-    /*@Override
+    public List<Venta> readByFecha_venta(@NotNull LocalDate desde, @NotNull LocalDate hasta) {
+        return repository.findByFecha(desde, hasta);
+    }
+
+    public List<Venta> readByFecha_venta(@NotNull LocalDate fecha) {
+        return repository.findByFecha(fecha);
+    }
+
+    @Override
+    public List<Venta> readAllWhile() {
+        return super.readAllWhile(List.of(Venta.class, Venta.Reparto.class));
+    }
+
+    @Override
     @Transactional
     public Venta save(@NotNull Venta venta) {
         asignarPrecioDetalle(venta);
-        venta.setMonto_total(venta.getMonto_total());
-        venta.setPago_total(venta.getPago_total());
 
         //Obtener el puesto del empleado
-        Empleado asignada_a = empleadoService.readByID(venta.getAsignada_a().getId());
+        Empleado asignada_a = empleadoService.readByID(venta.getAsignada_a());
         venta.getAsignada_a().setPuesto(asignada_a.getPuesto());
 
         if (!venta.esValida())
-            throw CreacionVentaException.pagoInferiorAMonto(venta);
+            throw VentaInvalidaException.pagoInferiorAMonto(venta);
 
-        Mono<Venta> saveVenta = reactiveTemplate.save(venta);
+        Venta saveVenta = super.save(venta);
         Sucursal sucursal = sucursalService.readByID(venta.getRealizada_en());
         asignarPorReceta(venta, sucursal::quitarExistencias);
 
-        Query query = new Query(Criteria.where("_id").is(sucursal.getId()));
-        Update update = new Update().set("bodega", sucursal.getBodega());
-        Mono<UpdateResult> upSucursal = reactiveTemplate.updateFirst(query, update, Sucursal.class);
-        saveVenta
-                .then(upSucursal)
-                .then()
-                .as(transactionOperator::transactional);
-
-        return saveVenta.block();
-    }*/
-
-    @Override
-    public List<Venta> readAll() {
-        return repository.findAllVentas();
+        if (!sucursalService.update(sucursal))
+            throw new MongoTransactionException("Error durante la actualización de bodega de sucursal %s"
+                    .formatted(sucursal.getNombre()));
+        return saveVenta;
     }
 
-    /*@Override
+    @Override
     @Transactional
     public boolean delete(@NotNull String id) {
         Venta venta = readByID(id);
         Sucursal sucursal = sucursalService.readByID(venta.getRealizada_en());
         asignarPorReceta(venta, sucursal::agregarExistencias);
 
-        Query query = new Query(Criteria.where("_id").is(sucursal.getId()));
-        Update update = new Update().set("bodega", sucursal.getBodega());
-        Mono<UpdateResult> upSucursal = reactiveTemplate.updateFirst(query, update, Sucursal.class);
-        Mono<DeleteResult> deSucursal = reactiveTemplate.remove(venta);
+        boolean res = super.delete(id);
+        if (!sucursalService.update(sucursal))
+            throw new MongoTransactionException("Error durante la actualización de bodega de sucursal %s"
+                    .formatted(sucursal.getNombre()));
 
-        upSucursal
-                .then(deSucursal)
-                .then()
-                .as(transactionOperator::transactional);
-
-        return true;
-    }*/
+        return res;
+    }
 
     protected void asignarPrecioDetalle(@NotNull Venta venta) {
         venta.getDetalle().forEach(d -> {
@@ -119,5 +108,6 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
                         .forEach(consumer);
             }
         });
+        venta.update();
     }
 }

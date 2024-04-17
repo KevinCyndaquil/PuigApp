@@ -129,7 +129,7 @@ public abstract class PersistenceController
     public ResponseEntity<Response> readAll() {
         logger.info("Get petition at: %s".formatted(LocalDateTime.now()));
 
-        List<T> entities = service.readAll();
+        List<T> entities = service.readAllWhile();
         System.out.println("entites: " + entities);
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)

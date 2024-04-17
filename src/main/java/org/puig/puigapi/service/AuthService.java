@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.puig.puigapi.configuration.jwt.JwtService;
+import org.puig.puigapi.exceptions.LlaveDuplicadaException;
 import org.puig.puigapi.persistence.entity.utils.persistence.Credentials;
 import org.puig.puigapi.persistence.entity.utils.Persona;
 import org.puig.puigapi.persistence.repositories.PuigRepository;
@@ -40,7 +41,7 @@ public abstract class AuthService <U extends Persona, R extends PuigRepository<U
      * null.
      */
     @Override
-    public @Nullable U save(@NotNull U u) {
+    public U save(@NotNull U u) throws LlaveDuplicadaException {
         String salt = generateSalt();
         String password = u.getPassword();
 

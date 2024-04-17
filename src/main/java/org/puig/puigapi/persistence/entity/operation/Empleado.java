@@ -56,6 +56,10 @@ public class Empleado extends Persona {
         COCINERO
     }
 
+    public Detalle generarDetalle(Estados estado) {
+        return new Detalle(this, LocalDate.now(), null, estado);
+    }
+
     @Override
     public Tipo getTipo() {
         return Tipo.EMPLEADO;
@@ -70,7 +74,7 @@ public class Empleado extends Persona {
         @DBRef private Empleado empleado;
         @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_alta;
         @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_baja;
-        private Estados estado = Estados.ESPERA;
+        private Estados estado;
 
         @Data
         @NoArgsConstructor
@@ -80,7 +84,7 @@ public class Empleado extends Persona {
             @NotNull(message = "Se requiere la fecha de alta para generar un detalle")
             private LocalDate fecha_alta = LocalDate.now();
             @NotNull(message = "Se requiere un estado del empleado para generar un detalle")
-            private Estados estado = Estados.ESPERA;
+            private Estados estado;
 
             @Override
             public Detalle instance() {
@@ -94,7 +98,7 @@ public class Empleado extends Persona {
     }
 
     public enum Estados {
-        ESPERA,
+        VACACIONES,
         ALTA,
         BAJA,
         BAJA_TEMPORAL
@@ -115,8 +119,7 @@ public class Empleado extends Persona {
                 message = "Apellido materno de empelado invalido. Recuerda que debe ir en mayúsculas")
         private String apellido_materno;
         @NotNull(message = "Se requiere el rfc del empleado")
-        @Valid
-        private RFC rfc;
+        @Valid private RFC rfc;
         @Valid private Telefono telefono;
         @NotBlank(message = "Se requiere una contraseña de al menos dos caracteres para el empleado")
         @Pattern(regexp = "^.{2,}$", message = "Se requiere una contraseña de al menos dos caracteres")
@@ -127,13 +130,12 @@ public class Empleado extends Persona {
         private LocalDate fecha_nacimiento;
         private LocalDate fecha_alta = LocalDate.now();
         @NotNull(message = "Se requiere la curp del empleado")
-        @Valid
-        private Curp curp;
+        @Valid private Curp curp;
         @NotNull(message = "Se requiere el puesto del empleado")
         private Puestos puesto;
         @NotNull(message = "Se requiere la cuenta de nomina del empleado")
-        @Valid
-        private Tarjeta.Request cuenta_nomina;
+        @Valid private Tarjeta.Request cuenta_nomina;
+        @NotNull private Sucursal sucursal_alta;
 
         @Override
         public Empleado instance() {
@@ -189,5 +191,13 @@ public class Empleado extends Persona {
     @Override
     public String getId() {
         return nickname;
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class Updater {
+        @NotNull private Empleado empleado;
+        @NotNull private Sucursal sucursal;
+        @NotNull private Estados estado;
     }
 }

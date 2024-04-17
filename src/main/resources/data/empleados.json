@@ -1,18 +1,21 @@
 [
   {
-    "nombre": "Joseno",
-    "apellido_paterno": "Velazquez",
-    "apellido_materno": "Marquez",
-    "rfc": "VEMJ040403HU2",
-    "telefono": "962-125-96-98",
+    "nombre": "LUIS ALBERTO",
+    "apellido_paterno": "HURTADO",
+    "apellido_materno": "GÓMEZ",
+    "rfc": "HUGL031224TU1",
+    "telefono": "962 200 2312",
     "password": "01",
     "nickname": "01",
     "fecha_nacimiento": "2003-04-04",
-    "curp": "VEMJ040404HCSLMS91",
+    "curp": "HUGL031224HCSRMSA0",
     "puesto": "CAJERO",
     "cuenta_nomina": {
-      "banco": "bbva",
-      "numero": "0000-0000-0000-0000"
+      "banco": "BBVA",
+      "numero": "0000 0000 0000 0000"
+    },
+    "sucursal_alta": {
+      "id": "661de089076e8718e0b040b0"
     }
   },
   {

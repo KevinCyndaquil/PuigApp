@@ -4,10 +4,8 @@ import com.mongodb.MongoWriteException;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.responses.Response;
 import org.puig.puigapi.controller.responses.ErrorResponse;
-import org.puig.puigapi.exceptions.BusquedaSinResultadoException;
-import org.puig.puigapi.exceptions.CreacionVentaException;
-import org.puig.puigapi.exceptions.Errors;
-import org.puig.puigapi.exceptions.LlaveDuplicadaException;
+import org.puig.puigapi.exceptions.*;
+import org.puig.puigapi.exceptions.AltaEmpleadoInterrumpidaException.Reasons;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.mongodb.MongoTransactionException;
@@ -47,7 +45,7 @@ public class ExceptionController {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Response> handleBind(@NotNull MethodArgumentNotValidException e) {
+    public ResponseEntity<Response> handleMethodArgumentoNotValid(@NotNull MethodArgumentNotValidException e) {
         String message = e.getFieldError() == null ?
                 "not defined" :
                 e.getFieldError().getDefaultMessage();
@@ -62,8 +60,8 @@ public class ExceptionController {
                 .transform();
     }
 
-    @ExceptionHandler(CreacionVentaException.class)
-    public ResponseEntity<Response> handleCreacionVenta(@NotNull CreacionVentaException e) {
+    @ExceptionHandler(VentaInvalidaException.class)
+    public ResponseEntity<Response> handleCreacionVenta(@NotNull VentaInvalidaException e) {
         return ErrorResponse.builder()
                 .status(HttpStatus.BAD_REQUEST)
                 .error(Errors.finalizacion_venta_error)
@@ -126,6 +124,19 @@ public class ExceptionController {
                 .error(Errors.rollback_transaction_error)
                 .message(e.getMessage())
                 .hint("Ponte en contacto con el administrador para poder entender a mejor detalle el error")
+                .build()
+                .transform();
+    }
+
+    @ExceptionHandler(AltaEmpleadoInterrumpidaException.class)
+    public ResponseEntity<Response> handleAltaEmpleadoInterrumpida(@NotNull AltaEmpleadoInterrumpidaException e) {
+        return ErrorResponse.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .error(Errors.rollback_transaction_error)
+                .message(e.getMessage())
+                .hint(e.getReason() == Reasons.ID_ERROR ?
+                        "Intenta guardar al empleado con otro nickname" :
+                        "Busca ayuda de un administrador para resolver el problema")
                 .build()
                 .transform();
     }

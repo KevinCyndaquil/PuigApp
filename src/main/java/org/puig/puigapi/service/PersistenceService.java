@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.exceptions.BusquedaSinResultadoException;
 import org.puig.puigapi.exceptions.LlaveDuplicadaException;
@@ -49,7 +50,24 @@ public abstract class PersistenceService <
     }
 
     public List<T> readAll() {
-        return repository.findAllByClass(type.getName());
+        return repository.findAll();
+    }
+
+    /**
+     * Busca en una colección y retorna solo aquellas entidades que sean del mismo tipo que la de este
+     * servicio.
+     * @return una lista con las entidades del mismo tipo que este.
+     */
+    public List<T> readAllWhile() {
+        return repository.findByClass(type.getName());
+    }
+
+    public List<T> readAllWhile(@NotNull List<Class<? extends T>> _classes) {
+        Object[] params = _classes.stream()
+                .map(c -> new Document("_class", c.getName()))
+                .toArray();
+
+        return repository.findByClasses(params);
     }
 
     /**
