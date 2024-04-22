@@ -2,7 +2,7 @@
   {
     "folio": "DAB000072461",
     "proveedor": {
-      "id": "661de065076e8718e0b040ae"
+      "id": "661ddfd9076e8718e0b040ab"
     },
     "sucursal": {
       "id": "661de089076e8718e0b040b0"
@@ -12,15 +12,51 @@
         "objeto": {
           "id": "661de065076e8718e0b040ae"
         },
-        "cantidad": 6,
+        "cantidad": 120,
         "iva": 50.2
       },
       {
         "objeto": {
           "id": "661de065076e8718e0b040af"
         },
-        "cantidad": 10,
+        "cantidad": 30,
         "iva": 75.9
+      }
+    ]
+  },
+  {
+    "folio": "DAB000072462",
+    "proveedor": {
+      "id": "661de028076e8718e0b040ac"
+    },
+    "sucursal": {
+      "id": "661de089076e8718e0b040b0"
+    },
+    "detalle": [
+      {
+        "objeto": {
+          "id": "662167acce60f26adb37ead5"
+        },
+        "cantidad": 200,
+        "iva": 50.2
+      }
+    ]
+  },
+  {
+    "folio": "DAB000072463",
+    "proveedor": {
+      "id": "661de028076e8718e0b040ac"
+    },
+    "sucursal": {
+      "id": "661de089076e8718e0b040b0"
+    },
+    "detalle": [
+      {
+        "objeto": {
+          "id": "6625c4f605c17269857d90f2"
+        },
+        "cantidad": 3,
+        "iva": 92.67
       }
     ]
   }

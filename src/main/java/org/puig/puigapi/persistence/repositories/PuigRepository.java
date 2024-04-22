@@ -1,7 +1,6 @@
 package org.puig.puigapi.persistence.repositories;
 
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.persistence.entity.finances.Venta;
 import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -15,6 +14,7 @@ public interface PuigRepository<T extends Irrepetibe<ID>, ID>
 
     @Query("{_class: ?0}")
     @NotNull List<T> findByClass(@NotNull String _class);
+
     @Query("{$or: ?0}")
-    @NotNull List<T> findByClasses(@NotNull Object[] _classes);
+    @NotNull List<T> findByClasses(@NotNull Object[] matches);
 }

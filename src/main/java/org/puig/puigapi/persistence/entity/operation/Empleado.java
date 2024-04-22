@@ -56,7 +56,7 @@ public class Empleado extends Persona {
         COCINERO
     }
 
-    public Detalle generarDetalle(Estados estado) {
+    public Detalle generarDetalle(EstadosEmpresa estado) {
         return new Detalle(this, LocalDate.now(), null, estado);
     }
 
@@ -74,7 +74,7 @@ public class Empleado extends Persona {
         @DBRef private Empleado empleado;
         @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_alta;
         @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_baja;
-        private Estados estado;
+        private EstadosEmpresa estado;
 
         @Data
         @NoArgsConstructor
@@ -84,7 +84,7 @@ public class Empleado extends Persona {
             @NotNull(message = "Se requiere la fecha de alta para generar un detalle")
             private LocalDate fecha_alta = LocalDate.now();
             @NotNull(message = "Se requiere un estado del empleado para generar un detalle")
-            private Estados estado;
+            private Empleado.EstadosEmpresa estado;
 
             @Override
             public Detalle instance() {
@@ -97,7 +97,7 @@ public class Empleado extends Persona {
         }
     }
 
-    public enum Estados {
+    public enum EstadosEmpresa {
         VACACIONES,
         ALTA,
         BAJA,
@@ -198,6 +198,6 @@ public class Empleado extends Persona {
     public static class Updater {
         @NotNull private Empleado empleado;
         @NotNull private Sucursal sucursal;
-        @NotNull private Estados estado;
+        @NotNull private Empleado.EstadosEmpresa estado;
     }
 }

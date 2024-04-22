@@ -38,7 +38,7 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return id -> usuarioRepository.findByCorreo(id)
+        return id -> usuarioRepository.findById(id)
                 .map(Persona.class::cast)
                 .orElse(empleadoRepository.findByNickname(id)
                         .map(Persona.class::cast)

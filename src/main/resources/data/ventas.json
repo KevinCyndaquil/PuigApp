@@ -1,25 +1,79 @@
-{
-  "detalle": [
-    {
-      "object": {
-        "codigo": "pp2",
-        "tipo": "ARTICULO_MENU"
+[
+  {
+    "detalle": [
+      {
+        "objeto": {
+          "codigo": "RCC6",
+          "especializado": "ARTICULO_MENU"
+        },
+        "cantidad": 2
       },
-      "cantidad": 2
-    }
-  ],
-  "forma_entrega": "RESTAURANTE",
-  "realizada_en": {
-    "id": "66106616f08470703b86c50a"
+      {
+        "objeto": {
+          "codigo": "PCMP00",
+          "especializado": "ARTICULO_MENU"
+        },
+        "cantidad": 2
+      }
+    ],
+    "forma_entrega": "RESTAURANTE",
+    "realizada_en": {
+      "id": "661de089076e8718e0b040b0"
+    },
+    "tomada_por": {
+      "nickname": "01"
+    },
+    "pagos": [
+      {
+        "pago": 500.0,
+        "modo": "EFECTIVO"
+      }
+    ],
+    "internet": false
   },
-  "asignada_a": {
-    "nickname": "01"
-  },
-  "pagos": [
-    {
-      "pago": 500.0,
-      "modo": "EFECTIVO"
+  {
+    "detalle": [
+      {
+        "objeto": {
+          "codigo": "RCC6",
+          "especializado": "ARTICULO_MENU"
+        },
+        "cantidad": 1
+      },
+      {
+        "objeto": {
+          "codigo": "PCMP00",
+          "especializado": "ARTICULO_MENU"
+        },
+        "cantidad": 1
+      }
+    ],
+    "realizada_en": {
+      "id": "661de089076e8718e0b040b0"
+    },
+    "tomada_por": {
+      "nickname": "01"
+    },
+    "pagos": [
+      {
+        "pago": 500.0,
+        "modo": "EFECTIVO"
+      }
+    ],
+    "internet": false,
+    "cliente": {
+      "nombre": "JOSENO",
+      "rfc": "JOSE090909TU4",
+      "telefono": "+(52) 962 185 9697",
+      "direcciones": [
+        {
+          "colonia": "ENCINADA",
+          "codigo_postal": "90121",
+          "calle_principal": "CALLE GARDENÍAS",
+          "lote": "B1",
+          "descripcion_vivienda": "Departamento color caqui"
+        }
+      ]
     }
-  ],
-  "internet": false
-}
+  }
+]

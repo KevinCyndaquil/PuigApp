@@ -1,7 +1,12 @@
 package org.puig.puigapi.controller.outside;
 
+import jakarta.validation.Valid;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.AuthController;
+import org.puig.puigapi.controller.responses.ObjectResponse;
+import org.puig.puigapi.controller.responses.Response;
+import org.puig.puigapi.persistence.entity.utils.data.Correo;
+import org.puig.puigapi.persistence.entity.utils.data.Telefono;
 import org.puig.puigapi.persistence.entity.utils.persistence.Credentials;
 import org.puig.puigapi.controller.PersistenceController;
 import org.puig.puigapi.persistence.entity.operation.Usuario;
@@ -24,6 +29,32 @@ public class UsuarioController extends PersistenceController<Usuario, String, Us
     public UsuarioController(UsuarioService service) {
         super(service );
         this.service = service;
+    }
+
+    @Valid
+    @PostMapping("where/correo/is")
+    public ResponseEntity<Response> readByCorreo(@NotNull Correo correo) {
+        Usuario usuario = service.readByCorreo(correo);
+
+        return ObjectResponse.builder()
+                .status(HttpStatus.OK)
+                .message("Usuario encontrado")
+                .body(usuario)
+                .build()
+                .transform();
+    }
+
+    @Valid
+    @PostMapping("where/telefono/is")
+    public ResponseEntity<Response> readByTelefono(@NotNull Telefono telefono) {
+        Usuario usuario = service.readByTelefono(telefono);
+
+        return ObjectResponse.builder()
+                .status(HttpStatus.OK)
+                .message("Usuario encontrado")
+                .body(usuario)
+                .build()
+                .transform();
     }
 
     @Override

@@ -89,7 +89,7 @@ public class ExceptionController {
                 .error(Errors.llave_duplicada_error)
                 .message(e.getMessage())
                 .hint("Escoge otro identificador en lugar de %s para guardar tu objeto"
-                        .formatted(e.getId()))
+                        .formatted(e.showId()))
                 .build()
                 .transform();
     }

@@ -37,6 +37,7 @@ import java.util.List;
 @Validated
 public abstract class PersistenceController
         <T extends Irrepetibe<ID>, ID, P extends PostEntity<T>> {
+
     protected final PersistenceService <T, ID, ? extends PuigRepository<T, ID>> service;
     protected final Logger logger;
 
@@ -49,19 +50,11 @@ public abstract class PersistenceController
 
     @PostMapping(produces = "application/json", consumes = "application/json")
     public ResponseEntity<Response> save(@NotNull @Valid @RequestBody P p) {
-        logger.info("Petición RequestUsuario a las %s".formatted(LocalDateTime.now()));
+        logger.info("Petición Post a las %s".formatted(LocalDateTime.now()));
 
         T t = p.instance();
-        System.out.println("Entity to save: " + t);
         T saved = service.save(t);
 
-        if (saved == null)
-            return Response.builder()
-                    .status(HttpStatus.NOT_MODIFIED)
-                    .message("%s was not created"
-                            .formatted(t.getClass().getSimpleName()))
-                    .build()
-                    .transform();
         return ObjectResponse.builder()
                 .status(HttpStatus.CREATED)
                 .message("%s was succesfuly created"
@@ -73,7 +66,7 @@ public abstract class PersistenceController
 
     @PostMapping(value = "all", produces = "application/json", consumes = "application/json")
     public ResponseEntity<Response> save(@NotNull @Valid @RequestBody List<P> ps) {
-        logger.info("RequestUsuario petition at: %s".formatted(LocalDateTime.now()));
+        logger.info("Petición Post a las: %s".formatted(LocalDateTime.now()));
 
         List<T> ts = ps.stream()
                 .map(PostEntity::instance)
@@ -88,7 +81,7 @@ public abstract class PersistenceController
                 .transform();
     }
 
-    @PostMapping(value = "only_id", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "where/id/is", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Response> readByID(
             @NotNull @Valid @RequestBody SimpleInstance<ID> simpleInstance) {
         logger.info("Get petition at:  %s".formatted(LocalDateTime.now()));
@@ -103,7 +96,7 @@ public abstract class PersistenceController
                 .transform();
     }
 
-    @PostMapping(value = "read", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "where/object/matches", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Response> read(@NotNull @Valid @RequestBody T t) {
         logger.info("Get petition at:  %s".formatted(LocalDateTime.now()));
 
@@ -163,7 +156,8 @@ public abstract class PersistenceController
 
     @DeleteMapping(produces = "application/json")
     public ResponseEntity<Response> delete(@RequestParam("id") ID id) {
-        logger.info("Delete petition at: %s".formatted(LocalDateTime.now()));
+        logger.info("Delete petition at: %s"
+                .formatted(LocalDateTime.now()));
 
         boolean result = service.delete(id);
 

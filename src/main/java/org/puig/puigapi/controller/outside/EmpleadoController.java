@@ -8,6 +8,7 @@ import org.puig.puigapi.controller.PersistenceController;
 import org.puig.puigapi.controller.responses.ObjectResponse;
 import org.puig.puigapi.controller.responses.Response;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
+import org.puig.puigapi.persistence.entity.utils.data.Correo;
 import org.puig.puigapi.persistence.entity.utils.persistence.Credentials;
 import org.puig.puigapi.service.operation.EmpleadoService;
 import org.puig.puigapi.service.operation.SucursalService;
@@ -38,6 +39,7 @@ public class EmpleadoController
         this.service = service;
     }
 
+    @Valid
     @Override
     public ResponseEntity<Response> save(@NotNull Empleado.Request request) {
         Empleado saved = sucursalService.generarAlta(request.getSucursal_alta(), request.instance());

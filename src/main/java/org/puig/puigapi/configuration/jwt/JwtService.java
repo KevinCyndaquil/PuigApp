@@ -25,7 +25,7 @@ public class JwtService {
         Date expiryDate = new Date(now.getTime() + EXPIRES_IN);
 
         return Jwts.builder()
-                .subject(persona.getUsername())
+                .subject(persona.getId())
                 .claim("type", persona.getTipo())
                 .issuedAt(now)
                 .expiration(expiryDate)

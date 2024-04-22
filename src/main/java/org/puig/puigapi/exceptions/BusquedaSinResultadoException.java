@@ -3,6 +3,8 @@ package org.puig.puigapi.exceptions;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 @Getter
 public class BusquedaSinResultadoException extends RuntimeException {
     private final String param;
@@ -23,5 +25,12 @@ public class BusquedaSinResultadoException extends RuntimeException {
                 .formatted(paramName, paramValue));
         this.param = paramName;
         this.value = paramValue;
+    }
+
+    public BusquedaSinResultadoException(@NotNull Class<?> _class, String[] params, Object[] values) {
+        super("No se encontraron %s para resultados para %s con valor %s"
+                .formatted(_class.getSimpleName(), params, values));
+        this.param = Arrays.toString(params);
+        this.value = values;
     }
 }

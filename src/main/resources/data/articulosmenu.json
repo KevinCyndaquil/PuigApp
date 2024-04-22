@@ -1,0 +1,44 @@
+[
+  {
+    "codigo": "PCMP00",
+    "nombre": "UN POLLO FRITO",
+    "precio": 170,
+    "categoria": "POLLO",
+    "receta": [
+      {
+        "producto": {
+          "codigo": "6621c6e29730c056af1c5071"
+        },
+        "cantidad": 1
+      }
+    ]
+  },
+  {
+    "codigo": "RCC6",
+    "nombre": "COCA COLA 600ML",
+    "precio": 24,
+    "categoria": "BEBIDA",
+    "receta": [
+      {
+        "producto": {
+          "codigo": "661de0e7076e8718e0b040b2"
+        },
+        "cantidad": 1
+      }
+    ]
+  },
+  {
+    "codigo": "PPP0",
+    "nombre": "PURE DE PAPA CHICO 100G",
+    "precio": 25,
+    "categoria": "ADICIONAL",
+    "receta": [
+      {
+        "producto": {
+          "codigo": "6625c56d05c17269857d90f3"
+        },
+        "cantidad": 120
+      }
+    ]
+  }
+]

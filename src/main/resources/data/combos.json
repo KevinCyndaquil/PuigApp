@@ -1,0 +1,31 @@
+[
+  {
+    "codigo": "PCMPP6",
+    "nombre": "PURE DE PAPA CHICO 100G",
+    "precio": 259,
+    "contenido": [
+      {
+        "objeto": {
+          "codigo": "PCMP00",
+          "especializado": "ARTICULO_MENU"
+        },
+        "cantidad": 1
+      },
+      {
+        "objeto": {
+          "codigo": "RCC6",
+          "especializado": "ARTICULO_MENU"
+        },
+        "cantidad": 2
+      },
+      {
+        "objeto": {
+          "codigo": "PPP0",
+          "especializado": "ARTICULO_MENU"
+        },
+        "cantidad": 2
+      }
+    ],
+    "inicia": "2024-04-01"
+  }
+]

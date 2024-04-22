@@ -1,21 +1,17 @@
 package org.puig.puigapi.persistence.entity.finances;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.puig.puigapi.exceptions.VentaInvalidaException;
+import org.puig.puigapi.persistence.entity.operation.Usuario;
 import org.puig.puigapi.persistence.entity.utils.Articulo;
 import org.puig.puigapi.persistence.entity.utils.DetalleDe;
-import org.puig.puigapi.persistence.entity.utils.Direccion;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
-import org.puig.puigapi.persistence.entity.utils.data.Telefono;
 import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
 import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +31,14 @@ import java.util.Set;
  */
 
 @JsonIgnoreProperties(value = { "target", "source" })
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        property = "forma_entrega"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Venta.class, names = {"PARA_LLEVAR", "RESTAURANTE"}),
+        @JsonSubTypes.Type(value = Venta.Reparto.class, name = "REPARTO")
+})
 
 @Data
 @SuperBuilder
@@ -55,6 +59,7 @@ public class Venta implements Irrepetibe<String> {
     private Set<DetalleDe<Articulo>> detalle = new HashSet<>();
     @JsonProperty(access = Access.READ_ONLY) private double monto_total;
     @JsonProperty(access = Access.READ_ONLY) private double pago_total;
+    private Usuario cliente;
     private FormasEntrega forma_entrega;
     private LocalDateTime fecha_venta;
     @DBRef private Sucursal realizada_en;
@@ -84,7 +89,8 @@ public class Venta implements Irrepetibe<String> {
     }
 
     public boolean esValida() {
-        return getMonto_total() < getPago_total();
+        update();
+        return monto_total < pago_total;
     }
 
     public void update() {
@@ -95,6 +101,7 @@ public class Venta implements Irrepetibe<String> {
     @Data
     @NoArgsConstructor
     public static class Request implements PostEntity<Venta> {
+        private Usuario.VentaRequest cliente;
         @NotEmpty(message = "Se deben añadir artículos a la venta_request")
         private Set<DetalleDe<Articulo>> detalle;
         @NotNull(message = "Se requiere la forma de entrega de la venta")
@@ -110,12 +117,14 @@ public class Venta implements Irrepetibe<String> {
         @Override
         public Venta instance() {
             return Venta.builder()
+                    .cliente(cliente != null ? cliente.instance() : null)
                     .detalle(detalle)
                     .forma_entrega(forma_entrega)
                     .realizada_en(realizada_en)
                     .tomada_por(tomada_por)
                     .fecha_venta(LocalDateTime.now())
                     .pagos(pagos)
+                    .internet(internet)
                     .build();
         }
     }
@@ -130,10 +139,8 @@ public class Venta implements Irrepetibe<String> {
     @EqualsAndHashCode(callSuper = true)
     @Document(collection = "finances")
     public static class Reparto extends Venta {
-        private Direccion direccion;
+        @DBRef private Usuario cliente_reparto;
         private double costo_reparto;
-        private String nombre_cliente;
-        private Telefono telefono_cliente;
         private Empleado repartidor;
 
         @JsonSetter("repartidor")
@@ -147,36 +154,33 @@ public class Venta implements Irrepetibe<String> {
         @Data
         @NoArgsConstructor
         public static class Request implements PostEntity<Reparto> {
-            @Valid
-            @NotNull(message = "Se requiere una instancia correcta de Venta.Request")
-            private Venta.Request venta_request;
-            @Valid
-            @NotNull(message = "Se requiere una direccion de entrega para el reparto")
-            private Direccion.RequestUsuario direccion;
+            @NotNull(message = "Se require el cliente de la compra de reparto")
+            @Valid private Usuario.RepartoRequest cliente;
+            @NotEmpty(message = "Se deben añadir artículos a la venta_request")
+            private Set<DetalleDe<Articulo>> detalle;
+            @NotNull(message = "Se require la sucursal donde se está realizando la venta")
+            private Sucursal realizada_en;
+            @NotNull(message = "Se requiere el empleado que inicio sesión")
+            private Empleado tomada_por;
+            @NotEmpty(message = "Se deben añadir pagos a la venta")
+            private List<Pago> pagos;
+            private boolean internet = false;
             @PositiveOrZero(message = "Costo de reparto debe ser mayor o igual a cero")
             @Value("${puig.ventas.costo-reparto}")
             private double costo_reparto;
-            @NotBlank(message = "Se requiere el nombre del cliente para la venta de reparto")
-            @Pattern(regexp = "^[A-Z]+(?: [A-Z]+)*$",
-                    message = "Nombre de cliente de venta de reparto invalido. Recuerda que debe ir en mayúsculas")
-            private String nombre_cliente;
-            @Valid
-            @NotNull(message = "Se requiere el número de telefono del cliente")
-            private Telefono telefono_cliente;
 
             @Override
             public Reparto instance() {
                 return Reparto.builder()
-                        .detalle(venta_request.detalle)
-                        .forma_entrega(venta_request.forma_entrega)
-                        .realizada_en(venta_request.realizada_en)
+                        .detalle(detalle)
+                        .forma_entrega(FormasEntrega.REPARTO)
+                        .realizada_en(realizada_en)
                         .fecha_venta(LocalDateTime.now())
-                        .tomada_por(venta_request.tomada_por)
-                        .pagos(venta_request.pagos)
-                        .direccion(direccion.instance())
+                        .tomada_por(tomada_por)
+                        .pagos(pagos)
+                        .internet(internet)
+                        .cliente_reparto(cliente.instance())
                         .costo_reparto(costo_reparto)
-                        .nombre_cliente(nombre_cliente)
-                        .telefono_cliente(telefono_cliente)
                         .build();
             }
         }
@@ -194,5 +198,13 @@ public class Venta implements Irrepetibe<String> {
             DEBITO,
             CREDITO
         }
+    }
+
+    @Data
+    @NoArgsConstructor
+    public static class ReporteProducto {
+        private ArticuloMenu articulo;
+        private double cantidad_total;
+        private double monto_total;
     }
 }

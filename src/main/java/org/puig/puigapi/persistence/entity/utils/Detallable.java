@@ -11,7 +11,7 @@ import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
 
 public interface Detallable <Obj extends ObjetoConPrecio & Irrepetibe<?>> {
     @JsonGetter("objeto") Obj getObjeto();
-    @JsonSetter("cantidad") int getCantidad();
+    @JsonSetter("cantidad") double getCantidad();
 
     /**
      * @return la multiplicación de precio de objeto * cantidad

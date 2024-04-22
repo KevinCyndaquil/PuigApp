@@ -1,4 +1,4 @@
-package org.puig.puigapi.service.admin;
+package org.puig.puigapi.service.operation;
 
 import lombok.NonNull;
 import lombok.Setter;
@@ -8,6 +8,7 @@ import org.puig.puigapi.persistence.entity.admin.Proveedor;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
 import org.puig.puigapi.persistence.repositories.admin.ProductoSucursalRepository;
 import org.puig.puigapi.service.PersistenceService;
+import org.puig.puigapi.service.admin.ProductoProveedorService;
 import org.puig.puigapi.service.annotations.PuigService;
 import org.springframework.beans.factory.annotation.Autowired;
 

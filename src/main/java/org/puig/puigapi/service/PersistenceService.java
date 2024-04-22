@@ -13,8 +13,10 @@ import org.puig.puigapi.persistence.repositories.PuigRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class PersistenceService <
@@ -43,10 +45,10 @@ public abstract class PersistenceService <
                 .orElseThrow(() -> new BusquedaSinResultadoException("id", id));
     }
 
-    public T readByID(@NotNull T t) throws BusquedaSinResultadoException {
-        if (Objects.isNull(t.getId()))
+    public <E extends Irrepetibe<ID>> T readByID(@NotNull E e) throws BusquedaSinResultadoException {
+        if (Objects.isNull(e.getId()))
             throw new IllegalArgumentException("Objeto proporcionado durante la busqueda contiene un id nulo");
-        return readByID(t.getId());
+        return readByID(e.getId());
     }
 
     public List<T> readAll() {
@@ -62,11 +64,10 @@ public abstract class PersistenceService <
         return repository.findByClass(type.getName());
     }
 
-    public List<T> readAllWhile(@NotNull List<Class<? extends T>> _classes) {
-        Object[] params = _classes.stream()
+    public List<T> readAllWhile(@NotNull Class<?>... _classes) {
+        Object[] params = Arrays.stream(_classes)
                 .map(c -> new Document("_class", c.getName()))
                 .toArray();
-
         return repository.findByClasses(params);
     }
 
@@ -95,6 +96,10 @@ public abstract class PersistenceService <
     public boolean delete(@NotNull ID id) {
         repository.deleteById(id);
         return repository.findById(id).isEmpty();
+    }
+
+    public int count(@NotNull Class<?>... _classes) {
+        return readAllWhile(_classes).size();
     }
 }
 

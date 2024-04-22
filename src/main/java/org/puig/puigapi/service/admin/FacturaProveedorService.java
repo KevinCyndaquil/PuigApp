@@ -8,10 +8,14 @@ import org.puig.puigapi.persistence.entity.operation.Sucursal;
 import org.puig.puigapi.persistence.repositories.admin.FacturaProveedorRepository;
 import org.puig.puigapi.service.PersistenceService;
 import org.puig.puigapi.service.annotations.PuigService;
+import org.puig.puigapi.service.operation.ProductoSucursalService;
 import org.puig.puigapi.service.operation.SucursalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
 
 import static org.puig.puigapi.persistence.entity.admin.Proveedor.*;
 
@@ -29,6 +33,12 @@ public class FacturaProveedorService extends
         super(repository);
     }
 
+    public List<Factura> readByDate(@NotNull LocalDate fecha) {
+        var start = fecha.atStartOfDay();
+        var end = fecha.atStartOfDay().plusDays(1).minusSeconds(1);
+        return repository.findByFecha(start, end);
+    }
+
     @Override
     @Transactional
     public Factura save(@NotNull Factura factura) throws LlaveDuplicadaException {
@@ -36,8 +46,10 @@ public class FacturaProveedorService extends
 
         factura.getDetalle().forEach(d -> {
             String productoProveedor_id = d.getObjeto().getId();
-            Proveedor.Producto productoProveedor = productoProveedorService.readByID(productoProveedor_id);
-            Sucursal.Producto productoSucursal = productoSucursalService.saveOrReadById(productoProveedor_id);
+            Proveedor.Producto productoProveedor =
+                    productoProveedorService.readByID(productoProveedor_id);
+            Sucursal.Producto productoSucursal =
+                    productoSucursalService.saveOrReadById(productoProveedor_id);
 
             d.setObjeto(productoProveedor);
             sucursal.agregarExistencia(productoSucursal, d.getCantidad());
@@ -48,7 +60,6 @@ public class FacturaProveedorService extends
         if (!sucursalService.update(sucursal))
             throw new MongoTransactionException("Error al actualizar la bodega de sucursal %s"
                     .formatted(sucursal.getNombre()));
-
         return saFactura;
     }
 
@@ -70,7 +81,8 @@ public class FacturaProveedorService extends
 
         if (res)
             if (!sucursalService.update(sucursal))
-                throw new MongoTransactionException("Error al actualizar la bodega de sucursal %s");
+                throw new MongoTransactionException("Error al actualizar la bodega de sucursal %s"
+                        .formatted(sucursal.getNombre()));
         return res;
     }
 }

@@ -26,14 +26,14 @@ import java.util.Set;
 @Document(collection = "finances")
 public class ArticuloMenu extends Articulo {
     private Categorias categoria;
-    private Set<Receta> receta;
+    private Set<Porcion> receta;
 
     /**
      * Es el especializado o categoria en la que se puede clasificar un artículo del menú.
      */
     public enum Categorias {
+        POLLO,
         ADICIONAL,
-        PLATILLO,
         BEBIDA
     }
 
@@ -53,7 +53,7 @@ public class ArticuloMenu extends Articulo {
         private boolean visible = true;
         @NotNull(message = "Se requiere la categoria del artículo de menu")
         private Categorias categoria;
-        private Set<Receta> receta;
+        private Set<Porcion> receta;
 
         @Override
         public ArticuloMenu instance() {
@@ -70,9 +70,14 @@ public class ArticuloMenu extends Articulo {
 
     @Data
     @EqualsAndHashCode(exclude = "cantidad")
-    public static class Receta {
-        @DBRef(lazy = true) private Sucursal.Producto producto;
+    public static class Porcion {
+        @DBRef(lazy = true)
+        private Sucursal.Producto producto;
         @PositiveOrZero(message = "Cantidad de receta de un artículo de menu debe ser mayor o igual a cero")
         private double cantidad;
+
+        public void per(double cantidad) {
+            this.cantidad *= cantidad;
+        }
     }
 }

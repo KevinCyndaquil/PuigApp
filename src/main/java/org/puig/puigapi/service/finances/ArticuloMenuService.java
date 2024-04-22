@@ -7,6 +7,8 @@ import org.puig.puigapi.service.annotations.PuigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @PuigService(ArticuloMenu.class)
 public class ArticuloMenuService extends
         PersistenceService<ArticuloMenu, String, ArticuloMenuRepository> {
@@ -15,7 +17,7 @@ public class ArticuloMenuService extends
         super(repository);
     }
 
-    public ArticuloMenu readPrecioById(String id) {
-        return repository.findPrecioById(id);
+    public List<ArticuloMenu> readByCategoria(ArticuloMenu.Categorias categoria) {
+        return repository.findByCategoria(categoria);
     }
 }

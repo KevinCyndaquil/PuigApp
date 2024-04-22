@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
+
 @Setter(onMethod = @__({@Autowired}))
 @PuigService(Sucursal.class)
 public class SucursalService extends
@@ -22,6 +24,14 @@ public class SucursalService extends
 
     public SucursalService(SucursalRepository repository) {
         super(repository);
+    }
+
+    public Set<Empleado.Detalle> obtenerEmpleados(@NotNull String sucursal_id) {
+        return readByID(sucursal_id).getEmpleados();
+    }
+
+    public Sucursal.Bodega obtenerBodega(@NotNull String sucursal_id) {
+        return readByID(sucursal_id).getBodega();
     }
 
     @Transactional
@@ -49,7 +59,7 @@ public class SucursalService extends
     @Transactional
     public Empleado actualizarEmpleado(@NotNull Sucursal sucursal,
                                        @NotNull Empleado empleado,
-                                       @NotNull Empleado.Estados estado) {
+                                       @NotNull Empleado.EstadosEmpresa estado) {
         try {
             Sucursal reSucursal = readByID(sucursal);
             Empleado reEmpleado = empleadoService.readByID(empleado);

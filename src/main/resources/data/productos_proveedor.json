@@ -23,5 +23,29 @@
       "cantidad": 6,
       "empaque": "PAQUETE"
     }
+  },
+  {
+    "proveedor": {
+      "id": "661de028076e8718e0b040ac"
+    },
+    "nombre": "POLLO CRUDO",
+    "precio": 1000,
+    "presentacion": {
+      "peso_pieza": 1300,
+      "cantidad": 20,
+      "empaque": "CAJA"
+    }
+  },
+  {
+    "proveedor": {
+      "id": "661de028076e8718e0b040ac"
+    },
+    "nombre": "COSTAL DE PAPA 1KG",
+    "precio": 1000.42,
+    "presentacion": {
+      "peso_pieza": 1000,
+      "cantidad": 1,
+      "empaque": "CAJA"
+    }
   }
 ]

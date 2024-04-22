@@ -24,7 +24,7 @@ public class Presentacion {
     /**
      * Es la cantidad de piezas que contiene el empaque
      */
-    private int cantidad;
+    private double cantidad;
     private Empaques empaque = Empaques.PESO;
     /**
      * Si es verdadero, el producto es apto para ser calculado según su peso.
@@ -49,7 +49,7 @@ public class Presentacion {
         private Double peso_pieza;
         @NotNull(message = "Se requiere la cantidad de piezas")
         @Positive(message = "Cantidad de piezas en presetación debe ser mayor a cero")
-        private Integer cantidad = 1;
+        private Double cantidad = 1d;
         @NotNull(message = "Se requiere el tipo de empaque de la presentació<n")
         private Empaques empaque = Empaques.PESO;
         private boolean calculable = true;

@@ -164,7 +164,7 @@ public class Proveedor implements Irrepetibe<String> {
         @JsonGetter("monto_total")
         public double getMonto_total() {
             return detalle.stream()
-                    .map(DetalleDe::getMonto)
+                    .map(Detalle::getMonto)
                     .reduce(0d, Double::sum);
 
         }
@@ -184,7 +184,12 @@ public class Proveedor implements Irrepetibe<String> {
 
             @Override
             public double getMonto() {
-                return super.getMonto() + iva;
+                final double cantidadPresentacion = objeto.getPresentacion() == null ?
+                        1 :
+                        objeto.getPresentacion().getCantidad();
+                final double cantidad = super.cantidad / cantidadPresentacion;
+
+                return cantidad * objeto.getPrecio() + iva;
             }
         }
 

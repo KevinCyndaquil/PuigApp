@@ -1,11 +1,11 @@
 package org.puig.puigapi.persistence.repositories.admin;
 
-import org.jetbrains.annotations.NotNull;
+import jakarta.validation.constraints.NotNull;
 import org.puig.puigapi.persistence.repositories.PuigRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.puig.puigapi.persistence.entity.admin.Proveedor.*;
@@ -14,6 +14,6 @@ import static org.puig.puigapi.persistence.entity.admin.Proveedor.*;
 public interface FacturaProveedorRepository
         extends PuigRepository<Factura, String> {
 
-    @Query("{recepcion: ?0}")
-    @NotNull List<Factura> findByFecha(@NotNull LocalDate fecha);
+    @Query("{recepcion: {$gte: ?0, $lte: ?1}}")
+    @NotNull List<Factura> findByFecha(@NotNull LocalDateTime from, @NotNull LocalDateTime to);
 }

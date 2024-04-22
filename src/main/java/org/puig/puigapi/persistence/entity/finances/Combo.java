@@ -8,6 +8,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.puig.puigapi.persistence.entity.utils.Articulo;
+import org.puig.puigapi.persistence.entity.utils.DetalleDe;
 import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -27,7 +28,7 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "finances")
 public class Combo extends Articulo {
-    @DBRef private Set<ArticuloMenu> contenido;
+    private Set<DetalleDe<ArticuloMenu>> contenido;
     private LocalDate inicia;
     private LocalDate vigencia;
 
@@ -46,7 +47,7 @@ public class Combo extends Articulo {
         private double precio;
         private boolean visible;
         @NotEmpty(message = "Contenido del combo o promoción no válido")
-        private Set<ArticuloMenu> contenido;
+        private Set<DetalleDe<ArticuloMenu>> contenido;
         @NotNull(message = "Se requiere la fecha de inicio del combo")
         @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate inicia;

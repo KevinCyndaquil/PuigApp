@@ -28,4 +28,11 @@ public class VentaInvalidaException extends RuntimeException {
                 .formatted(empleado.getNickname(), empleado.getNombre(), empleado.getPuesto()),
                 "Asigna a un empleado que sea un repartidor para esta venta");
     }
+
+    @Contract("_ -> new")
+    public static @NotNull VentaInvalidaException empleadoNoEsCajero(@NotNull Empleado empleado) {
+        return new VentaInvalidaException("Empleado %s:%s no está contratado como cajero, sino como %s. No se puede realizar la asignación de venta"
+                .formatted(empleado.getNickname(), empleado.getNombre(), empleado.getPuesto()),
+                "Asigna a un empleado que sea un cajero para este corte");
+    }
 }

@@ -1,5 +1,6 @@
 package org.puig.puigapi.persistence.entity.operation;
 
+import com.mongodb.lang.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,6 +18,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalTime;
 import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -36,55 +38,58 @@ public class Sucursal implements Irrepetibe<String> {
     private Direccion ubicacion;
     private LocalTime hora_abre;
     private LocalTime hora_cierra;
-    private Set<Bodega> bodega = new HashSet<>();
+    private Bodega bodega = new Bodega();
     private Set<Empleado.Detalle> empleados = new HashSet<>();
 
     /**
      * Agrega Productos a esta sucursal, si el producto ya existe en la tienda, unicamente agrega
      * la cantidad recepcionada a la cantidad ya existente.
      * @param producto el producto ingresado.
-     * @param cantidad la cantidad ingresada.
+     * @param cantidad la cantidad por pieza ingresada.
      */
-    public void agregarExistencia(@org.jetbrains.annotations.NotNull Sucursal.Producto producto,
-                                  double cantidad) {
-        if (bodega.add(new Bodega(producto, cantidad))) return;
-        bodega.forEach(d -> {
-            if (d.getProducto().equals(producto)) d.setCantidad(d.getCantidad() + cantidad);
-        });
+    public void agregarExistencia(@NonNull Sucursal.Producto producto,
+                                  double cantidad)  {
+        Bodega.Producto productoBodega =
+                bodega.insert(new Bodega.Producto(producto, cantidad));
+
+        if (Objects.isNull(productoBodega)) return;
+        productoBodega.cantidad += cantidad;
     }
 
     /**
      * Realiza lo mismo que void agregarExitencias(producto, cantidad) pero este se basa en un objeto
-     * receta.
-     * @param receta la receta que contiene el producto y la cantidad a agregar.
+     * porcion.
+     * @param porcion la porcion que contiene el producto y la cantidad a agregar
      */
-    public void agregarExistencias(@org.jetbrains.annotations.NotNull ArticuloMenu.Receta receta) {
-        agregarExistencia(receta.getProducto(), receta.getCantidad());
+    public void agregarExistencias(@NonNull ArticuloMenu.Porcion porcion) {
+        agregarExistencia(porcion.getProducto(), porcion.getCantidad());
     }
 
-    public void quitarExistencias(@org.jetbrains.annotations.NotNull Sucursal.Producto producto,
-                                     double cantidad) {
-        if (!bodega.contains(new Bodega(producto, cantidad))) return;
-        bodega.forEach(d -> {
-            if (d.getProducto().equals(producto)) d.setCantidad(d.getCantidad() - cantidad);
-        });
+    public void quitarExistencias(@NonNull Sucursal.Producto producto,
+                                  double cantidad) {
+        Optional<Bodega.Producto> productoBodega = bodega.getBy(producto);
+
+        if (productoBodega.isEmpty()) return;
+        productoBodega.get().cantidad -= cantidad;
     }
 
-    public void quitarExistencias(@org.jetbrains.annotations.NotNull ArticuloMenu.Receta receta) {
-        quitarExistencias(receta.getProducto(), receta.getCantidad());
+    public void quitarExistencias(@NonNull ArticuloMenu.Porcion porcion) {
+        quitarExistencias(porcion.getProducto(), porcion.getCantidad());
     }
 
-    public void generar(@org.jetbrains.annotations.NotNull Empleado empleado, Empleado.Estados estado) {
+    public void generar(@NonNull Empleado empleado, Empleado.EstadosEmpresa estado) {
         if(empleados.add(empleado.generarDetalle(estado))) return;
-        Empleado.Detalle detalle = empleados.stream()
-                .reduce(null, (a, d) -> d.getEmpleado().equals(empleado) ? d : a);
-        if (Objects.isNull(detalle))
-            throw new RuntimeException("Ocurrio un nullpointer inesperado");
-        detalle.setEstado(estado);
+
+        Optional<Empleado.Detalle> detalle = empleados.stream()
+                .reduce((a, d) -> d.getEmpleado().equals(empleado) ? d : a);
+
+        detalle.orElseThrow(() -> new RuntimeException("Ocurrio un error inesperado durante la actualización de un empleado %s en la tienda %s"
+                        .formatted(empleado.getNombre(), nombre)))
+                .setEstado(estado);
     }
 
-    public void alta(@org.jetbrains.annotations.NotNull Empleado empleado) {
-        generar(empleado, Empleado.Estados.ALTA);
+    public void alta(@NonNull Empleado empleado) {
+        generar(empleado, Empleado.EstadosEmpresa.ALTA);
     }
 
     @Data
@@ -134,11 +139,11 @@ public class Sucursal implements Irrepetibe<String> {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof Proveedor.Producto pro_proveedor)
-                return this.producto_proveedor.equals(pro_proveedor);
-            if (obj instanceof Sucursal.Producto pro_tienda)
-                return codigo.equals(pro_tienda.getCodigo()) ||
-                        producto_proveedor.equals(pro_tienda.getProducto_proveedor());
+            if (obj instanceof Proveedor.Producto productoProveedor)
+                return this.producto_proveedor.equals(productoProveedor);
+            if (obj instanceof Sucursal.Producto productoSucursal)
+                return codigo.equals(productoSucursal.getCodigo()) ||
+                        producto_proveedor.equals(productoSucursal.getProducto_proveedor());
             return false;
         }
 
@@ -153,14 +158,14 @@ public class Sucursal implements Irrepetibe<String> {
         }
 
         @Data
-        public static class Request implements PostEntity<Sucursal.Producto> {
+        public static class Request implements PostEntity<Producto> {
             @NotNull(message = "Se requiere el id del producto de proveedor")
             private Proveedor.Producto producto_proveedor;
             private boolean inventariado = true;
 
             @Override
-            public Sucursal.Producto instance() {
-                return Sucursal.Producto.builder()
+            public Producto instance() {
+                return Producto.builder()
                         .producto_proveedor(producto_proveedor)
                         .inventariado(inventariado)
                         .build();
@@ -168,16 +173,52 @@ public class Sucursal implements Irrepetibe<String> {
         }
     }
 
-    /**
-     * Producto que se encuentra en la bodega de la sucursal, por lo que se encuentra en
-     * cantidad.
-     */
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode(exclude = "cantidad")
-    public static class Bodega {
-        @DBRef(lazy = true) private Producto producto;
-        private double cantidad;
+    public static class Bodega extends HashSet<Bodega.Producto> {
+
+        public @Nullable Bodega.Producto insert(Bodega.Producto productoBodega) {
+            if (add(productoBodega)) return null;
+            return stream()
+                    .reduce(null, (ac, b) -> b.equals(productoBodega) ? b : ac);
+        }
+
+        public Optional<Bodega.Producto> getBy(Sucursal.Producto productoSucursal) {
+            return stream()
+                    .reduce((ac, b) -> b.equals(productoSucursal) ? b : ac);
+        }
+
+        /**
+         * Producto que se encuentra en la bodega de la sucursal, por lo que se encuentra en
+         * cantidad.
+         */
+        @Data
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @EqualsAndHashCode(exclude = "cantidad")
+        public static class Producto {
+            /**
+             * Producto en bodega.
+             */
+            protected Sucursal.Producto producto;
+            /**
+             * Cantidad por pieza del producto.
+             */
+            protected double cantidad;
+
+            public boolean equals(Sucursal.Producto productoSucursal) {
+                return this.producto.equals(productoSucursal);
+            }
+
+            @Override
+            public boolean equals(Object obj) {
+                if (obj instanceof Bodega.Producto productoBodega)
+                    return this.producto.equals(productoBodega.producto);
+                return false;
+            }
+
+            @Override
+            public int hashCode() {
+                return this.producto.hashCode();
+            }
+        }
     }
 }

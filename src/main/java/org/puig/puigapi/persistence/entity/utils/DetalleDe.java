@@ -19,9 +19,9 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 @EqualsAndHashCode(exclude = {"cantidad", "monto"})
 public class DetalleDe<Obj extends ObjetoConPrecio & Irrepetibe<?>>
         implements Detallable<Obj> {
-    @NotNull @DBRef(lazy = true) private Obj objeto;
+    @NotNull @DBRef protected Obj objeto;
     @Positive(message = "Cantidad dentro del detalle debe ser mayor a cero")
-    private int cantidad;
+    protected double cantidad;
     @JsonProperty(access = Access.READ_ONLY) private double monto;
 
     @Override
