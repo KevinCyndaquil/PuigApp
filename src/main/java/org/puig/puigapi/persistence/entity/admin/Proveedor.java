@@ -4,17 +4,24 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
-import com.fasterxml.jackson.annotation.JsonSetter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
+import org.bson.types.ObjectId;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
-import org.puig.puigapi.persistence.entity.utils.*;
-import org.puig.puigapi.persistence.entity.utils.data.Correo;
-import org.puig.puigapi.persistence.entity.utils.data.RFC;
-import org.puig.puigapi.persistence.entity.utils.data.Telefono;
-import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
-import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
+import org.puig.puigapi.util.*;
+import org.puig.puigapi.util.contable.Calculable;
+import org.puig.puigapi.util.contable.ObjetoConPrecio;
+import org.puig.puigapi.util.contable.Tarjeta;
+import org.puig.puigapi.util.data.Correo;
+import org.puig.puigapi.util.data.Direccion;
+import org.puig.puigapi.util.data.RFC;
+import org.puig.puigapi.util.data.Telefono;
+import org.puig.puigapi.util.persistence.Instantiator;
+import org.puig.puigapi.util.persistence.Irrepetibe;
+import org.puig.puigapi.util.persistence.SimpleInstance;
+import org.puig.puigapi.util.persistence.UniqueName;
+import org.puig.puigapi.util.sat.RazonesSociales;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -37,8 +44,8 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "admin")
-public class Proveedor implements Irrepetibe<String> {
-    @Id private String id;
+public class Proveedor implements Irrepetibe<ObjectId>, UniqueName<String> {
+    @Id private ObjectId id;
     private String nombre;
     private Telefono telefono_fijo;
     private Telefono telefono_movil;
@@ -46,13 +53,12 @@ public class Proveedor implements Irrepetibe<String> {
     private Correo correo;
     private Direccion ubicacion;
     private RazonesSociales razon;
-    private Set<Tarjeta> cuentas = new HashSet<>();
+    private Set<Tarjeta> cuentas;
 
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Proveedor proveedor)) return false;
-        if (id == null)
-            return nombre.equals(proveedor.nombre);
+        if (Objects.isNull(id)) return nombre.equals(proveedor.nombre);
         return id.equals(proveedor.id) || nombre.equals(proveedor.nombre);
     }
 
@@ -63,20 +69,23 @@ public class Proveedor implements Irrepetibe<String> {
 
     @Data
     @NoArgsConstructor
-    public static class Request implements PostEntity<Proveedor> {
+    public static class PostRequest implements Instantiator<Proveedor> {
         @NotBlank(message = "Se requiere un nombre para el proveedor")
         @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
-                message = "Formato para nombres invalido")
+                message = "Formato de nombre incorrecto, recuerda usar solo mayúsculas y letras")
         private String nombre;
+        @Valid
         @NotNull(message = "Se requiere un número de telefono fijo")
-        @Valid
         private Telefono telefono_fijo;
-        @Valid private Telefono telefono_movil;
-        @NotNull(message = "Se requiere un rfc para el proveedor")
         @Valid
+        private Telefono telefono_movil;
+        @Valid
+        @NotNull(message = "Se requiere un rfc para el proveedor")
         private RFC rfc;
-        @Valid private Correo correo;
-        @Valid private Direccion.RequestFacturacion ubicacion;
+        @Valid
+        private Correo correo;
+        @Valid
+        private Direccion.ParaFactura ubicacion;
         @NotNull(message = "Se requiere una razon social para el proveedor")
         private RazonesSociales razon = RazonesSociales.MORAL;
         @Valid
@@ -94,59 +103,42 @@ public class Proveedor implements Irrepetibe<String> {
                     .ubicacion(ubicacion.instance())
                     .razon(razon)
                     .cuentas(cuentas.stream()
-                            .map(PostEntity::instance)
+                            .map(Instantiator::instance)
                             .collect(Collectors.toSet()))
                     .build();
         }
     }
 
     /**
-     * Es un comprobante oficial o no que contiene un detalle de la materia proporcionada así cómo
+     * Es un comprobante oficial o no que contiene un ticket de la materia proporcionada así cómo
      * quién la proporciono y su costo.
      */
 
-    @JsonIgnoreProperties(value = { "target", "source" })
-
     @Data
+    @Builder
     @NoArgsConstructor
-    @EqualsAndHashCode(exclude = {
-            "proveedor",
-            "detalle",
-            "recepcion",
-            "monto",
-            "total_iva",
-            "monto_total"})
+    @AllArgsConstructor
     @Document(collection = "admin")
     public static class Factura implements Irrepetibe<String> {
-        @Id private String folio;
+        @Id private String id;
         @DBRef private Proveedor proveedor;
-        private Set<Detalle> detalle = new HashSet<>();
+        private Set<Factura.Detalle> detalle = new HashSet<>();
         private LocalDateTime recepcion = LocalDateTime.now();
-        @DBRef private Sucursal sucursal;
+        @DBRef(lazy = true) private Sucursal sucursal;
+
         @JsonProperty(access = Access.READ_ONLY) private double monto;
         @JsonProperty(access = Access.READ_ONLY) private double monto_total;
         @JsonProperty(access = Access.READ_ONLY) private double total_iva;
 
-        @Builder
-        public Factura(String folio,
-                       Proveedor proveedor,
-                       Set<Detalle> detalle,
-                       Sucursal sucursal) {
-            this.folio = folio;
-            this.proveedor = proveedor;
-            this.detalle = detalle;
-            this.sucursal = sucursal;
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Factura factura)) return false;
+            return id.equals(factura.id);
         }
 
         @Override
-        public String getId() {
-            return folio;
-        }
-
-        @JsonSetter("detalle")
-        public void setDetalle(Set<Detalle> detalle) {
-            this.detalle = detalle;
-            update();
+        public int hashCode() {
+            return id.hashCode();
         }
 
         @JsonGetter("total_iva")
@@ -156,17 +148,16 @@ public class Proveedor implements Irrepetibe<String> {
                     .reduce(0d, Double::sum);
         }
 
-        @JsonGetter("monto")
-        public double getMonto() {
-            return getMonto_total() - getTotal_iva();
-        }
-
         @JsonGetter("monto_total")
         public double getMonto_total() {
             return detalle.stream()
                     .map(Detalle::getMonto)
                     .reduce(0d, Double::sum);
+        }
 
+        @JsonGetter("monto")
+        public double getMonto() {
+            return getMonto_total() - getTotal_iva();
         }
 
         public void update() {
@@ -178,40 +169,43 @@ public class Proveedor implements Irrepetibe<String> {
         @Data
         @NoArgsConstructor
         @EqualsAndHashCode(callSuper = true)
-        public static class Detalle extends DetalleDe<Producto> {
-            @PositiveOrZero(message = "Iva calculado para el producto incluído en la factura de proveedor debe ser mayor o igual a cero")
+        public static class Detalle extends Calculable<Producto> {
+            @PositiveOrZero(message = "Iva en el ticket factura debe ser mayor o igual a cero")
             private double iva;
+
+            public double getCantidadPresentacion() {
+                Presentacion presentacion = detalle.getPresentacion();
+                final double pesoPresentacion =
+                        presentacion == null ? 1 : presentacion.getPeso_total();
+                return super.cantidad / pesoPresentacion;
+            }
 
             @Override
             public double getMonto() {
-                final double cantidadPresentacion = objeto.getPresentacion() == null ?
-                        1 :
-                        objeto.getPresentacion().getCantidad();
-                final double cantidad = super.cantidad / cantidadPresentacion;
-
-                return cantidad * objeto.getPrecio() + iva;
+                monto = getCantidadPresentacion() * detalle.getPrecio() + iva;
+                return monto;
             }
         }
 
         @Data
-        @NoArgsConstructor
-        public static class Request implements PostEntity<Factura> {
+        public static class PostRequest implements Instantiator<Factura> {
             @NotBlank(message = "Folio de factura no puede estar vacío")
             private String folio;
             @NotNull(message = "Se requiere el id del proveedor de la factura")
-            private Proveedor proveedor;
+            private SimpleInstance<ObjectId> proveedor;
+            @Valid
             @NotEmpty(message = "Se deben ingresar productos a una factura para su creación")
-            private Set<Detalle> detalle;
+            private Set<Factura.Detalle> detalle;
             @NotNull(message = "Se requiere la sucursal en la que se recibió la factura")
-            private Sucursal sucursal;
+            private SimpleInstance<String> sucursal;
 
             @Override
             public Factura instance() {
                 return Factura.builder()
-                        .folio(folio)
-                        .proveedor(proveedor)
+                        .id(folio)
+                        .proveedor(proveedor.instance(Proveedor.class))
                         .detalle(detalle)
-                        .sucursal(sucursal)
+                        .sucursal(sucursal.instance(Sucursal.class))
                         .build();
             }
         }
@@ -221,27 +215,24 @@ public class Proveedor implements Irrepetibe<String> {
      * Productos sumistrados y detallados por un proveedor.
      */
 
-    @JsonIgnoreProperties(value = {"target", "source"})
-
     @Data
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     @Document(collection = "admin")
-    public static class Producto
-            implements Irrepetibe<String>, ObjetoConPrecio {
-        @Id private String id;
-        @DBRef(lazy = true) private Proveedor proveedor;
+    public static class Producto implements Irrepetibe<ObjectId>, ObjetoConPrecio, UniqueName<String> {
+        @Id private ObjectId id;
+        @DBRef private Proveedor proveedor;
         private String nombre;
         private double precio;
         private Presentacion presentacion;
+        private boolean inventariado;
 
         @Override
         public boolean equals(Object obj) {
             if (!(obj instanceof Producto producto)) return false;
-            if (id == null)
-                return nombre.equals(producto.nombre) &&
-                        presentacion.equals(producto.presentacion);
+            if (id == null) return nombre.equals(producto.nombre) &&
+                    presentacion.equals(producto.presentacion);
             return id.equals(producto.id) ||
                     (nombre.equals(producto.nombre) &&
                             presentacion.equals(producto.presentacion));
@@ -256,24 +247,26 @@ public class Proveedor implements Irrepetibe<String> {
 
         @Data
         @NoArgsConstructor
-        public static class Request implements PostEntity<Producto> {
+        public static class PostRequest implements Instantiator<Producto> {
             @NotNull(message = "Se requiere el id del proveedor del producto")
-            private Proveedor proveedor;
+            private SimpleInstance<ObjectId> proveedor;
             @NotBlank(message = "Se require un nombre para el producto de proveedor")
             private String nombre;
             @Positive(message = "El precio debe ser mayor a cero")
             private double precio;
-            @NotNull(message = "Se requiere la presentación del producto de proveedor")
             @Valid
-            private Presentacion.Request presentacion;
+            @NotNull(message = "Se requiere la presentación del producto de proveedor")
+            private Presentacion presentacion;
+            private boolean inventariado;
 
             @Override
             public Producto instance() {
                 return Producto.builder()
-                        .proveedor(proveedor)
+                        .proveedor(proveedor.instance(Proveedor.class))
                         .nombre(nombre)
                         .precio(precio)
-                        .presentacion(presentacion.instance())
+                        .presentacion(presentacion)
+                        .inventariado(inventariado)
                         .build();
             }
         }

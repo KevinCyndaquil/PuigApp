@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/articulos_menu")
 public class ArticuloMenuController
-        extends PersistenceController<ArticuloMenu, String, ArticuloMenu.Request> {
+        extends PersistenceController<ArticuloMenu, String, ArticuloMenu.PostRequest> {
     protected ArticuloMenuService service;
 
     protected ArticuloMenuController(ArticuloMenuService service) {

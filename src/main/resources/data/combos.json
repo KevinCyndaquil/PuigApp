@@ -1,26 +1,26 @@
 [
   {
-    "codigo": "PCMPP6",
-    "nombre": "PURE DE PAPA CHICO 100G",
+    "id": "PQFAM",
+    "nombre": "PAQUETE FAMILIAR",
     "precio": 259,
     "contenido": [
       {
-        "objeto": {
-          "codigo": "PCMP00",
+        "detalle": {
+          "id": "POG",
           "especializado": "ARTICULO_MENU"
         },
         "cantidad": 1
       },
       {
-        "objeto": {
-          "codigo": "RCC6",
+        "detalle": {
+          "id": "COC6",
           "especializado": "ARTICULO_MENU"
         },
         "cantidad": 2
       },
       {
-        "objeto": {
-          "codigo": "PPP0",
+        "detalle": {
+          "id": "PUPC",
           "especializado": "ARTICULO_MENU"
         },
         "cantidad": 2

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("combos")
-public class ComboController extends PersistenceController<Combo, String, Combo.Request> {
+public class ComboController extends PersistenceController<Combo, String, Combo.PostRequest> {
 
     protected ComboController(ComboService service) {
         super(service);

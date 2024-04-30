@@ -1,20 +1,19 @@
 package org.puig.puigapi.persistence.entity.finances;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.puig.puigapi.persistence.entity.utils.Articulo;
-import org.puig.puigapi.persistence.entity.utils.DetalleDe;
-import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
-import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.puig.puigapi.persistence.entity.admin.Proveedor;
+import org.puig.puigapi.persistence.entity.operation.Sucursal;
+import org.puig.puigapi.util.Articulo;
+import org.puig.puigapi.util.contable.Contable;
+import org.puig.puigapi.util.contable.Detalle;
+import org.puig.puigapi.util.persistence.Instantiator;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Conjunto de artículos que se encuentran en el menú que por consiguente traen un descuento
@@ -28,36 +27,55 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 @Document(collection = "finances")
 public class Combo extends Articulo {
-    private Set<DetalleDe<ArticuloMenu>> contenido;
+    private Contenido contenido;
     private LocalDate inicia;
     private LocalDate vigencia;
 
     @Override
     public Especializaciones getEspecializado() {
-        return Especializaciones.COMBO;
+        return Especializaciones.ARTICULO_COMBO;
+    }
+
+    @Override
+    public boolean isEn_desabasto(Sucursal sucursal) {
+        en_desabasto = contenido.stream()
+                .map(Contable::getDetalle)
+                .map(a -> a.isEn_desabasto(sucursal))
+                .reduce(false, Boolean::logicalOr);
+        return en_desabasto;
+    }
+
+    @Override
+    @JsonGetter("contenido")
+    public Detalle<Contable<Proveedor.Producto>> getReceta() {
+        return contenido.stream()
+                .map(Contable::getDetalle)
+                .map(ArticuloMenu::getReceta)
+                .flatMap(Collection::stream)
+                .collect(Detalle::new, Detalle::add, Detalle::addAll);
     }
 
     @Data
-    public static class Request implements PostEntity<Combo> {
+    public static class PostRequest implements Instantiator<Combo> {
         @NotBlank(message = "Código del combo o promoción de menú no válido")
-        private String codigo;
+        private String id;
         @NotBlank(message = "Nombre del combo o promoción de menú no válido")
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
+                message = "Formato de nombre incorrecto, recuerda usar solo mayúsculas y dígitos")
         private String nombre;
         @PositiveOrZero(message = "El precio del combo o promición debe ser mayor o igual a cero")
         private double precio;
-        private boolean visible;
+        private boolean visible = true;
         @NotEmpty(message = "Contenido del combo o promoción no válido")
-        private Set<DetalleDe<ArticuloMenu>> contenido;
+        private Contenido contenido;
         @NotNull(message = "Se requiere la fecha de inicio del combo")
-        @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate inicia;
-        @JsonFormat(pattern = "yyyy-MM-dd")
         private LocalDate vigencia;
 
         @Override
         public Combo instance() {
             return Combo.builder()
-                    .codigo(codigo)
+                    .id(id)
                     .nombre(nombre)
                     .precio(precio)
                     .visible(visible)
@@ -66,5 +84,9 @@ public class Combo extends Articulo {
                     .vigencia(vigencia)
                     .build();
         }
+    }
+
+    public static class Contenido extends Detalle<Contable<ArticuloMenu>> {
+
     }
 }

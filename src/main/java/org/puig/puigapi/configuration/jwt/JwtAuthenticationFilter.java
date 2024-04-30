@@ -14,12 +14,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.puig.puigapi.controller.responses.ErrorResponse;
 import org.puig.puigapi.exceptions.Errors;
+import org.puig.puigapi.service.auth.PersonaAuthService;
+import org.puig.puigapi.util.Persona;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -34,7 +34,7 @@ import java.io.OutputStream;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
-    private final UserDetailsService userService;
+    private final PersonaAuthService personaService;
     private final ObjectMapper mapper;
 
     @Override
@@ -76,7 +76,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String token = getToken(request);
         final String username;
-        UserDetails user;
 
         if (token == null) return;
 
@@ -85,8 +84,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username == null &&
                 SecurityContextHolder.getContext().getAuthentication() != null) return;
 
-        user = userService.loadUserByUsername(username);
+        Persona user = personaService.readById(username);
         System.out.println("entering: " + username);
+        System.out.println(user);
 
         if (!jwtService.validate(token, user)) return;
 

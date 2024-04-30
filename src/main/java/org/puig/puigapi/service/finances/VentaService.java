@@ -3,19 +3,18 @@ package org.puig.puigapi.service.finances;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.exceptions.VentaInvalidaException;
-import org.puig.puigapi.persistence.entity.finances.ArticuloMenu;
-import org.puig.puigapi.persistence.entity.finances.Combo;
 import org.puig.puigapi.persistence.entity.finances.Venta;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
 import org.puig.puigapi.persistence.entity.operation.Usuario;
-import org.puig.puigapi.persistence.entity.utils.DetalleDe;
-import org.puig.puigapi.persistence.repositories.finances.VentaRepository;
+import org.puig.puigapi.util.Articulo;
+import org.puig.puigapi.persistence.repository.finances.VentaRepository;
 import org.puig.puigapi.service.PersistenceService;
-import org.puig.puigapi.service.annotations.PuigService;
+import org.puig.puigapi.util.annotation.PuigService;
 import org.puig.puigapi.service.operation.EmpleadoService;
 import org.puig.puigapi.service.operation.SucursalService;
 import org.puig.puigapi.service.operation.UsuarioService;
+import org.puig.puigapi.util.contable.Calculable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -27,15 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 @Setter(onMethod_ = @Autowired)
 @PuigService(Venta.class)
 public class VentaService extends PersistenceService<Venta, String, VentaRepository> {
 
     protected ArticuloMenuService articuloMenuService;
+    protected ArticuloService articuloService;
 
     protected EmpleadoService empleadoService;
     protected SucursalService sucursalService;
@@ -47,14 +45,14 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
         super(repository);
     }
 
-    public List<Venta> readByFecha_venta(@NotNull LocalDate desde, @NotNull LocalDate hasta) {
+    public List<Venta> readByPeriodo(@NotNull LocalDate desde, @NotNull LocalDate hasta) {
         var start = desde.atStartOfDay();
         var end = hasta.atStartOfDay().plusDays(1).minusSeconds(1);
 
         return repository.findByFecha(start, end);
     }
 
-    public List<Venta> readByFecha_venta(@NotNull LocalDate fecha) {
+    public List<Venta> readByPeriodo(@NotNull LocalDate fecha) {
         var start = fecha.atStartOfDay();
         var end = fecha.atStartOfDay().plusDays(1).minusSeconds(1);
 
@@ -69,29 +67,41 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
     @Override
     @Transactional
     public Venta save(@NotNull Venta venta) {
-        asignarPrecioDetalle(venta);
+        venta.getTicket().forEach(d -> {
+            Articulo articulo = articuloService.readById(d.getDetalle());
+            d.setDetalle(articulo);
+            System.out.println(articulo.getClass());
+        });
 
         //Obtener el puesto del empleado
-        Empleado asignada_a = empleadoService.readByID(venta.getTomada_por());
-        venta.getTomada_por().setPuesto(asignada_a.getPuesto());
+        Empleado tomadaPor = empleadoService.readById(venta.getTomada_por());
+        venta.setTomada_por(tomadaPor);
 
-        if (!venta.esValida())
-            throw VentaInvalidaException.pagoInferiorAMonto(venta);
-
+        venta.validar();
+        venta.update();
         venta.setId(generarId(venta.getRealizada_en()).toString());
-        Venta saVenta = super.save(venta);
-        Sucursal sucursal = sucursalService.readByID(venta.getRealizada_en());
-        asignarPorReceta(venta, sucursal::quitarExistencias);
+
+        Venta ventaRealizada = super.save(venta);
+        Sucursal sucursal = sucursalService.readById(venta.getRealizada_en());
+        ventaRealizada.forEachDetalle(sucursal.getBodega()::quitarExistencias);
 
         if (!sucursalService.update(sucursal))
-            throw new MongoTransactionException("Error durante la actualización de bodega de sucursal %s"
-                    .formatted(sucursal.getNombre()));
-        return saVenta;
+            throw new MongoTransactionException(
+                    "Error durante la actualización de bodega de sucursal %s"
+                            .formatted(sucursal.getNombre()));
+
+        ventaRealizada.getTicket().forEach(d -> d.getDetalle().isEn_desabasto(sucursal));
+
+        System.out.println(ventaRealizada);
+        return ventaRealizada;
     }
 
     @Transactional
     public Venta.Reparto save(@NotNull Venta.Reparto reparto) {
         Usuario cliente = usuarioService.saveOrReadById(reparto.getCliente_reparto());
+        if (cliente.getDirecciones().add(reparto.getDireccion_reparto()))
+            usuarioService.update(cliente);
+
         reparto.setCliente_reparto(cliente);
 
         return (Venta.Reparto) save((Venta) reparto);
@@ -100,9 +110,11 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
     @Override
     @Transactional
     public boolean delete(@NotNull String id) {
-        Venta venta = readByID(id);
-        Sucursal sucursal = sucursalService.readByID(venta.getRealizada_en());
-        asignarPorReceta(venta, sucursal::agregarExistencias);
+        Venta venta = readById(id);
+        venta.getTicket().stream().map(Calculable::getDetalle)
+                .forEach(System.out::println);
+        Sucursal sucursal = sucursalService.readById(venta.getRealizada_en());
+        venta.forEachDetalle(sucursal.getBodega()::agregarDevolucion);
 
         boolean res = super.delete(id);
         if (!sucursalService.update(sucursal) && res)
@@ -112,8 +124,8 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
     }
 
     public boolean asignarVenta(@NotNull Venta venta, @NotNull Empleado empleado) {
-        Venta reVenta = readByID(venta);
-        Empleado reEmpleado = empleadoService.readByID(empleado);
+        Venta reVenta = readById(venta);
+        Empleado reEmpleado = empleadoService.readById(empleado);
         if (reEmpleado.getPuesto() != Empleado.Puestos.CAJERO)
             throw VentaInvalidaException.empleadoNoEsCajero(empleado);
 
@@ -125,16 +137,16 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
                                                               @NotNull LocalDate hasta) {
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(Criteria.where("fecha_venta").gte(desde).lte(hasta)),
-                Aggregation.unwind("detalle"),
+                Aggregation.unwind("ticket"),
                 LookupOperation.newLookup()
                         .from("finances")
-                        .localField("detalle.objeto.$id")
+                        .localField("ticket.detalle.$id")
                         .foreignField("_id")
                         .as("articulo"),
                 Aggregation.project()
                         .andExpression("articulo").arrayElementAt(0).as("articulo")
-                        .andExpression("detalle.cantidad").as("cantidad_total")
-                        .andExpression("detalle.monto").as("monto_total"),
+                        .andExpression("ticket.cantidad").as("cantidad_total")
+                        .andExpression("ticket.monto").as("monto_total"),
                 Aggregation.group("articulo")
                         .first("articulo").as("articulo")
                         .sum("cantidad_total").as("cantidad_total")
@@ -148,40 +160,11 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
 
     public List<Venta> generarReporteVentas(@NotNull LocalDate desde,
                                             @NotNull LocalDate hasta,
-                                            @NotNull Venta.FormasEntrega filtro) {
+                                            @NotNull Venta.ModosDeEntrega filtro) {
         var start = desde.atStartOfDay();
         var end = hasta.atStartOfDay().plusDays(1).minusSeconds(1);
 
         return repository.findByFecha(start, end, filtro);
-    }
-
-    protected void asignarPrecioDetalle(@NotNull Venta venta) {
-        venta.getDetalle().forEach(d -> {
-            ArticuloMenu articuloMenu = articuloMenuService.readByID(d.getObjeto());
-            d.setObjeto(articuloMenu); //save precio and monto
-        });
-    }
-
-    protected void asignarPorReceta(@NotNull Venta venta,
-                                    @NotNull Consumer<ArticuloMenu.Porcion> consumer) {
-        venta.getDetalle().forEach(d -> {
-            switch (d.getObjeto().getEspecializado()) {
-                case ARTICULO_MENU -> ((ArticuloMenu) d.getObjeto())
-                        .getReceta()
-                        .stream()
-                        .peek(r -> r.per(d.getCantidad()))
-                        .forEach(consumer);
-                case COMBO -> ((Combo) d.getObjeto())
-                        .getContenido()
-                        .stream()
-                        .map(DetalleDe::getObjeto)
-                        .map(ArticuloMenu::getReceta)
-                        .flatMap(Collection::stream)
-                        .peek(r -> r.per(d.getCantidad()))
-                        .forEach(consumer);
-            }
-        });
-        venta.update();
     }
 
     @Transactional
@@ -191,8 +174,8 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
         long seq = count(Venta.class, Venta.Reparto.class);
 
         return new StringBuilder()
-                .append(sucursal_id).append("_")
-                .append(fecha_venta).append("_")
+                .append(sucursal_id)
+                .append(fecha_venta)
                 .append(seq);
     }
 }

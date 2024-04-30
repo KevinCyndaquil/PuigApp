@@ -1,26 +1,28 @@
-{
-  "nombre": "LUIS ALBERTO",
-  "apellido_paterno": "HURTADO",
-  "apellido_materno": "GÓMEZ",
-  "rfc": {
-    "rfc": "HUGL031224HCSRMSA1"
-  },
-  "telefono": {
-    "numero": "+(52) 962 185 9698"
-  },
-  "password": "diablox777",
-  "correo": {
-    "direccion": "luis.hurtado44@unach.mx"
-  },
-  "rol": "ADMINISTRADOR_WEB",
-  "direcciones": [
-    {
-      "colonia": "11 DE SEPTIEMBRE",
-      "calle_principal": "AND ZAFIRO",
-      "manzana": "1",
-      "lote": "3",
-      "numero_interior": "23",
-      "descripcion_vivienda": "CASA DE DOS PISOS CON PISCINA"
-    }
-  ]
-}
+[
+  {
+    "nombre": "LUIS ALBERTO",
+    "apellido_paterno": "HURTADO",
+    "apellido_materno": "GÓMEZ",
+    "rfc": {
+      "rfc": "HUGL031224HCSRMSA1"
+    },
+    "telefono": {
+      "numero": "+(52) 962 185 9698"
+    },
+    "password": "diablox777",
+    "correo": {
+      "direccion": "luis.hurtado44@unach.mx"
+    },
+    "rol": "ADMINISTRADOR_WEB",
+    "direcciones": [
+      {
+        "colonia": "11 DE SEPTIEMBRE",
+        "calle_principal": "AND ZAFIRO",
+        "manzana": "1",
+        "lote": "3",
+        "numero_interior": "23",
+        "descripcion_vivienda": "CASA DE DOS PISOS CON PISCINA"
+      }
+    ]
+  }
+]

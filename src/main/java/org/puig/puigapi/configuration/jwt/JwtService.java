@@ -4,10 +4,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
-import org.puig.puigapi.persistence.entity.utils.Persona;
+import org.puig.puigapi.util.Persona;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -25,8 +25,8 @@ public class JwtService {
         Date expiryDate = new Date(now.getTime() + EXPIRES_IN);
 
         return Jwts.builder()
-                .subject(persona.getId())
-                .claim("type", persona.getTipo())
+                .subject(String.valueOf(persona.getId()))
+                .claim("type", persona.getEspecializado())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key())
@@ -45,9 +45,9 @@ public class JwtService {
                 .getPayload();
     }
 
-    public boolean validate(String token, @NotNull UserDetails user) {
-        final String username = claims(token).getSubject();
-        return username.equals(user.getUsername()) && !isTokenExpired(token);
+    public boolean validate(String token, @NotNull Persona user) {
+        final ObjectId username = new ObjectId(claims(token).getSubject());
+        return username.equals(user.getId()) && !isTokenExpired(token);
     }
 
     public boolean isTokenExpired(String token) {

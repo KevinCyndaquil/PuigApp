@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.puig.puigapi.persistence.entity.utils.jackson.PuigMapper;
+import org.puig.puigapi.util.jackson.PuigMapper;
 import org.springframework.http.ResponseEntity;
 
 import java.util.Collection;

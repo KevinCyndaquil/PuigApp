@@ -1,6 +1,5 @@
 package org.puig.puigapi.persistence.entity.operation;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -8,13 +7,14 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.puig.puigapi.persistence.entity.utils.Persona;
-import org.puig.puigapi.persistence.entity.utils.data.Curp;
-import org.puig.puigapi.persistence.entity.utils.data.RFC;
-import org.puig.puigapi.persistence.entity.utils.data.Telefono;
-import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
-import org.puig.puigapi.persistence.entity.utils.Tarjeta;
-import org.springframework.data.annotation.Id;
+import org.bson.types.ObjectId;
+import org.puig.puigapi.util.Persona;
+import org.puig.puigapi.util.data.Curp;
+import org.puig.puigapi.util.data.RFC;
+import org.puig.puigapi.util.data.Telefono;
+import org.puig.puigapi.util.persistence.Instantiator;
+import org.puig.puigapi.util.contable.Tarjeta;
+import org.puig.puigapi.util.persistence.SimpleInstance;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,16 +35,11 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false, exclude = {
-        "fecha_nacimiento",
-        "fecha_alta",
-        "puesto",
-        "cuenta_nomina"})
+@EqualsAndHashCode(callSuper = false, exclude = {"fecha_nacimiento", "fecha_alta", "puesto", "cuenta_nomina"})
 @Document(collection = "operation")
 public class Empleado extends Persona {
-    @Id private String nickname;
-    @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_nacimiento;
-    @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_alta;
+    private String nickname;
+    private LocalDate fecha_nacimiento;
     private Curp curp;
     private Puestos puesto;
     private Tarjeta cuenta_nomina;
@@ -53,60 +48,30 @@ public class Empleado extends Persona {
         GERENTE,
         CAJERO,
         REPARTIDOR,
-        COCINERO
+        COCINERO,
+        NONE
     }
 
-    public Detalle generarDetalle(EstadosEmpresa estado) {
-        return new Detalle(this, LocalDate.now(), null, estado);
-    }
-
-    @Override
-    public Tipo getTipo() {
-        return Tipo.EMPLEADO;
+    public enum Estados {
+        ALTA,
+        VACACIONES,
+        SUSPENDIDO,
+        TRANSFERIDO,
+        BAJA
     }
 
     @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode(exclude = {"fecha_alta", "fecha_baja", "estado"})
+    @EqualsAndHashCode(exclude = {"fecha_alta", "ultimo_cambio", "estado"})
     public static class Detalle {
         @DBRef private Empleado empleado;
-        @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_alta;
-        @JsonFormat(pattern = "yyyy-MM-dd") private LocalDate fecha_baja;
-        private EstadosEmpresa estado;
-
-        @Data
-        @NoArgsConstructor
-        public static class Request implements PostEntity<Detalle> {
-            @NotNull(message = "Se requiere el empleado para generar un detalle")
-            private Empleado empleado;
-            @NotNull(message = "Se requiere la fecha de alta para generar un detalle")
-            private LocalDate fecha_alta = LocalDate.now();
-            @NotNull(message = "Se requiere un estado del empleado para generar un detalle")
-            private Empleado.EstadosEmpresa estado;
-
-            @Override
-            public Detalle instance() {
-                return Detalle.builder()
-                        .empleado(empleado)
-                        .fecha_alta(fecha_alta)
-                        .estado(estado)
-                        .build();
-            }
-        }
-    }
-
-    public enum EstadosEmpresa {
-        VACACIONES,
-        ALTA,
-        BAJA,
-        BAJA_TEMPORAL
+        private LocalDate fecha_alta;
+        private LocalDate ultimo_cambio;
+        private Empleado.Estados estado;
     }
 
     @Data
     @NoArgsConstructor
-    public static class Request implements PostEntity<Empleado> {
+    public static class PostRequest implements Instantiator<Empleado> {
         @NotBlank(message = "Se requiere un nombre para el empleado")
         @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+( [\\p{Lu}\\p{M}]+)*$",
                 message = "Nombre de empleado invalido. Recuerda que debe ir en mayúsculas")
@@ -118,24 +83,29 @@ public class Empleado extends Persona {
         @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+$",
                 message = "Apellido materno de empelado invalido. Recuerda que debe ir en mayúsculas")
         private String apellido_materno;
+        @Valid
         @NotNull(message = "Se requiere el rfc del empleado")
-        @Valid private RFC rfc;
-        @Valid private Telefono telefono;
+        private RFC rfc;
+        @Valid
+        private Telefono telefono;
         @NotBlank(message = "Se requiere una contraseña de al menos dos caracteres para el empleado")
-        @Pattern(regexp = "^.{2,}$", message = "Se requiere una contraseña de al menos dos caracteres")
+        @Pattern(regexp = "^.{2,}$",
+                message = "Se requiere una contraseña de al menos dos caracteres")
         private String password;
         @NotBlank(message = "Se requiere un nickname para el empleado")
         private String nickname;
         @NotNull(message = "Se requiere la fecha de nacimiento del empleado")
         private LocalDate fecha_nacimiento;
-        private LocalDate fecha_alta = LocalDate.now();
+        @Valid
         @NotNull(message = "Se requiere la curp del empleado")
-        @Valid private Curp curp;
+        private Curp curp;
         @NotNull(message = "Se requiere el puesto del empleado")
         private Puestos puesto;
+        @Valid
         @NotNull(message = "Se requiere la cuenta de nomina del empleado")
-        @Valid private Tarjeta.Request cuenta_nomina;
-        @NotNull private Sucursal sucursal_alta;
+        private Tarjeta.Request cuenta_nomina;
+        @NotNull(message = "Se requiere la sucursal durante la alta")
+        private SimpleInstance<String> sucursal;
 
         @Override
         public Empleado instance() {
@@ -148,7 +118,6 @@ public class Empleado extends Persona {
                     .password(password)
                     .nickname(nickname)
                     .fecha_nacimiento(fecha_nacimiento)
-                    .fecha_alta(fecha_alta)
                     .curp(curp)
                     .puesto(puesto)
                     .cuenta_nomina(cuenta_nomina.instance())
@@ -156,10 +125,22 @@ public class Empleado extends Persona {
         }
     }
 
+    @Data
+    public static class UpdateEstadoRequest {
+        @NotNull private SimpleInstance<ObjectId> empleado;
+        @NotNull private SimpleInstance<String> sucursal;
+        @NotNull private Empleado.Estados estado;
+    }
+
+    @Override
+    public Especializaciones getEspecializado() {
+        return Especializaciones.EMPLEADO;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Set.of(
-                new SimpleGrantedAuthority(getTipo().name()),
+                new SimpleGrantedAuthority(getEspecializado().name()),
                 new SimpleGrantedAuthority(puesto.name()));
     }
 
@@ -186,18 +167,5 @@ public class Empleado extends Persona {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    @Override
-    public String getId() {
-        return nickname;
-    }
-
-    @Data
-    @NoArgsConstructor
-    public static class Updater {
-        @NotNull private Empleado empleado;
-        @NotNull private Sucursal sucursal;
-        @NotNull private Empleado.EstadosEmpresa estado;
     }
 }

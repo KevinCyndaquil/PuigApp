@@ -1,27 +1,27 @@
 [
   {
-    "detalle": [
+    "ticket": [
       {
-        "objeto": {
-          "codigo": "RCC6",
+        "detalle": {
+          "id": "COC6",
           "especializado": "ARTICULO_MENU"
         },
         "cantidad": 2
       },
       {
-        "objeto": {
-          "codigo": "PCMP00",
+        "detalle": {
+          "id": "POG",
           "especializado": "ARTICULO_MENU"
         },
-        "cantidad": 2
+        "cantidad": 1
       }
     ],
-    "forma_entrega": "RESTAURANTE",
+    "modo_entrega": "EN_RESTAURANTE",
     "realizada_en": {
-      "id": "661de089076e8718e0b040b0"
+      "id": "00000"
     },
     "tomada_por": {
-      "nickname": "01"
+      "id": "662d6c34b658482d6f4e5d3e"
     },
     "pagos": [
       {
@@ -32,27 +32,20 @@
     "internet": false
   },
   {
-    "detalle": [
+    "ticket": [
       {
-        "objeto": {
-          "codigo": "RCC6",
-          "especializado": "ARTICULO_MENU"
-        },
-        "cantidad": 1
-      },
-      {
-        "objeto": {
-          "codigo": "PCMP00",
-          "especializado": "ARTICULO_MENU"
+        "detalle": {
+          "id": "PQFAM",
+          "especializado": "ARTICULO_COMBO"
         },
         "cantidad": 1
       }
     ],
     "realizada_en": {
-      "id": "661de089076e8718e0b040b0"
+      "id": "00000"
     },
     "tomada_por": {
-      "nickname": "01"
+      "id": "662d6c34b658482d6f4e5d3e"
     },
     "pagos": [
       {
@@ -61,19 +54,21 @@
       }
     ],
     "internet": false,
-    "cliente": {
+    "cliente_reparto": {
       "nombre": "JOSENO",
-      "rfc": "JOSE090909TU4",
-      "telefono": "+(52) 962 185 9697",
-      "direcciones": [
-        {
-          "colonia": "ENCINADA",
-          "codigo_postal": "90121",
-          "calle_principal": "CALLE GARDENÍAS",
-          "lote": "B1",
-          "descripcion_vivienda": "Departamento color caqui"
-        }
-      ]
+      "rfc": {
+        "rfc": "JOSE090909TU4"
+      },
+      "telefono": {
+        "numero": "+(52) 962 185 9697"
+      }
+    },
+    "direccion_reparto": {
+      "colonia": "ENCINADA",
+      "codigo_postal": "90121",
+      "calle_principal": "CALLE GARDENÍAS",
+      "lote": "B1",
+      "descripcion_vivienda": "Departamento color caqui"
     }
   }
 ]

@@ -19,7 +19,7 @@ public class VentaInvalidaException extends RuntimeException {
     public static @NotNull VentaInvalidaException pagoInferiorAMonto(@NotNull Venta venta) {
         return new VentaInvalidaException("Pago de $%s realizado es menor al monto total de $%s"
                 .formatted(venta.getPago_total(), venta.getMonto_total()),
-                "El pago es inferior al monto, pide al cliente completar su venta_request");
+                "El pago es inferior al monto, pide al cliente_reparto completar su venta_request");
     }
 
     @Contract("_ -> new")

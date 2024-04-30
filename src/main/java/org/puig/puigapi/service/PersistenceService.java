@@ -8,15 +8,17 @@ import org.bson.Document;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.exceptions.BusquedaSinResultadoException;
 import org.puig.puigapi.exceptions.LlaveDuplicadaException;
-import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
-import org.puig.puigapi.persistence.repositories.PuigRepository;
+import org.puig.puigapi.exceptions.NombreUnicoRepetidoException;
+import org.puig.puigapi.util.persistence.Irrepetibe;
+import org.puig.puigapi.persistence.repository.PuigRepository;
+import org.puig.puigapi.util.persistence.SimpleInstance;
+import org.puig.puigapi.util.persistence.UniqueName;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class PersistenceService <
@@ -32,6 +34,9 @@ public abstract class PersistenceService <
         if (t.getId() != null)
             if (repository.existsById(t.getId()))
                 throw new LlaveDuplicadaException(t.getClass(), t.getId());
+        if (t instanceof UniqueName<?> unique)
+            if (repository.findByNombre(unique.getNombre(), type.getName()).isPresent())
+                throw new NombreUnicoRepetidoException(t.getClass(), unique.getNombre());
 
         return repository.insert(t);
     }
@@ -40,19 +45,20 @@ public abstract class PersistenceService <
         return ts.stream().map(this::save).toList();
     }
 
-    public T readByID(@NotNull ID id) throws BusquedaSinResultadoException {
-        return repository.findById(id)
+    public T readById(@NotNull ID id) throws BusquedaSinResultadoException {
+        return repository.findById(id, type.getName())
                 .orElseThrow(() -> new BusquedaSinResultadoException("id", id));
     }
 
-    public <E extends Irrepetibe<ID>> T readByID(@NotNull E e) throws BusquedaSinResultadoException {
-        if (Objects.isNull(e.getId()))
-            throw new IllegalArgumentException("Objeto proporcionado durante la busqueda contiene un id nulo");
-        return readByID(e.getId());
+    public T readById(@NotNull SimpleInstance<ID> simpleInstance)
+            throws BusquedaSinResultadoException {
+        return readById(simpleInstance.id());
     }
 
-    public List<T> readAll() {
-        return repository.findAll();
+    public <E extends Irrepetibe<ID>> T readById(@NotNull E e) throws BusquedaSinResultadoException {
+        if (Objects.isNull(e.getId()))
+            throw new IllegalArgumentException("Objeto proporcionado durante la busqueda contiene un id nulo");
+        return readById(e.getId());
     }
 
     /**

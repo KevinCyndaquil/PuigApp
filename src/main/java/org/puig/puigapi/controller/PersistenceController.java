@@ -1,30 +1,30 @@
 package org.puig.puigapi.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.responses.ObjectResponse;
 import org.puig.puigapi.controller.responses.Response;
-import org.puig.puigapi.persistence.entity.utils.persistence.Irrepetibe;
-import org.puig.puigapi.persistence.entity.utils.persistence.PostEntity;
-import org.puig.puigapi.persistence.entity.utils.persistence.SimpleInstance;
-import org.puig.puigapi.persistence.repositories.PuigRepository;
+import org.puig.puigapi.util.PuigLogger;
+import org.puig.puigapi.util.persistence.Instantiator;
+import org.puig.puigapi.util.persistence.Irrepetibe;
+import org.puig.puigapi.util.persistence.SimpleInstance;
+import org.puig.puigapi.persistence.repository.PuigRepository;
 import org.puig.puigapi.service.PersistenceService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
  * Controlador génerico CRUD para la API de PollosPuig.
- * @param <T> La clase relacionada la creación de este servicio.
+ * @param <C> La clase relacionada la creación de este servicio.
  * @param <ID> El especializado del ID de la clase.
- * @param <P> La clase PostEntity que se usará como intermediario durante las solicitudes RequestUsuario.
+ * @param <P> La clase Instantiator que se usará como intermediario durante las solicitudes PostRequest.
  */
 
 @CrossOrigin(
@@ -35,29 +35,28 @@ import java.util.List;
                 RequestMethod.DELETE,
                 RequestMethod.PUT})
 @Validated
+@EnableMethodSecurity
 public abstract class PersistenceController
-        <T extends Irrepetibe<ID>, ID, P extends PostEntity<T>> {
+        <C extends Irrepetibe<ID>, ID, P extends Instantiator<C>> {
 
-    protected final PersistenceService <T, ID, ? extends PuigRepository<T, ID>> service;
-    protected final Logger logger;
+    protected final PersistenceService <C, ID, ? extends PuigRepository<C, ID>> service;
+    protected final PuigLogger logger;
 
-    protected static final String PuigAppHeader = "PuigAPI_reponse";
-
-    protected PersistenceController(PersistenceService<T, ID, ? extends PuigRepository<T, ID>> service) {
+    protected PersistenceController(PersistenceService<C, ID, ? extends PuigRepository<C, ID>> service) {
         this.service = service;
-        this.logger = LoggerFactory.getLogger(this.getClass());
+        this.logger = new PuigLogger(getClass());
     }
 
     @PostMapping(produces = "application/json", consumes = "application/json")
     public ResponseEntity<Response> save(@NotNull @Valid @RequestBody P p) {
-        logger.info("Petición Post a las %s".formatted(LocalDateTime.now()));
+        logger.post();
 
-        T t = p.instance();
-        T saved = service.save(t);
+        C t = p.instance();
+        C saved = service.save(t);
 
         return ObjectResponse.builder()
                 .status(HttpStatus.CREATED)
-                .message("%s was succesfuly created"
+                .message("Objeto %s fue persistido exitosamente"
                         .formatted(t.getClass().getSimpleName()))
                 .body(saved)
                 .build()
@@ -65,17 +64,18 @@ public abstract class PersistenceController
     }
 
     @PostMapping(value = "all", produces = "application/json", consumes = "application/json")
-    public ResponseEntity<Response> save(@NotNull @Valid @RequestBody List<P> ps) {
-        logger.info("Petición Post a las: %s".formatted(LocalDateTime.now()));
+    public ResponseEntity<Response> save(@NotEmpty @Valid @RequestBody List<P> ps) {
+        logger.post();
 
-        List<T> ts = ps.stream()
-                .map(PostEntity::instance)
+        List<C> ts = ps.stream()
+                .map(Instantiator::instance)
                 .toList();
-        List<T> tSaved = service.save(ts);
+        List<C> tSaved = service.save(ts);
 
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)
-                .message("Saving result was")
+                .message("Objetos %s persistidos correctamente"
+                        .formatted(ts.get(0).getClass()))
                 .body(tSaved)
                 .build()
                 .transform();
@@ -84,23 +84,23 @@ public abstract class PersistenceController
     @PostMapping(value = "where/id/is", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Response> readByID(
             @NotNull @Valid @RequestBody SimpleInstance<ID> simpleInstance) {
-        logger.info("Get petition at:  %s".formatted(LocalDateTime.now()));
+        logger.get();
 
-        T read = service.readByID(simpleInstance.id());
+        C read = service.readById(simpleInstance.id());
 
         return ObjectResponse.builder()
-                .status(HttpStatus.OK)
-                .message("Read successfully")
+                .status(HttpStatus.FOUND)
+                .message("Busqueda exitosa")
                 .body(read)
                 .build()
                 .transform();
     }
 
     @PostMapping(value = "where/object/matches", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Response> read(@NotNull @Valid @RequestBody T t) {
-        logger.info("Get petition at:  %s".formatted(LocalDateTime.now()));
+    public ResponseEntity<Response> read(@NotNull @Valid @RequestBody C t) {
+        logger.get();
 
-        List<T> entities = service.read(t);
+        List<C> entities = service.read(t);
 
         if (entities.isEmpty()) return ObjectResponse.builder()
                 .status(HttpStatus.OK)
@@ -109,20 +109,20 @@ public abstract class PersistenceController
                 .build()
                 .transform();
         return ObjectResponse.builder()
-                .status(HttpStatus.OK)
-                .message("%s obtenidos correctamente"
+                .status(HttpStatus.FOUND)
+                .message("%ss obtenidos correctamente"
                         .formatted(t.getClass().getSimpleName()))
                 .body(entities)
                 .build()
                 .transform();
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR_WEB')")
+    //@PreAuthorize("hasAuthority('ADMINISTRADOR_WEB')")
     @GetMapping(produces = "application/json")
     public ResponseEntity<Response> readAll() {
-        logger.info("Get petition at: %s".formatted(LocalDateTime.now()));
+        logger.get();
 
-        List<T> entities = service.readAllWhile();
+        List<C> entities = service.readAllWhile();
         System.out.println("entites: " + entities);
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)
@@ -133,8 +133,8 @@ public abstract class PersistenceController
     }
 
     @PutMapping(produces = "application/json")
-    public ResponseEntity<Response> update(@NotNull @Valid @RequestBody T t) {
-        logger.info("Put petition at: %s".formatted(LocalDateTime.now()));
+    public ResponseEntity<Response> update(@NotNull @Valid @RequestBody C t) {
+        logger.put();
 
         boolean result = service.update(t);
 
@@ -156,12 +156,9 @@ public abstract class PersistenceController
 
     @DeleteMapping(produces = "application/json")
     public ResponseEntity<Response> delete(@RequestParam("id") ID id) {
-        logger.info("Delete petition at: %s"
-                .formatted(LocalDateTime.now()));
+        logger.delete();
 
-        boolean result = service.delete(id);
-
-        if (result)
+        if (service.delete(id))
             return Response.builder()
                     .status(HttpStatus.OK)
                     .message("Objeto %s borrado correctamente"

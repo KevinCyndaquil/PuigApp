@@ -12,4 +12,5 @@ public enum Errors {
     sesion_expirada_error,
     servicio_error,
     rollback_transaction_error,
+    servidor_error
 }

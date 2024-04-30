@@ -1,14 +1,13 @@
 package org.puig.puigapi.service.admin;
 
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.exceptions.LlaveDuplicadaException;
-import org.puig.puigapi.persistence.entity.admin.Proveedor;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
-import org.puig.puigapi.persistence.repositories.admin.FacturaProveedorRepository;
+import org.puig.puigapi.persistence.repository.admin.FacturaProveedorRepository;
 import org.puig.puigapi.service.PersistenceService;
-import org.puig.puigapi.service.annotations.PuigService;
-import org.puig.puigapi.service.operation.ProductoSucursalService;
+import org.puig.puigapi.util.annotation.PuigService;
 import org.puig.puigapi.service.operation.SucursalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.MongoTransactionException;
@@ -23,9 +22,7 @@ import static org.puig.puigapi.persistence.entity.admin.Proveedor.*;
 @Setter(onMethod_ = @Autowired)
 public class FacturaProveedorService extends
         PersistenceService<Factura, String, FacturaProveedorRepository>  {
-
     protected ProductoProveedorService productoProveedorService;
-    protected ProductoSucursalService productoSucursalService;
 
     protected SucursalService sucursalService;
 
@@ -42,18 +39,14 @@ public class FacturaProveedorService extends
     @Override
     @Transactional
     public Factura save(@NotNull Factura factura) throws LlaveDuplicadaException {
-        Sucursal sucursal = sucursalService.readByID(factura.getSucursal().getId());
+        Sucursal sucursal = sucursalService.readById(factura.getSucursal().getId());
 
-        factura.getDetalle().forEach(d -> {
-            String productoProveedor_id = d.getObjeto().getId();
-            Proveedor.Producto productoProveedor =
-                    productoProveedorService.readByID(productoProveedor_id);
-            Sucursal.Producto productoSucursal =
-                    productoSucursalService.saveOrReadById(productoProveedor_id);
-
-            d.setObjeto(productoProveedor);
-            sucursal.agregarExistencia(productoSucursal, d.getCantidad());
-        });
+        factura.getDetalle().stream()
+                .peek(d -> {
+                    ObjectId producto_id = d.getDetalle().getId();
+                    d.setDetalle(productoProveedorService.readById(producto_id));
+                })
+                .forEach(sucursal.getBodega()::recepcionar);
         factura.update();
 
         Factura saFactura = super.save(factura);
@@ -66,16 +59,15 @@ public class FacturaProveedorService extends
     @Override
     @Transactional
     public boolean delete(@NotNull String id) {
-        Factura factura = readByID(id);
-        Sucursal sucursal = sucursalService.readByID(factura.getSucursal());
+        Factura factura = readById(id);
+        Sucursal sucursal = sucursalService.readById(factura.getSucursal());
 
-        factura.getDetalle().forEach(d -> {
-            String productoProveedor_id = d.getObjeto().getId();
-            Sucursal.Producto proSucursal =
-                    productoSucursalService.findByProductoProveedor_id(productoProveedor_id);
-
-            sucursal.quitarExistencias(proSucursal, d.getCantidad());
-        });
+        factura.getDetalle().stream()
+                .peek(d -> {
+                    ObjectId producto_id = d.getDetalle().getId();
+                    d.setDetalle(productoProveedorService.readById(producto_id));
+                })
+                .forEach(sucursal.getBodega()::quitarExistencias);
 
         boolean res = super.delete(id);
 

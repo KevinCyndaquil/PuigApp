@@ -5,7 +5,7 @@ import org.puig.puigapi.controller.responses.ObjectResponse;
 import org.puig.puigapi.controller.responses.Response;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
-import org.puig.puigapi.persistence.entity.utils.persistence.SimpleInstance;
+import org.puig.puigapi.util.persistence.SimpleInstance;
 import org.puig.puigapi.service.operation.SucursalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/sucursales")
-public class SucursalController extends PersistenceController<Sucursal, String, Sucursal.Request> {
+public class SucursalController extends PersistenceController<Sucursal, String, Sucursal.PostRequest> {
     protected SucursalService service;
 
     @Autowired

@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/ventas")
-public class VentaController extends PersistenceController<Venta, String, Venta.Request> {
+public class VentaController extends PersistenceController<Venta, String, Venta.PostRequest> {
     protected VentaService service;
 
     public VentaController(VentaService service) {
@@ -25,7 +25,7 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
 
     @Valid
     @PostMapping("reparto")
-    public ResponseEntity<Response> save(@RequestBody Venta.Reparto.Request request) {
+    public ResponseEntity<Response> save(@RequestBody Venta.Reparto.PostRequest request) {
         Venta.Reparto reparto = request.instance();
         Venta.Reparto saved = service.save(reparto);
 
@@ -41,7 +41,7 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
     @GetMapping("where/date/in_range")
     public ResponseEntity<Response> readByFecha_venta(@RequestParam("from") LocalDate from,
                                                       @RequestParam("to") LocalDate to) {
-        List<Venta> ventas = service.readByFecha_venta(from, to);
+        List<Venta> ventas = service.readByPeriodo(from, to);
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)
                 .body(ventas)
@@ -53,7 +53,7 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
 
     @GetMapping("where/date/is")
     public ResponseEntity<Response> readByFecha_venta(@RequestParam("from") LocalDate from) {
-        List<Venta> ventas = service.readByFecha_venta(from);
+        List<Venta> ventas = service.readByPeriodo(from);
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)
                 .body(ventas)
@@ -81,7 +81,7 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
     @GetMapping("reports/ventas/where/date/in_range")
     public ResponseEntity<Response> generateVentaReport(@RequestParam("from")LocalDate from,
                                                         @RequestParam("to") LocalDate to,
-                                                        @RequestParam("filter") Venta.FormasEntrega filtro) {
+                                                        @RequestParam("filter") Venta.ModosDeEntrega filtro) {
         List<Venta> reporte =
                 service.generarReporteVentas(from, to, filtro);
 

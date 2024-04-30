@@ -1,7 +1,7 @@
 [
   {
     "proveedor": {
-      "id": "661ddfd9076e8718e0b040ab"
+      "id": "662be1109da27c45d5824725"
     },
     "nombre": "COCA COLA DE 600ML",
     "precio": 388.74,
@@ -10,11 +10,12 @@
       "cantidad": 24,
       "empaque": "PAQUETE",
       "calculable": false
-    }
+    },
+    "inventariado": true
   },
   {
     "proveedor": {
-      "id": "661ddfd9076e8718e0b040ab"
+      "id": "662be1109da27c45d5824725"
     },
     "nombre": "COCA COLA DE 3L",
     "precio": 263.92,
@@ -26,7 +27,7 @@
   },
   {
     "proveedor": {
-      "id": "661de028076e8718e0b040ac"
+      "id": "662d52e6d143963b5258f4f6"
     },
     "nombre": "POLLO CRUDO",
     "precio": 1000,
@@ -34,11 +35,12 @@
       "peso_pieza": 1300,
       "cantidad": 20,
       "empaque": "CAJA"
-    }
+    },
+    "inventariado": true
   },
   {
     "proveedor": {
-      "id": "661de028076e8718e0b040ac"
+      "id": "662d52e6d143963b5258f4f6"
     },
     "nombre": "COSTAL DE PAPA 1KG",
     "precio": 1000.42,
@@ -46,6 +48,7 @@
       "peso_pieza": 1000,
       "cantidad": 1,
       "empaque": "CAJA"
-    }
+    },
+    "inventariado": true
   }
 ]

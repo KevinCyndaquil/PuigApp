@@ -2,7 +2,7 @@ package org.puig.puigapi.configuration;
 
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.service.PersistenceService;
-import org.puig.puigapi.service.annotations.PuigService;
+import org.puig.puigapi.util.annotation.PuigService;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.stereotype.Component;

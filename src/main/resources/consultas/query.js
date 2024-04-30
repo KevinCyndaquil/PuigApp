@@ -9,7 +9,7 @@ db.finances.aggregate([
         }
     },
     {
-        $unwind: "$detalle"
+        $unwind: "$ticket"
     },
     {
         $match: {
@@ -27,10 +27,10 @@ db.finances.aggregate([
     {
         $group: {
             _id: {
-                producto: "$detalle.objeto"
+                producto: "$ticket.objeto"
             },
-            total_vendido: { $sum: "$detalle.cantidad" },
-            total_monto: { $sum: "$detalle.monto" },
+            total_vendido: { $sum: "$ticket.cantidad" },
+            total_monto: { $sum: "$ticket.monto" },
             articulo: { $first: "$producto"}
         }
     },

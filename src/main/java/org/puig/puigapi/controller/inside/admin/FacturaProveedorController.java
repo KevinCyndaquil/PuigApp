@@ -18,7 +18,7 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("proveedores/facturas")
 public class FacturaProveedorController
-        extends PersistenceController<Proveedor.Factura, String, Proveedor.Factura.Request> {
+        extends PersistenceController<Proveedor.Factura, String, Proveedor.Factura.PostRequest> {
 
     protected FacturaProveedorService service;
 
