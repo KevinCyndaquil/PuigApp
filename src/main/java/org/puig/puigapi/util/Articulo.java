@@ -81,5 +81,5 @@ public abstract class Articulo implements Irrepetibe<String>, ObjetoConPrecio, U
      * @return True si al menos uno de sus Ingredientes dentro de receta tienen un stock menor a 5
      */
     public abstract boolean isEn_desabasto(Sucursal sucursal);
-    public abstract Detalle<Contable<Proveedor.Producto>> getReceta();
+    public abstract Detalle<Contable<Proveedor.Producto>> getContenido();
 }

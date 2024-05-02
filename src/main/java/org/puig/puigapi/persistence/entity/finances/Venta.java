@@ -69,7 +69,7 @@ public class Venta implements Irrepetibe<String>, Updatable {
 
     public void forEachDetalle(@NonNull Consumer<Contable<Proveedor.Producto>> consumer) {
         this.getTicket().forEach(t -> t.getDetalle()
-                .getReceta()
+                .getContenido()
                 .per(t.getCantidad())
                 .forEach(consumer));
     }

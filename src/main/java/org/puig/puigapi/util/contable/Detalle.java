@@ -1,9 +1,17 @@
 package org.puig.puigapi.util.contable;
 
+import lombok.NoArgsConstructor;
+
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Stream;
 
+@NoArgsConstructor
 public class Detalle <D extends Contable<?>> extends HashSet<D> {
+
+    public <C extends Collection<D>> Detalle(C c) {
+        super(c);
+    }
 
     /**
      * Multiplica la cantidad de cada receta por otra. Se utiliza cuando se tienen varias cantidades

@@ -1,20 +1,31 @@
 package org.puig.puigapi.service.finances;
 
 import lombok.Setter;
+import net.sf.jasperreports.engine.JREmptyDataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.exceptions.VentaInvalidaException;
 import org.puig.puigapi.persistence.entity.finances.Venta;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
 import org.puig.puigapi.persistence.entity.operation.Usuario;
+import org.puig.puigapi.service.PdfReportService;
 import org.puig.puigapi.util.Articulo;
 import org.puig.puigapi.persistence.repository.finances.VentaRepository;
 import org.puig.puigapi.service.PersistenceService;
+import org.puig.puigapi.util.Images;
+import org.puig.puigapi.util.Reports;
 import org.puig.puigapi.util.annotation.PuigService;
 import org.puig.puigapi.service.operation.EmpleadoService;
 import org.puig.puigapi.service.operation.SucursalService;
 import org.puig.puigapi.service.operation.UsuarioService;
 import org.puig.puigapi.util.contable.Calculable;
+import org.puig.puigapi.util.persistence.SimpleInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -24,13 +35,18 @@ import org.springframework.data.mongodb.core.aggregation.LookupOperation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Setter(onMethod_ = @Autowired)
 @PuigService(Venta.class)
-public class VentaService extends PersistenceService<Venta, String, VentaRepository> {
+public class VentaService extends PersistenceService<Venta, String, VentaRepository>
+        implements PdfReportService {
 
     protected ArticuloMenuService articuloMenuService;
     protected ArticuloService articuloService;
@@ -133,10 +149,20 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
         return update(reVenta);
     }
 
-    public List<Venta.ReporteProducto> generarReporteProducto(@NotNull LocalDate desde,
-                                                              @NotNull LocalDate hasta) {
+    public JasperPrint generarReporteProducto(@NotNull SimpleInstance<String> sucursalInstance,
+                                              @NotNull LocalDate desde,
+                                              @NotNull LocalDate hasta)
+            throws JRException {
+        Sucursal sucursal = sucursalService.readById(sucursalInstance);
+
         Aggregation aggregation = Aggregation.newAggregation(
-                Aggregation.match(Criteria.where("fecha_venta").gte(desde).lte(hasta)),
+                Aggregation.match(
+                        Criteria.where("fecha_venta").gte(desde).lte(hasta)
+                                .and("realizada_en.$id").is(sucursal.getId())
+                                .orOperator(
+                                        Criteria.where("_class").is(Venta.class.getName()),
+                                        Criteria.where("_class").is(Venta.Reparto.class.getName())
+                                )),
                 Aggregation.unwind("ticket"),
                 LookupOperation.newLookup()
                         .from("finances")
@@ -155,7 +181,28 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
 
         AggregationResults<Venta.ReporteProducto> results =
                 template.aggregate(aggregation, "finances", Venta.ReporteProducto.class);
-        return results.getMappedResults();
+        List<Venta.ReporteProducto> data = results.getMappedResults();
+
+        System.out.println(data);
+
+        Map<String, Object> parametros = new HashMap<>();
+
+        try (InputStream lpp = Images.LOGO_POLLOSPUIG.url.openStream();
+             InputStream lpa = Images.LOGO_PUIGAPP.url.openStream()) {
+
+            parametros.put("logo_pollospuig", lpp);
+            parametros.put("logo_puigapp", lpa);
+            parametros.put("sucursal", sucursal.getNombre());
+            parametros.put("periodo", "%s a %s".formatted(desde, hasta));
+            parametros.put("contenido_ventas", new JRBeanCollectionDataSource(data));
+
+            return JasperFillManager.fillReport(
+                    Reports.VENTAS_ARTICULOS.content,
+                    parametros,
+                    new JREmptyDataSource(1));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public List<Venta> generarReporteVentas(@NotNull LocalDate desde,

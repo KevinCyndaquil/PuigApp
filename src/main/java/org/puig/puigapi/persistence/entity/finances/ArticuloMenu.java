@@ -11,6 +11,8 @@ import org.puig.puigapi.util.contable.Detalle;
 import org.puig.puigapi.util.persistence.Instantiator;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Collection;
+
 /**
  * Representa un producto que se encuentra en el menú. Producto o artículo con precio.
  */
@@ -26,7 +28,8 @@ public class ArticuloMenu extends Articulo {
     /**
      * Contiene los Productos de Sucursal que se usarán para la elaboración de este Artículo
      */
-    private Detalle<Contable<Proveedor.Producto>> receta;
+    private Detalle<Contable<Proveedor.Producto>> receta = new Detalle<>();
+    private Detalle<Contable<ArticuloMenu>> adicionales = new Detalle<>();
 
     @Data
     public static class PostRequest implements Instantiator<ArticuloMenu> {
@@ -43,6 +46,7 @@ public class ArticuloMenu extends Articulo {
         private Categorias categoria;
         @NotNull(message = "Se requiere una receta al menos vacía")
         private Detalle<Contable<Proveedor.Producto>> receta = new Detalle<>();
+        private Detalle<Contable<ArticuloMenu>> adicionales = new Detalle<>();
 
         @Override
         public ArticuloMenu instance() {
@@ -53,6 +57,7 @@ public class ArticuloMenu extends Articulo {
                     .visible(visible)
                     .categoria(categoria)
                     .receta(receta)
+                    .adicionales(adicionales)
                     .build();
         }
     }
@@ -69,5 +74,17 @@ public class ArticuloMenu extends Articulo {
                 .map(a -> sucursal.getBodega().getExistencias(a) < 5)
                 .reduce(false, Boolean::logicalOr);
         return en_desabasto;
+    }
+
+    @Override
+    public Detalle<Contable<Proveedor.Producto>> getContenido() {
+        Detalle<Contable<Proveedor.Producto>> contenido = new Detalle<>(receta);
+        contenido.addAll(receta);
+        contenido.addAll(adicionales.stream()
+                .map(Contable::getDetalle)
+                .map(ArticuloMenu::getReceta)
+                .flatMap(Collection::stream)
+                .toList());
+        return contenido;
     }
 }
