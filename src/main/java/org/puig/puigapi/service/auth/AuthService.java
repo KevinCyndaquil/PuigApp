@@ -36,7 +36,7 @@ public abstract class AuthService <U extends Persona, R extends PuigRepository<U
         super(repository);
     }
 
-    public abstract Optional<U> readByCredentials(@NotNull Credentials<String> credentials);
+    public abstract Optional<U> readByCredentials(@NotNull Credentials credentials);
 
     /**
      * Guarda una entidad `Persona` realizando la encriptación de su password.
@@ -121,7 +121,7 @@ public abstract class AuthService <U extends Persona, R extends PuigRepository<U
         return jwtService.generateToken(saved);
     }
 
-    public Optional<String> login(@NotNull Credentials<String> credential) {
+    public Optional<String> login(@NotNull Credentials credential) {
         Optional<U> usuario = readByCredentials(credential);
 
         return usuario.map(u -> {

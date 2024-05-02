@@ -26,9 +26,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -118,7 +116,7 @@ public class Venta implements Irrepetibe<String>, Updatable {
     public static class PostRequest implements Instantiator<Venta> {
         @NotEmpty(message = "Se deben añadir artículos a la venta_request")
         private Venta.Ticket ticket;
-        private Usuario.ClienteRequest cliente;
+        private Usuario.FacturableRequest cliente;
         @NotNull(message = "Se requiere la forma de entrega de la venta")
         private Venta.ModosDeEntrega modo_entrega;
         @NotNull(message = "Se require la sucursal donde se está realizando la venta")
@@ -176,7 +174,7 @@ public class Venta implements Irrepetibe<String>, Updatable {
         public static class PostRequest implements Instantiator<Reparto> {
             @NotEmpty(message = "Se deben añadir artículos a la venta")
             private Venta.Ticket ticket;
-            private Usuario.ClienteRequest cliente;
+            private Usuario.FacturableRequest cliente;
             @NotNull(message = "Se require la sucursal donde se está realizando la venta")
             private SimpleInstance<String> realizada_en;
             @NotNull(message = "Se requiere el empleado que inicio sesión")

@@ -8,13 +8,9 @@ import org.jetbrains.annotations.NotNull;
  * @param identifier el identificador del usuario.
  * @param password su contraseña.
  */
-public record Credentials <ID> (
+public record Credentials (
         @NotBlank(message = "Agrega un identificador a las credenciales")
         String identifier,
         @NotBlank(message = "Agregar una contraseña a las credenciales")
         String password) {
-
-        public static <ID> Credentials<ID> of(@NotNull final String identifier) {
-                return new Credentials<ID>(identifier, "");
-        }
 }

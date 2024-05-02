@@ -56,7 +56,7 @@ public class AuthController <U extends Persona, P extends Instantiator<U>>
     }
 
     @PostMapping("auth/login")
-    public ResponseEntity<Response> login(@NotNull @Valid @RequestBody Credentials<String> credential) {
+    public ResponseEntity<Response> login(@NotNull @Valid @RequestBody Credentials credential) {
         logger.get("login");
 
         Optional<String> result = service.login(credential);

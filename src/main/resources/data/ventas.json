@@ -29,7 +29,24 @@
         "modo": "EFECTIVO"
       }
     ],
-    "internet": false
+    "internet": false,
+    "cliente": {
+      "nombre": "MAURICIO BETANCOURT MORA",
+      "rfc": {
+        "rfc": "BEMM000000HCSTRRA0"
+      },
+      "correo": {
+        "direccion": "maguchi.sexy@puig.com"
+      },
+      "razon": "FISICO",
+      "regimen": "GENERAL",
+      "cfdi": "INGRESOS",
+      "direccion": {
+        "calle_principal": "ANDADOR LOMAS SAGEO",
+        "lote": "A12",
+        "manzana": "2"
+      }
+    }
   },
   {
     "ticket": [

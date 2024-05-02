@@ -25,9 +25,31 @@ public class UsuarioController extends AuthController<Usuario, Usuario.PostReque
         this.service = service;
     }
 
-    @Valid
+    @PostMapping("where/correo_telefono/is")
+    public ResponseEntity<Response> readByCorreoOrTelefono(@NotNull @Valid @RequestBody Usuario.ID id) {
+        Usuario usuario;
+        Object obj;
+
+        if (id.getTelefono() != null) {
+            obj = id.getTelefono();
+            usuario = service.readByTelefono(id.getTelefono());
+        } else if (id.getCorreo() != null) {
+            obj = id.getCorreo();
+            usuario = service.readByCorreo(id.getCorreo());
+        } else throw new IllegalArgumentException(
+                "Se debe proporcionar un Correo o Telefono para leer un Usuario");
+
+        return ObjectResponse.builder()
+                .status(HttpStatus.OK)
+                .message("Usuario %s encontrado con ID %s"
+                        .formatted(usuario.getNombre(), obj))
+                .body(usuario)
+                .build()
+                .transform();
+    }
+
     @PostMapping("where/correo/is")
-    public ResponseEntity<Response> readByCorreo(@NotNull Correo correo) {
+    public ResponseEntity<Response> readByCorreo(@NotNull @Valid Correo correo) {
         Usuario usuario = service.readByCorreo(correo);
 
         return ObjectResponse.builder()
@@ -38,9 +60,8 @@ public class UsuarioController extends AuthController<Usuario, Usuario.PostReque
                 .transform();
     }
 
-    @Valid
     @PostMapping("where/telefono/is")
-    public ResponseEntity<Response> readByTelefono(@NotNull Telefono telefono) {
+    public ResponseEntity<Response> readByTelefono(@NotNull @Valid Telefono telefono) {
         Usuario usuario = service.readByTelefono(telefono);
 
         return ObjectResponse.builder()

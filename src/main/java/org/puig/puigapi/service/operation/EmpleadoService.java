@@ -29,7 +29,7 @@ public class EmpleadoService extends AuthService<Empleado, EmpleadoRepository> {
     }
 
     @Override
-    public Optional<Empleado> readByCredentials(@NotNull Credentials<String> credentials) {
+    public Optional<Empleado> readByCredentials(@NotNull Credentials credentials) {
         return readByNickname(credentials.identifier());
     }
 

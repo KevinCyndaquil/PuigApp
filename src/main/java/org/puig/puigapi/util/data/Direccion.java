@@ -36,11 +36,9 @@ public class Direccion {
         @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
                 message = "Formato para nombre de municipio invalido")
         private String municipio;
-        @NotBlank(message = "Se requiere una colonia para la dirección")
         @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
                 message = "Formato para nombre de colonia invalida")
         private String colonia;
-        @NotBlank(message = "Se requiere un id postal para la dirección")
         @Pattern(regexp = "^(?!00)[0-9]{2}[0-9]{3}$")
         private String codigo_postal;
         @NotBlank(message = "Se requiere una calle principal para la dirección")

@@ -107,15 +107,29 @@ public class Usuario extends Persona {
 
     @Data
     @NoArgsConstructor
-    public static class ClienteRequest implements Instantiator<Usuario> {
+    public static class FacturableRequest implements Instantiator<Usuario> {
         @NotBlank(message = "Se require un nombre para el cliente")
         @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+( [\\p{Lu}\\p{M}]+)*$",
                 message = "Nombre de cliente invalido. Recuerda que debe ir en mayúsculas")
         private String nombre;
-        @Valid private RFC rfc;
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+$",
+                message = "Apellido paterno de usuario invalido. Recuerda que debe ir en mayúsculas")
+        private String apellido_paterno;
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+$",
+                message = "Apellido materno de usuario invalido. Recuerda que debe ir en mayúsculas")
+        private String apellido_materno;
+        @Valid
+        @NotNull(message = "Se requiere el rfc del usuario para la factura")
+        private RFC rfc;
         @Valid private Correo correo;
         @NotNull(message = "Se requiere la razon social del cliente")
         private RazonesSociales razon = RazonesSociales.FISICO;
+        @NotNull(message = "Se requiere el regimen fiscal del cliente para la factura")
+        private RegimenesFiscales regimen;
+        @NotNull(message = "Se requiere el cfdi del cliente para la factura")
+        private CFDI cfdi;
+        @NotNull(message = "Se requiere una dirección para la factura")
+        private Direccion.ParaFactura direccion;
 
         @Override
         public Usuario instance() {
@@ -125,6 +139,9 @@ public class Usuario extends Persona {
                     .correo(correo)
                     .razon(razon)
                     .rol(Roles.CLIENTE)
+                    .regimen(regimen)
+                    .cfdi(cfdi)
+                    .direcciones(Set.of(direccion.instance()))
                     .build();
         }
     }
@@ -195,5 +212,11 @@ public class Usuario extends Persona {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Data
+    public static class ID {
+        @Valid private Correo correo;
+        @Valid private Telefono telefono;
     }
 }

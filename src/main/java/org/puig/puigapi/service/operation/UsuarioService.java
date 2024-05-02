@@ -60,7 +60,7 @@ public class UsuarioService extends AuthService<Usuario, UsuarioRepository> {
     }
 
     @Override
-    public Optional<Usuario> readByCredentials(@NotNull Credentials<String> credentials) {
+    public Optional<Usuario> readByCredentials(@NotNull Credentials credentials) {
         return readByCorreoOrTelefono(credentials.identifier());
     }
 

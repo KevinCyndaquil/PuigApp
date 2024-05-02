@@ -14,6 +14,20 @@
     ]
   },
   {
+    "id": "POM",
+    "nombre": "MEDIO POLLO FRITO",
+    "precio": 120,
+    "categoria": "POLLO",
+    "receta": [
+      {
+        "detalle": {
+          "id": "662d53d5d143963b5258f4fa"
+        },
+        "cantidad": 0.5
+      }
+    ]
+  },
+  {
     "id": "COC6",
     "nombre": "COCA COLA 600ML",
     "precio": 24,
