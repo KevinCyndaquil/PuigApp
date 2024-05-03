@@ -43,12 +43,9 @@ public class Sucursal implements Irrepetibe<String>, UniqueName<String> {
     public void generar(@NonNull Empleado empleado, Empleado.Estados estado) {
         //if(empleados.add(empleado.generarAlta(estado))) return;
 
-        Optional<Empleado.Detalle> detalle = empleados.stream()
-                .reduce((a, d) -> d.getEmpleado().equals(empleado) ? d : a);
-
-        detalle.orElseThrow(() -> new RuntimeException("Ocurrio un error inesperado durante la actualización de un empleado %s en la tienda %s"
-                        .formatted(empleado.getNombre(), nombre)))
-                .setEstado(estado);
+        empleados.stream()
+                .reduce((a, d) -> d.getEmpleado().equals(empleado) ? d : a)
+                .ifPresentOrElse(e -> e.setEstado(estado), () -> empleados.add(new Empleado.Detalle(empleado, estado)));
     }
 
     public void alta(@NonNull Empleado empleado) {
@@ -89,14 +86,14 @@ public class Sucursal implements Irrepetibe<String>, UniqueName<String> {
          * @param contable objeto que contiene el producto y la cantidad a recepcionar
          */
         public void recepcionar(Contable<Proveedor.Producto> contable) {
-            if (add(contable)) return;
+            if (add(new Contable<>(contable))) return;
 
             stream().reduce((a, p) -> p.equals(contable) ? p : a)
                     .ifPresent(p -> p.plus(contable.getCantidad()));
         }
 
         /**
-         * Busca un producot en bodega y realiza una devolución a esta sucursal.
+         * Busca un producto en bodega y realiza una devolución a esta sucursal.
          * @param contable objeto que contiene el producto y la cantidad a agregar
          */
         public void agregarDevolucion(@NonNull Contable<Proveedor.Producto> contable) {

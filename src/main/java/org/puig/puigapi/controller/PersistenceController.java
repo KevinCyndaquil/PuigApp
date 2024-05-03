@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,11 +30,8 @@ import java.util.List;
 
 @CrossOrigin(
         origins = "*",
-        methods= {
-                RequestMethod.GET,
-                RequestMethod.POST,
-                RequestMethod.DELETE,
-                RequestMethod.PUT})
+        methods= {RequestMethod.GET, RequestMethod.POST, RequestMethod.DELETE, RequestMethod.PUT})
+
 @Validated
 @EnableMethodSecurity
 public abstract class PersistenceController
@@ -51,32 +49,30 @@ public abstract class PersistenceController
     public ResponseEntity<Response> save(@NotNull @Valid @RequestBody P p) {
         logger.post();
 
-        C t = p.instance();
-        C saved = service.save(t);
+        C c = service.save(p.instance());
 
         return ObjectResponse.builder()
                 .status(HttpStatus.CREATED)
-                .message("Objeto %s fue persistido exitosamente"
-                        .formatted(t.getClass().getSimpleName()))
-                .body(saved)
+                .message("%s persistido correctamente"
+                        .formatted(c.getClass().getSimpleName()))
+                .body(c)
                 .build()
                 .transform();
     }
 
+    @Transactional
     @PostMapping(value = "all", produces = "application/json", consumes = "application/json")
     public ResponseEntity<Response> save(@NotEmpty @Valid @RequestBody List<P> ps) {
         logger.post();
 
-        List<C> ts = ps.stream()
+        List<C> collections = service.save(ps.stream()
                 .map(Instantiator::instance)
-                .toList();
-        List<C> tSaved = service.save(ts);
-
+                .toList());
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)
-                .message("Objetos %s persistidos correctamente"
-                        .formatted(ts.get(0).getClass()))
-                .body(tSaved)
+                .message("%s %s persistidos correctamente"
+                        .formatted(collections.size(), collections.get(0).getClass()))
+                .body(collections)
                 .build()
                 .transform();
     }
@@ -85,49 +81,42 @@ public abstract class PersistenceController
     public ResponseEntity<Response> readByID(
             @NotNull @Valid @RequestBody SimpleInstance<ID> simpleInstance) {
         logger.get();
-
-        C read = service.readById(simpleInstance.id());
+        C c = service.readById(simpleInstance);
 
         return ObjectResponse.builder()
-                .status(HttpStatus.FOUND)
-                .message("Busqueda exitosa")
-                .body(read)
+                .status(HttpStatus.OK)
+                .message("%s encontrado correctamente"
+                        .formatted(c.getClass().getSimpleName()))
+                .body(c)
                 .build()
                 .transform();
     }
 
     @PostMapping(value = "where/object/matches", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Response> read(@NotNull @Valid @RequestBody C t) {
+    public ResponseEntity<Response> read(@NotNull @Valid @RequestBody C c) {
         logger.get();
+        List<C> collections = service.read(c);
 
-        List<C> entities = service.read(t);
-
-        if (entities.isEmpty()) return ObjectResponse.builder()
-                .status(HttpStatus.OK)
-                .message("No pudieron ser encontrados coincidencias")
-                .body(entities)
-                .build()
-                .transform();
         return ObjectResponse.builder()
-                .status(HttpStatus.FOUND)
-                .message("%ss obtenidos correctamente"
-                        .formatted(t.getClass().getSimpleName()))
-                .body(entities)
+                .status(HttpStatus.OK)
+                .message("Busqueda exitosa de %s"
+                        .formatted(c.getClass().getSimpleName()))
+                .body(collections)
                 .build()
                 .transform();
     }
 
-    //@PreAuthorize("hasAuthority('ADMINISTRADOR_WEB')")
+    @PreAuthorize("hasAuthority('ADMINISTRADOR_WEB')")
     @GetMapping(produces = "application/json")
     public ResponseEntity<Response> readAll() {
         logger.get();
+        List<C> collections = service.readAllWhile();
 
-        List<C> entities = service.readAllWhile();
-        System.out.println("entites: " + entities);
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)
-                .message("Objetos encontrados")
-                .body(entities)
+                .message("Se encontraron %s objetos exitosamente"
+                        .formatted(collections.size()))
+                .body(collections)
                 .build()
                 .transform();
     }
@@ -136,19 +125,16 @@ public abstract class PersistenceController
     public ResponseEntity<Response> update(@NotNull @Valid @RequestBody C t) {
         logger.put();
 
-        boolean result = service.update(t);
-
-        if (result)
+        if (service.update(t))
             return Response.builder()
                     .status(HttpStatus.OK)
-                    .message("%s uptaded successfuly"
+                    .message("%s actualizado correctamnete"
                             .formatted(t.getClass().getSimpleName()))
                     .build()
                     .transform();
-
         return Response.builder()
                 .status(HttpStatus.NOT_MODIFIED)
-                .message("%s was not uptaded successfuly"
+                .message("%s no modificado"
                         .formatted(t.getClass().getSimpleName()))
                 .build()
                 .transform();
@@ -161,13 +147,13 @@ public abstract class PersistenceController
         if (service.delete(id))
             return Response.builder()
                     .status(HttpStatus.OK)
-                    .message("Objeto %s borrado correctamente"
+                    .message("%s borrado correctamente"
                             .formatted(id))
                     .build()
                     .transform();
         return Response.builder()
                 .status(HttpStatus.NOT_MODIFIED)
-                .message("No hay objeto que coincida con %s"
+                .message("No hay objeto que coincida con el ID %s"
                         .formatted(id))
                 .build()
                 .transform();

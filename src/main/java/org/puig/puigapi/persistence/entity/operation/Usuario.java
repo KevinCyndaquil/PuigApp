@@ -121,6 +121,7 @@ public class Usuario extends Persona {
         @Valid
         @NotNull(message = "Se requiere el rfc del usuario para la factura")
         private RFC rfc;
+        @Valid private Telefono telefono;
         @Valid private Correo correo;
         @NotNull(message = "Se requiere la razon social del cliente")
         private RazonesSociales razon = RazonesSociales.FISICO;
@@ -137,6 +138,7 @@ public class Usuario extends Persona {
                     .nombre(nombre)
                     .rfc(rfc)
                     .correo(correo)
+                    .telefono(telefono)
                     .razon(razon)
                     .rol(Roles.CLIENTE)
                     .regimen(regimen)
@@ -153,12 +155,18 @@ public class Usuario extends Persona {
         @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+( [\\p{Lu}\\p{M}]+)*$",
                 message = "Nombre de cliente invalido. Recuerda que debe ir en mayúsculas")
         private String nombre;
+        @NotBlank(message = "Se require un apellido paterno para el cliente")
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+$",
+                message = "Apellido paterno de usuario invalido. Recuerda que debe ir en mayúsculas")
+        private String apellido_paterno;
+        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}]+$",
+                message = "Apellido materno de usuario invalido. Recuerda que debe ir en mayúsculas")
+        private String apellido_materno;
         @Valid private RFC rfc;
+        @Valid private Correo correo;
         @Valid
         @NotNull(message = "Se requiere el número de telefono del cliente para el reparto")
         private Telefono telefono;
-        @Valid
-        private RazonesSociales razon = RazonesSociales.FISICO;
         @NotEmpty(message = "Se requiere al menos una direccion para la venta de reparto")
         private Set<Direccion.PostRequest> direcciones = new HashSet<>();
 
@@ -166,9 +174,11 @@ public class Usuario extends Persona {
         public Usuario instance() {
             return Usuario.builder()
                     .nombre(nombre)
+                    .apellido_paterno(apellido_paterno)
+                    .apellido_materno(apellido_materno)
                     .rfc(rfc)
+                    .correo(correo)
                     .telefono(telefono)
-                    .razon(razon)
                     .direcciones(direcciones.stream()
                             .map(Instantiator::instance)
                             .collect(Collectors.toSet()))

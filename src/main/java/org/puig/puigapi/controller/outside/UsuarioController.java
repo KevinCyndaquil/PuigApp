@@ -49,7 +49,7 @@ public class UsuarioController extends AuthController<Usuario, Usuario.PostReque
     }
 
     @PostMapping("where/correo/is")
-    public ResponseEntity<Response> readByCorreo(@NotNull @Valid Correo correo) {
+    public ResponseEntity<Response> readByCorreo(@NotNull @Valid @RequestBody Correo correo) {
         Usuario usuario = service.readByCorreo(correo);
 
         return ObjectResponse.builder()
@@ -61,7 +61,7 @@ public class UsuarioController extends AuthController<Usuario, Usuario.PostReque
     }
 
     @PostMapping("where/telefono/is")
-    public ResponseEntity<Response> readByTelefono(@NotNull @Valid Telefono telefono) {
+    public ResponseEntity<Response> readByTelefono(@NotNull @Valid @RequestBody Telefono telefono) {
         Usuario usuario = service.readByTelefono(telefono);
 
         return ObjectResponse.builder()

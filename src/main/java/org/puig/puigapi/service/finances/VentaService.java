@@ -6,8 +6,6 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import net.sf.jasperreports.engine.design.JasperDesign;
-import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.exceptions.VentaInvalidaException;
 import org.puig.puigapi.persistence.entity.finances.Venta;
@@ -41,6 +39,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Setter(onMethod_ = @Autowired)
@@ -149,10 +148,10 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
         return update(reVenta);
     }
 
-    public JasperPrint generarReporteProducto(@NotNull SimpleInstance<String> sucursalInstance,
-                                              @NotNull LocalDate desde,
-                                              @NotNull LocalDate hasta)
-            throws JRException {
+    public JasperPrint generarReporteVentasProducto(
+            @NotNull SimpleInstance<String> sucursalInstance,
+            @NotNull LocalDate desde,
+            @NotNull LocalDate hasta) throws JRException {
         Sucursal sucursal = sucursalService.readById(sucursalInstance);
 
         Aggregation aggregation = Aggregation.newAggregation(
@@ -190,10 +189,16 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
         try (InputStream lpp = Images.LOGO_POLLOSPUIG.url.openStream();
              InputStream lpa = Images.LOGO_PUIGAPP.url.openStream()) {
 
+            final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern(
+                    "dd 'de' MMMM 'del' yyyy",
+                    new Locale("es", "ES"));
+
             parametros.put("logo_pollospuig", lpp);
             parametros.put("logo_puigapp", lpa);
             parametros.put("sucursal", sucursal.getNombre());
-            parametros.put("periodo", "%s a %s".formatted(desde, hasta));
+            parametros.put("fecha_reporte", LocalDate.now().format(dateFormat));
+            parametros.put("fecha_inicio", desde.format(dateFormat));
+            parametros.put("fecha_fin", hasta.format(dateFormat));
             parametros.put("contenido_ventas", new JRBeanCollectionDataSource(data));
 
             return JasperFillManager.fillReport(

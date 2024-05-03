@@ -40,8 +40,10 @@
 	<parameter name="logo_puigapp" class="java.io.InputStream"/>
 	<parameter name="logo_pollospuig" class="java.io.InputStream"/>
 	<parameter name="sucursal" class="java.lang.String"/>
-	<parameter name="periodo" class="java.lang.String"/>
+	<parameter name="fecha_inicio" class="java.lang.String"/>
 	<parameter name="contenido_ventas" class="net.sf.jasperreports.engine.data.JRBeanCollectionDataSource"/>
+	<parameter name="fecha_fin" class="java.lang.String"/>
+	<parameter name="fecha_reporte" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[]]>
 	</queryString>
@@ -61,7 +63,7 @@
 						<property name="com.jaspersoft.studio.unit.y" value="px"/>
 					</reportElement>
 					<textElement textAlignment="Center">
-						<font fontName="Luckiest Guy" size="28"/>
+						<font fontName="CustomLuckiest_Guy" size="28"/>
 					</textElement>
 					<text><![CDATA[REPORTE VENTAS]]></text>
 				</staticText>
@@ -75,7 +77,7 @@
 					<imageExpression><![CDATA[$P{logo_pollospuig}]]></imageExpression>
 				</image>
 				<image hAlign="Center" onErrorType="Blank">
-					<reportElement x="443" y="23" width="80" height="69" uuid="c83b6fb6-f24c-4eb3-b708-d088afa9f4ff">
+					<reportElement x="442" y="23" width="80" height="69" uuid="c83b6fb6-f24c-4eb3-b708-d088afa9f4ff">
 						<property name="com.jaspersoft.studio.unit.x" value="px"/>
 						<property name="com.jaspersoft.studio.unit.y" value="px"/>
 						<property name="com.jaspersoft.studio.unit.width" value="px"/>
@@ -97,7 +99,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left">
-					<font fontName="Anton" size="12"/>
+					<font fontName="CustomAnton" size="12"/>
 				</textElement>
 				<text><![CDATA[Ventas por cada artículo de]]></text>
 			</staticText>
@@ -109,7 +111,7 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left">
-					<font fontName="Anton" size="12"/>
+					<font fontName="CustomAnton" size="12"/>
 				</textElement>
 				<text><![CDATA[Fecha reporte:]]></text>
 			</staticText>
@@ -121,30 +123,30 @@
 					<property name="com.jaspersoft.studio.unit.height" value="px"/>
 				</reportElement>
 				<textElement textAlignment="Left">
-					<font fontName="Anton" size="12"/>
+					<font fontName="CustomAnton" size="12"/>
 				</textElement>
 				<text><![CDATA[sucursal:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="70" y="38" width="100" height="20" uuid="ebc691c0-838d-463b-9876-11ebae29bcb4"/>
+				<reportElement x="70" y="38" width="459" height="20" uuid="ebc691c0-838d-463b-9876-11ebae29bcb4"/>
 				<textElement>
-					<font fontName="Anton" size="12"/>
+					<font fontName="CustomAnton" size="12"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$P{sucursal}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="97" y="18" width="220" height="20" uuid="f570c4a8-ac1f-4cdb-8ea7-ea06d0868805"/>
+				<reportElement x="95" y="18" width="434" height="20" uuid="f570c4a8-ac1f-4cdb-8ea7-ea06d0868805"/>
 				<textElement>
-					<font fontName="Anton" size="12"/>
+					<font fontName="CustomAnton" size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("d 'de' MMMM 'del' yyyy"))]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$P{fecha_reporte}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="156" y="58" width="324" height="20" uuid="01624568-e7d2-46d5-a695-b09d217c71e5"/>
+				<reportElement x="156" y="58" width="373" height="20" uuid="01624568-e7d2-46d5-a695-b09d217c71e5"/>
 				<textElement>
-					<font fontName="Anton" size="12"/>
+					<font fontName="CustomAnton" size="12"/>
 				</textElement>
-				<textFieldExpression><![CDATA[$P{periodo}]]></textFieldExpression>
+				<textFieldExpression><![CDATA["%s al %s".formatted($P{fecha_inicio}, $P{fecha_fin})]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageHeader>
@@ -167,7 +169,7 @@
 							<staticText>
 								<reportElement x="0" y="0" width="160" height="30" forecolor="#FFFCC7" uuid="c5406ead-eab1-4e40-96e3-0bb93899fba5"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Anton" size="14"/>
+									<font fontName="CustomAnton" size="14"/>
 								</textElement>
 								<text><![CDATA[Artículo]]></text>
 							</staticText>
@@ -176,7 +178,7 @@
 							<textField>
 								<reportElement x="0" y="0" width="160" height="30" forecolor="#FFFCC7" uuid="72840585-0e31-429b-87cf-bb7f858e3c2f"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Anton" size="12"/>
+									<font fontName="CustomAnton" size="12"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{articulo}.getNombre()]]></textFieldExpression>
 							</textField>
@@ -188,7 +190,7 @@
 							<staticText>
 								<reportElement x="0" y="0" width="120" height="30" forecolor="#FFFCC7" uuid="90dff38a-d94a-4828-8965-347ccf781deb"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Anton" size="14"/>
+									<font fontName="CustomAnton" size="14"/>
 								</textElement>
 								<text><![CDATA[Precio Unitario]]></text>
 							</staticText>
@@ -197,9 +199,9 @@
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" forecolor="#FFFCC7" uuid="0cb12d15-2b17-4613-9d38-53d76dfc200d"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Anton" size="12"/>
+									<font fontName="CustomAnton" size="12"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$F{articulo}.getPrecio()]]></textFieldExpression>
+								<textFieldExpression><![CDATA["$%s".formatted($F{articulo}.getPrecio())]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
@@ -209,7 +211,7 @@
 							<staticText>
 								<reportElement x="0" y="0" width="120" height="30" forecolor="#FFFCC7" uuid="b35880b8-45ec-4afb-8e42-14b6f0f69b30"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Anton" size="14"/>
+									<font fontName="CustomAnton" size="14"/>
 								</textElement>
 								<text><![CDATA[Cantidad Vendida]]></text>
 							</staticText>
@@ -218,7 +220,7 @@
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" forecolor="#FFFCC7" uuid="88eb00f3-5e3e-4ab8-96b5-71e2301fe195"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Anton" size="12"/>
+									<font fontName="CustomAnton" size="12"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{cantidad_total}]]></textFieldExpression>
 							</textField>
@@ -230,7 +232,7 @@
 							<staticText>
 								<reportElement x="0" y="0" width="109" height="30" forecolor="#FFFCC7" uuid="962175d7-46c5-47f9-9d7b-c0bfe8539224"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Anton" size="14"/>
+									<font fontName="CustomAnton" size="14"/>
 								</textElement>
 								<text><![CDATA[Monto Vendido]]></text>
 							</staticText>
@@ -239,9 +241,9 @@
 							<textField>
 								<reportElement x="0" y="0" width="109" height="30" forecolor="#FFFCC7" uuid="32aade5d-2225-4422-aa1a-2f0db813d889"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
-									<font fontName="Anton" size="12"/>
+									<font fontName="CustomAnton" size="12"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$F{monto_total}]]></textFieldExpression>
+								<textFieldExpression><![CDATA["$%s".formatted($F{monto_total})]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
@@ -252,5 +254,4 @@
 	<pageFooter>
 		<band height="54" splitType="Stretch"/>
 	</pageFooter>
-
 </jasperReport>

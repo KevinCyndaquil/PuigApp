@@ -9,6 +9,7 @@ import org.puig.puigapi.controller.responses.Response;
 import org.puig.puigapi.persistence.repository.PuigRepository;
 import org.puig.puigapi.service.auth.AuthService;
 import org.puig.puigapi.util.Persona;
+import org.puig.puigapi.util.data.Tokenisable;
 import org.puig.puigapi.util.persistence.Credentials;
 import org.puig.puigapi.util.persistence.Instantiator;
 import org.springframework.http.HttpStatus;
@@ -16,10 +17,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.Optional;
-
 /**
- * Métodos génericos para la creación de un servicio de Autenticación.
+ * Métodos genéricos para la creación de un servicio de Autenticación.
  * @param <U> La clase o derivada de persona a ser guardada en la base de datos.
  * @param <P> El especializado del ID de la persona.
  */
@@ -32,12 +31,12 @@ public class AuthController <U extends Persona, P extends Instantiator<U>>
         this.service = service;
     }
 
-    @PostMapping("auth/register")
+    @PostMapping(value = "auth/register", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Response> register(@NotNull @Valid @RequestBody P p) {
         logger.post("register");
 
-        U u = p.instance();
-        String token = service.register(u);
+        U user = p.instance();
+        Tokenisable<U> token = service.register(user);
 
         if (token == null)
             return ErrorResponse.builder()
@@ -48,32 +47,24 @@ public class AuthController <U extends Persona, P extends Instantiator<U>>
                     .transform();
         return ObjectResponse.builder()
                 .status(HttpStatus.CREATED)
-                .message("Usuario %s registrado correcmente"
-                        .formatted(u.getNombre()))
+                .message("Usuario %s registrado correctamente"
+                        .formatted(user.getNombre()))
                 .body(token)
                 .build()
                 .transform();
     }
 
-    @PostMapping("auth/login")
+    @PostMapping(value = "auth/login", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Response> login(@NotNull @Valid @RequestBody Credentials credential) {
         logger.get("login");
+        Tokenisable<U> token = service.login(credential);
 
-        Optional<String> result = service.login(credential);
-
-        return result.map(token -> ObjectResponse.builder()
-                        .status(HttpStatus.FOUND)
-                        .message("Usuario %s logeado correctamente"
-                                .formatted(credential.identifier()))
-                        .body(token)
-                        .build()
-                        .transform())
-                .orElseGet(() -> ErrorResponse.builder()
-                        .status(HttpStatus.NOT_FOUND)
-                        .message("Usuario %s no pudo ser logeado"
-                                .formatted(credential.identifier()))
-                        .hint("Intenta registrarte primero")
-                        .build()
-                        .transform());
+        return ObjectResponse.builder()
+                .status(HttpStatus.OK)
+                .message("Usuario %s inició sesión correctamente"
+                        .formatted(credential.identifier()))
+                .body(token)
+                .build()
+                .transform();
     }
 }

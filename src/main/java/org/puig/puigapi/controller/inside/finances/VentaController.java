@@ -3,11 +3,13 @@ package org.puig.puigapi.controller.inside.finances;
 import jakarta.validation.Valid;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperPrint;
+import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.PdfController;
 import org.puig.puigapi.controller.PersistenceController;
 import org.puig.puigapi.controller.responses.ObjectResponse;
 import org.puig.puigapi.controller.responses.Response;
 import org.puig.puigapi.persistence.entity.finances.Venta;
+import org.puig.puigapi.persistence.entity.finances.Venta.Reparto;
 import org.puig.puigapi.service.finances.VentaService;
 import org.puig.puigapi.util.persistence.SimpleInstance;
 import org.springframework.http.HttpStatus;
@@ -29,27 +31,25 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
 
     @Valid
     @PostMapping("reparto")
-    public ResponseEntity<Response> save(@RequestBody Venta.Reparto.PostRequest request) {
-        Venta.Reparto reparto = request.instance();
-        Venta.Reparto saved = service.save(reparto);
+    public ResponseEntity<Response> save(@NotNull @RequestBody Reparto.PostRequest postReparto) {
+        Reparto reparto = service.save(postReparto.instance());
 
         return ObjectResponse.builder()
                 .status(HttpStatus.CREATED)
-                .message("%s was succesfuly created"
-                        .formatted(reparto.getClass().getSimpleName()))
-                .body(saved)
+                .message("Venta de reparto realizada exitosamente")
+                .body(reparto)
                 .build()
                 .transform();
     }
 
-    @GetMapping("where/date/in_range")
+    @GetMapping("where/date/is/in_range")
     public ResponseEntity<Response> readByFecha_venta(@RequestParam("from") LocalDate from,
                                                       @RequestParam("to") LocalDate to) {
         List<Venta> ventas = service.readByPeriodo(from, to);
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)
                 .body(ventas)
-                .message("Ventas del periodo %s al %s fueron"
+                .message("Ventas del periodo %s al %s obtenidas correctamente"
                         .formatted(from, to))
                 .build()
                 .transform();
@@ -61,18 +61,21 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)
                 .body(ventas)
-                .message("Ventas del periodo %s fueron"
+                .message("Ventas del periodo %s obtenidas correctamente"
                         .formatted(from))
                 .build()
                 .transform();
     }
 
-    @GetMapping("reports/productos/where/date/in_range")
+    @GetMapping("reports/ventas_producto/where")
     public ResponseEntity<byte[]> generateProductosReport(@RequestParam("from")LocalDate from,
                                                           @RequestParam("to") LocalDate to,
                                                           @RequestParam("sucursal") String sucursalId) {
         try {
-            JasperPrint print = service.generarReporteProducto(SimpleInstance.of(sucursalId), from, to);
+            JasperPrint print = service.generarReporteVentasProducto(
+                    SimpleInstance.of(sucursalId),
+                    from,
+                    to);
 
             return ResponseEntity.ok()
                     .headers(generatePdfHeader("reporte-ventas"))

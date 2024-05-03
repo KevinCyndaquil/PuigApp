@@ -1,5 +1,6 @@
 package org.puig.puigapi.controller.inside.finances;
 
+import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.controller.PersistenceController;
 import org.puig.puigapi.controller.responses.ObjectResponse;
 import org.puig.puigapi.controller.responses.Response;
@@ -23,12 +24,13 @@ public class ArticuloMenuController
         this.service = service;
     }
 
-    @GetMapping("where/categoria/is")
+    @GetMapping(value = "where/categoria/is", produces = "application/json")
     public ResponseEntity<Response> readByCategoria(
-            @RequestParam("categoria") ArticuloMenu.Categorias categoria) {
+            @NotNull @RequestParam("categoria") ArticuloMenu.Categorias categoria) {
         var result = service.readByCategoria(categoria);
+
         return ObjectResponse.builder()
-                .status(HttpStatus.FOUND)
+                .status(HttpStatus.OK)
                 .message("Articulos Menu de %s encontrados"
                         .formatted(categoria))
                 .body(result)

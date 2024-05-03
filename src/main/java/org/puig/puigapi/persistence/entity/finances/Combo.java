@@ -46,11 +46,10 @@ public class Combo extends Articulo {
     }
 
     @Override
-    @JsonGetter("contenido")
-    public Detalle<Contable<Proveedor.Producto>> getContenido() {
+    public Detalle<Contable<Proveedor.Producto>> getContables() {
         return contenido.stream()
                 .map(Contable::getDetalle)
-                .map(ArticuloMenu::getContenido)
+                .map(ArticuloMenu::getContables)
                 .flatMap(Collection::stream)
                 .collect(Detalle::new, Detalle::add, Detalle::addAll);
     }

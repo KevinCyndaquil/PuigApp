@@ -35,7 +35,7 @@ import java.util.Set;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = false, exclude = {"fecha_nacimiento", "fecha_alta", "puesto", "cuenta_nomina"})
+@EqualsAndHashCode(callSuper = false, exclude = {"fecha_nacimiento", "puesto", "cuenta_nomina"})
 @Document(collection = "operation")
 public class Empleado extends Persona {
     private String nickname;
@@ -61,12 +61,19 @@ public class Empleado extends Persona {
     }
 
     @Data
+    @NoArgsConstructor
     @EqualsAndHashCode(exclude = {"fecha_alta", "ultimo_cambio", "estado"})
     public static class Detalle {
         @DBRef private Empleado empleado;
         private LocalDate fecha_alta;
         private LocalDate ultimo_cambio;
         private Empleado.Estados estado;
+
+        public Detalle(Empleado empleado, Estados estado) {
+            this.empleado = empleado;
+            this.fecha_alta = LocalDate.now();
+            this.estado = estado;
+        }
     }
 
     @Data

@@ -2,6 +2,7 @@ package org.puig.puigapi.util.contable;
 
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.util.persistence.Irrepetibe;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -13,9 +14,15 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
  */
 
 @Data
+@NoArgsConstructor
 public class Contable <D extends Irrepetibe<?>> {
     @DBRef(lazy = true) protected D detalle;
     @Positive protected double cantidad;
+
+    public <C extends Contable<D>> Contable(@NotNull C c) {
+        this.detalle = c.getDetalle();
+        this.cantidad = c.getCantidad();
+    }
 
     public static <D extends Irrepetibe<?>> @NotNull Contable<D> of(D detalle, double cantidad) {
         Contable<D> contable = new Contable<>();

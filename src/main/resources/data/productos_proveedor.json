@@ -1,7 +1,7 @@
 [
   {
     "proveedor": {
-      "id": "662be1109da27c45d5824725"
+      "id": "6634139b6f0fe161c21ab391"
     },
     "nombre": "COCA COLA DE 600ML",
     "precio": 388.74,
@@ -15,7 +15,7 @@
   },
   {
     "proveedor": {
-      "id": "662be1109da27c45d5824725"
+      "id": "6634139b6f0fe161c21ab391"
     },
     "nombre": "COCA COLA DE 3L",
     "precio": 263.92,
@@ -27,7 +27,7 @@
   },
   {
     "proveedor": {
-      "id": "662d52e6d143963b5258f4f6"
+      "id": "6634139c6f0fe161c21ab392"
     },
     "nombre": "POLLO CRUDO",
     "precio": 1000,
@@ -40,7 +40,7 @@
   },
   {
     "proveedor": {
-      "id": "662d52e6d143963b5258f4f6"
+      "id": "6634139c6f0fe161c21ab392"
     },
     "nombre": "COSTAL DE PAPA 1KG",
     "precio": 1000.42,

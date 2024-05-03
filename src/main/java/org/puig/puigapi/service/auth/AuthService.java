@@ -7,12 +7,16 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.puig.puigapi.configuration.jwt.JwtService;
+import org.puig.puigapi.exceptions.BusquedaSinResultadoException;
 import org.puig.puigapi.exceptions.LlaveDuplicadaException;
+import org.puig.puigapi.exceptions.PasswordIncorrectoException;
 import org.puig.puigapi.service.PersistenceService;
+import org.puig.puigapi.util.data.Tokenisable;
 import org.puig.puigapi.util.persistence.Credentials;
 import org.puig.puigapi.util.Persona;
 import org.puig.puigapi.persistence.repository.PuigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -22,7 +26,7 @@ import java.util.Optional;
 
 /**
  * Servicío genérico para implementar a un servicio que requiera encriptación de claves,
- * registro y loggeo de usuarios.
+ * registro y login de usuarios.
  * @param <U> el Usuario que debe extender UserDetails.
  * @param <R> el Repositorio del usuario.
  */
@@ -115,23 +119,34 @@ public abstract class AuthService <U extends Persona, R extends PuigRepository<U
         return hexString.toString();
     }
 
-    public @Nullable String register(@NotNull U u) {
-        U saved = save(u);
-        if (saved == null) return null;
-        return jwtService.generateToken(saved);
+    @Transactional
+    public @Nullable Tokenisable<U> register(@NotNull U u) {
+        U user = save(u);
+        if (user == null) return null;
+
+        String token = jwtService.generateToken(user);
+
+        return new Tokenisable<>(user, token, jwtService.getExpiration(token));
     }
 
-    public Optional<String> login(@NotNull Credentials credential) {
-        Optional<U> usuario = readByCredentials(credential);
+    @Transactional
+    public Tokenisable<U> login(@NotNull Credentials credential)
+            throws PasswordIncorrectoException, BusquedaSinResultadoException {
 
-        return usuario.map(u -> {
-            try {
-                String hashedPassword = hashPasswordWithSalt(credential.password(), u.getSalt());
-                if (u.getPassword().equals(hashedPassword)) return jwtService.generateToken(u);
-                return null;
-            } catch (NoSuchAlgorithmException e) {
-                return null;
-            }
-        });
+        return readByCredentials(credential)
+                .map(u -> {
+                    try {
+                        String hashedPassword = hashPasswordWithSalt(credential.password(), u.getSalt());
+                        if (!u.getPassword().equals(hashedPassword))
+                            throw new PasswordIncorrectoException(credential.identifier());
+
+                        String token = jwtService.generateToken(u);
+
+                        return new Tokenisable<>(u, token, jwtService.getExpiration(token));
+                    } catch (NoSuchAlgorithmException e) {
+                        throw new RuntimeException("Error durante el hashed del password de usuario");
+                    }
+                })
+                .orElseThrow(() -> new BusquedaSinResultadoException("identifier", credential.identifier()));
     }
 }

@@ -77,7 +77,7 @@ public class ArticuloMenu extends Articulo {
     }
 
     @Override
-    public Detalle<Contable<Proveedor.Producto>> getContenido() {
+    public Detalle<Contable<Proveedor.Producto>> getContables() {
         Detalle<Contable<Proveedor.Producto>> contenido = new Detalle<>(receta);
         contenido.addAll(receta);
         contenido.addAll(adicionales.stream()

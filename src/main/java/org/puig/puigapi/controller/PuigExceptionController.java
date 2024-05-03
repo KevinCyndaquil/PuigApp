@@ -204,4 +204,17 @@ public class PuigExceptionController {
                 .build()
                 .transform();
     }
+
+    @ExceptionHandler(PasswordIncorrectoException.class)
+    public ResponseEntity<Response> handlePasswordIncorrecto(@NotNull PasswordIncorrectoException e) {
+        logger.exception(e);
+
+        return ErrorResponse.builder()
+                .status(HttpStatus.BAD_REQUEST)
+                .error(Errors.password_invalido_error)
+                .message(e.getMessage())
+                .hint("Intenta utilizar otra contraseña con el usuario")
+                .build()
+                .transform();
+    }
 }

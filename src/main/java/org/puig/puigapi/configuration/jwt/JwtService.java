@@ -54,4 +54,8 @@ public class JwtService {
         Date expirationDate = claims(token).getExpiration();
         return expirationDate.before(new Date());
     }
+
+    public long getExpiration(String token) {
+        return claims(token).getExpiration().getTime();
+    }
 }
