@@ -8,8 +8,7 @@
     "presentacion": {
       "peso_pieza": 600,
       "cantidad": 24,
-      "empaque": "PAQUETE",
-      "calculable": false
+      "empaque": "PAQUETE"
     },
     "inventariado": true
   },
@@ -23,7 +22,8 @@
       "peso_pieza": 3000,
       "cantidad": 6,
       "empaque": "PAQUETE"
-    }
+    },
+    "inventariado": true
   },
   {
     "proveedor": {

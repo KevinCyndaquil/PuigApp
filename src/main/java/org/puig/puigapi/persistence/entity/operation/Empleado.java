@@ -175,4 +175,10 @@ public class Empleado extends Persona {
     public boolean isEnabled() {
         return true;
     }
+
+    public record Asignar(
+            @NotNull(message = "Se requiere el id de la venta")
+            SimpleInstance<String> venta,
+            @NotNull(message = "Se requiere el id del empleado")
+            SimpleInstance<ObjectId> empleado) {}
 }

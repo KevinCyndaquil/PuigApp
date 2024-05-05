@@ -1,6 +1,5 @@
 package org.puig.puigapi.persistence.entity.finances;
 
-import com.fasterxml.jackson.annotation.JsonGetter;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;

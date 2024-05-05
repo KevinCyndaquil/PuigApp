@@ -8,6 +8,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.jetbrains.annotations.NotNull;
 import org.puig.puigapi.exceptions.VentaInvalidaException;
+import org.puig.puigapi.exceptions.VentaNoAsignadaException;
 import org.puig.puigapi.persistence.entity.finances.Venta;
 import org.puig.puigapi.persistence.entity.operation.Empleado;
 import org.puig.puigapi.persistence.entity.operation.Sucursal;
@@ -138,14 +139,15 @@ public class VentaService extends PersistenceService<Venta, String, VentaReposit
         return res;
     }
 
-    public boolean asignarVenta(@NotNull Venta venta, @NotNull Empleado empleado) {
+    public void asignar(@NotNull Venta venta, @NotNull Empleado empleado) {
         Venta reVenta = readById(venta);
         Empleado reEmpleado = empleadoService.readById(empleado);
         if (reEmpleado.getPuesto() != Empleado.Puestos.CAJERO)
             throw VentaInvalidaException.empleadoNoEsCajero(empleado);
 
         reVenta.setAsignada_a(reEmpleado);
-        return update(reVenta);
+        if(!update(reVenta))
+            throw new VentaNoAsignadaException(reVenta, reEmpleado);
     }
 
     public JasperPrint generarReporteVentasProducto(

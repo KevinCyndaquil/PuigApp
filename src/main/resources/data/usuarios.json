@@ -24,5 +24,32 @@
         "descripcion_vivienda": "CASA DE DOS PISOS CON PISCINA"
       }
     ]
+  },
+  {
+    "nombre": "KEVIN ALEJANDRO",
+    "apellido_paterno": "FRANCISCO",
+    "apellido_materno": "GONZÁLEZ",
+    "rfc": {
+      "rfc": "FAGK030518TU1"
+    },
+    "telefono": {
+      "numero": "+(52) 962 185 9698"
+    },
+    "password": "qw6xdg7sB!",
+    "correo": {
+      "direccion": "kevin.francisco90@unach.mx"
+    },
+    "rol": "ADMINISTRADOR_WEB",
+    "direcciones": [
+      {
+        "municipio": "TAPACHULA",
+        "colonia": "VILLA LAS FLORES",
+        "calle_principal": "AND GIRASOLES",
+        "manzana": "12",
+        "lote": "1",
+        "numero_interior": "104",
+        "descripcion_vivienda": "CASA COLOR CAQUI"
+      }
+    ]
   }
 ]

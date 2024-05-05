@@ -23,7 +23,7 @@ db.finances.aggregate([
     {
         $lookup: {
             from: "finances",
-            localField: "tickte.detalle.$id",
+            localField: "ticket.detalle.$id",
             foreignField: "_id",
             as: "articulo"
         }

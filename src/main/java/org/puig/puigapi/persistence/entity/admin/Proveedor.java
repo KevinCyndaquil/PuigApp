@@ -176,7 +176,9 @@ public class Proveedor implements Irrepetibe<ObjectId>, UniqueName<String> {
             public double getCantidadPresentacion() {
                 Presentacion presentacion = detalle.getPresentacion();
                 final double pesoPresentacion =
-                        presentacion == null ? 1 : presentacion.getPeso_total();
+                        presentacion == null ? 1 : presentacion.getCantidad();
+                System.out.println("peso pres:" + pesoPresentacion);
+                System.out.println("cantidad:" + cantidad);
                 return super.cantidad / pesoPresentacion;
             }
 

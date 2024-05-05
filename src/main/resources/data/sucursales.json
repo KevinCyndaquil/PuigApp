@@ -1,12 +1,25 @@
 [
   {
-    "nombre":"POLLO PUIG CENTRO",
+    "nombre":"SUCURSAL CENTRO",
     "ubicacion": {
       "municipio": "SAN CRISTOBAL",
       "colonia": "CENTRO",
-      "calle_principal":"4TA PONIENTE SUR",
-      "numero_interior":"357",
+      "calle_principal":"DIEGO DE MAZARIEGOS",
+      "lote":"39",
+      "codigo_postal": "29240",
       "descripcion_vivienda":"LOCAL ANARANJADO"
+    },
+    "hora_abre":"09:00:00",
+    "hora_cierra":"16:00:00"
+  },
+  {
+    "nombre":"POLLO PUIG ORIENTE",
+    "ubicacion": {
+      "municipio": "SAN CRISTOBAL",
+      "colonia": "VILLA BOLILLOS",
+      "calle_principal":"8VA ORIENTE NORTE",
+      "numero_interior":"104B",
+      "descripcion_vivienda":"LOCAL GRIS"
     },
     "hora_abre":"09:00:00",
     "hora_cierra":"16:00:00"

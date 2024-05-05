@@ -225,7 +225,6 @@ public class Venta implements Irrepetibe<String>, Updatable {
         }
     }
 
-    @Data
     public static class Ticket extends Detalle<Calculable<Articulo>> {
 
     }

@@ -39,5 +39,30 @@
       "banco": "nu",
       "numero": "0000-0000-0000-0000"
     }
+  },
+  {
+    "nombre": "MAURICIO",
+    "apellido_paterno": "BETANCOURT",
+    "apellido_materno": "MORA",
+    "rfc": {
+      "rfc": "BEMM031224TU1"
+    },
+    "telefono": {
+      "numero": "+(52) 962 200 2312"
+    },
+    "password": "maguchi",
+    "nickname": "maguchi",
+    "fecha_nacimiento": "2003-04-04",
+    "curp": {
+      "curp": "HUGL031224HCSRMSA0"
+    },
+    "puesto": "REPARTIDOR",
+    "cuenta_nomina": {
+      "banco": "NU",
+      "numero": "0000 0000 0000 0000"
+    },
+    "sucursal": {
+      "id": "00000"
+    }
   }
 ]

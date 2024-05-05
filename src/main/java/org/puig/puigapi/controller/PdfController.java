@@ -16,7 +16,6 @@ public interface PdfController {
                 .name("pdf")
                 .filename("%s-%s.pdf".formatted(pdfName, new Date()))
                 .build());
-        header.setContentDispositionFormData("attachment", pdfName);
         return header;
     }
 }

@@ -4,6 +4,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @NoArgsConstructor
@@ -23,5 +25,11 @@ public class Detalle <D extends Contable<?>> extends HashSet<D> {
     public Stream<D> per(double cantidad) {
         return stream()
                 .peek(d -> d.per(cantidad));
+    }
+
+    public Set<?> asDetalle() {
+        return stream()
+                .map(Contable::getDetalle)
+                .collect(Collectors.toSet());
     }
 }

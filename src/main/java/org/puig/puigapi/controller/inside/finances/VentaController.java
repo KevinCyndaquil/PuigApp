@@ -9,11 +9,15 @@ import org.puig.puigapi.controller.PersistenceController;
 import org.puig.puigapi.controller.responses.ObjectResponse;
 import org.puig.puigapi.controller.responses.Response;
 import org.puig.puigapi.persistence.entity.finances.Venta;
+import org.puig.puigapi.persistence.entity.finances.Venta.ModosDeEntrega;
 import org.puig.puigapi.persistence.entity.finances.Venta.Reparto;
+import org.puig.puigapi.persistence.entity.operation.Empleado;
+import org.puig.puigapi.persistence.entity.operation.Empleado.Asignar;
 import org.puig.puigapi.service.finances.VentaService;
 import org.puig.puigapi.util.persistence.SimpleInstance;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -29,8 +33,7 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
         this.service = service;
     }
 
-    @Valid
-    @PostMapping("reparto")
+    @PostMapping(value = "reparto", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Response> save(@NotNull @RequestBody Reparto.PostRequest postReparto) {
         Reparto reparto = service.save(postReparto.instance());
 
@@ -42,6 +45,7 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
                 .transform();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR_WEB') or hasAuthority('GERENTE')")
     @GetMapping("where/date/is/in_range")
     public ResponseEntity<Response> readByFecha_venta(@RequestParam("from") LocalDate from,
                                                       @RequestParam("to") LocalDate to) {
@@ -55,7 +59,8 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
                 .transform();
     }
 
-    @GetMapping("where/date/is")
+    @PreAuthorize("hasAuthority('ADMINISTRADOR_WEB') or hasAuthority('GERENTE')")
+    @GetMapping("where/date")
     public ResponseEntity<Response> readByFecha_venta(@RequestParam("from") LocalDate from) {
         List<Venta> ventas = service.readByPeriodo(from);
         return ObjectResponse.builder()
@@ -67,10 +72,13 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
                 .transform();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR_WEB') or hasAuthority('GERENTE')")
     @GetMapping("reports/ventas_producto/where")
-    public ResponseEntity<byte[]> generateProductosReport(@RequestParam("from")LocalDate from,
-                                                          @RequestParam("to") LocalDate to,
-                                                          @RequestParam("sucursal") String sucursalId) {
+    public ResponseEntity<byte[]> generateProductosReport(
+            @RequestParam("from")LocalDate from,
+            @RequestParam("to") LocalDate to,
+            @RequestParam("sucursal") String sucursalId) {
+
         try {
             JasperPrint print = service.generarReporteVentasProducto(
                     SimpleInstance.of(sucursalId),
@@ -85,10 +93,13 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
         }
     }
 
-    @GetMapping("reports/ventas/where/date/in_range")
-    public ResponseEntity<Response> generateVentaReport(@RequestParam("from")LocalDate from,
-                                                        @RequestParam("to") LocalDate to,
-                                                        @RequestParam("filter") Venta.ModosDeEntrega filtro) {
+    @PreAuthorize("hasAuthority('ADMINISTRADOR_WEB') or hasAuthority('GERENTE')")
+    @GetMapping("reports/total_ventas/where")
+    public ResponseEntity<Response> generateVentaReport(
+            @RequestParam("from")LocalDate from,
+            @RequestParam("to") LocalDate to,
+            @RequestParam("filter") ModosDeEntrega filtro) {
+
         List<Venta> reporte =
                 service.generarReporteVentas(from, to, filtro);
 
@@ -97,6 +108,19 @@ public class VentaController extends PersistenceController<Venta, String, Venta.
                 .body(reporte)
                 .message("Ventas de %s encontradas con exito"
                         .formatted(filtro))
+                .build()
+                .transform();
+    }
+
+    @PostMapping("asignar")
+    public ResponseEntity<Response> asignar(@NotNull @Valid @RequestBody Asignar asignar) {
+        service.asignar(
+                asignar.venta().instance(Venta.class),
+                asignar.empleado().instance(Empleado.class));
+
+        return Response.builder()
+                .status(HttpStatus.OK)
+                .message("Venta asignada correctamente")
                 .build()
                 .transform();
     }

@@ -71,7 +71,7 @@ public abstract class PersistenceController
         return ObjectResponse.builder()
                 .status(HttpStatus.OK)
                 .message("%s %s persistidos correctamente"
-                        .formatted(collections.size(), collections.get(0).getClass()))
+                        .formatted(collections.size(), collections.get(0).getClass().getSimpleName()))
                 .body(collections)
                 .build()
                 .transform();
@@ -106,7 +106,6 @@ public abstract class PersistenceController
                 .transform();
     }
 
-    @PreAuthorize("hasAuthority('ADMINISTRADOR_WEB')")
     @GetMapping(produces = "application/json")
     public ResponseEntity<Response> readAll() {
         logger.get();
@@ -121,6 +120,7 @@ public abstract class PersistenceController
                 .transform();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR_WEB') or hasAuthority('GERENTE')")
     @PutMapping(produces = "application/json")
     public ResponseEntity<Response> update(@NotNull @Valid @RequestBody C t) {
         logger.put();
@@ -140,6 +140,7 @@ public abstract class PersistenceController
                 .transform();
     }
 
+    @PreAuthorize("hasAuthority('ADMINISTRADOR_WEB')")
     @DeleteMapping(produces = "application/json")
     public ResponseEntity<Response> delete(@RequestParam("id") ID id) {
         logger.delete();
