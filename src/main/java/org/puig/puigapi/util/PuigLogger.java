@@ -12,7 +12,6 @@ public class PuigLogger {
     protected static final ZoneId serverZone =
             ZoneId.of("America/Mexico_City");
 
-
     public PuigLogger(Class<?> _class) {
         this.logger = LoggerFactory.getLogger(_class);
     }

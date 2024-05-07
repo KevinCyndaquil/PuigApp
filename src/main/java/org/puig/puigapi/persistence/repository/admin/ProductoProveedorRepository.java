@@ -12,6 +12,6 @@ import java.util.Set;
 public interface ProductoProveedorRepository
         extends PuigRepository<Proveedor.Producto, ObjectId> {
 
-    @Query("{'proveedor.$id': ?0}")
+    @Query("{'proveedor.$id': ?0, '_class': 'org.puig.puigapi.persistence.entity.admin.Proveedor$Producto'}")
     Set<Proveedor.Producto> findByProveedorId(ObjectId proveedor_id);
 }

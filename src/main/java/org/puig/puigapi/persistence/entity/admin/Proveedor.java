@@ -70,26 +70,26 @@ public class Proveedor implements Irrepetibe<ObjectId>, UniqueName<String> {
     @Data
     @NoArgsConstructor
     public static class PostRequest implements Instantiator<Proveedor> {
-        @NotBlank(message = "Se requiere un nombre para el proveedor")
-        @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
-                message = "Formato de nombre incorrecto, recuerda usar solo mayúsculas y letras")
-        private String nombre;
-        @Valid
-        @NotNull(message = "Se requiere un número de telefono fijo")
-        private Telefono telefono_fijo;
-        @Valid
-        private Telefono telefono_movil;
-        @Valid
-        @NotNull(message = "Se requiere un rfc para el proveedor")
-        private RFC rfc;
-        @Valid
-        private Correo correo;
-        @Valid
-        private Direccion.ParaFactura ubicacion;
-        @NotNull(message = "Se requiere una razon social para el proveedor")
-        private RazonesSociales razon = RazonesSociales.MORAL;
-        @Valid
-        @NotEmpty(message = "Se debe adjuntar al menos una cuenta de banco para el proveedor")
+            @NotBlank(message = "Se requiere un nombre para el proveedor")
+            @Pattern(regexp = "(?U)^[\\p{Lu}\\p{M}\\d]+( [\\p{Lu}\\p{M}\\d]+)*$",
+                    message = "Formato de nombre incorrecto, recuerda usar solo mayúsculas y letras")
+            private String nombre;
+            @Valid
+            @NotNull(message = "Se requiere un número de telefono fijo")
+            private Telefono telefono_fijo;
+            @Valid
+            private Telefono telefono_movil;
+            @Valid
+            @NotNull(message = "Se requiere un rfc para el proveedor")
+            private RFC rfc;
+            @Valid
+            private Correo correo;
+            @Valid
+            private Direccion.ParaFactura ubicacion;
+            @NotNull(message = "Se requiere una razon social para el proveedor")
+            private RazonesSociales razon = RazonesSociales.MORAL;
+            @Valid
+            @NotEmpty(message = "Se debe adjuntar al menos una cuenta de banco para el proveedor")
         private Set<Tarjeta.Request> cuentas;
 
         @Override

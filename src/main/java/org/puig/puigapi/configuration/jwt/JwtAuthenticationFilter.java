@@ -87,7 +87,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Persona user = personaService.readById(username);
         System.out.println("entering: " + username);
         System.out.println(user);
-
         if (!jwtService.validate(token, user)) return;
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

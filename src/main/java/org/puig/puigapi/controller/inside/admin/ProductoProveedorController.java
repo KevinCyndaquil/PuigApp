@@ -36,7 +36,10 @@ public class ProductoProveedorController
 
     @PostMapping(value = "where/proveedor/id/is", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Response> readProductosByProveedorId(@NotNull @RequestBody SimpleInstance<ObjectId> proveedorInstance) {
+
+        System.out.println(proveedorInstance.id());
         Proveedor proveedor = proveedorService.readById(proveedorInstance);
+        System.out.println(proveedor);
         Set<Proveedor.Producto> productos = service.readByProveedor(proveedorInstance);
 
         return ObjectResponse.builder()
