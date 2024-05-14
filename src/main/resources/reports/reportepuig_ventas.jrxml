@@ -33,7 +33,7 @@
 		<queryString>
 			<![CDATA[]]>
 		</queryString>
-		<field name="articulo" class="org.puig.puigapi.persistence.entity.finances.ArticuloMenu"/>
+		<field name="articulo" class="org.puig.api.persistence.entity.finances.ArticuloMenu"/>
 		<field name="cantidad_total" class="java.lang.Double"/>
 		<field name="monto_total" class="java.lang.Double"/>
 	</subDataset>
